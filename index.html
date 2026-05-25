@@ -1,0 +1,614 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Hikaru Wakatsuki</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500&family=Syne:wght@400;700;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0a0a0f;
+    --bg2: #111118;
+    --bg3: #1a1a24;
+    --border: rgba(255,255,255,0.07);
+    --border2: rgba(255,255,255,0.12);
+    --text: #e8e8f0;
+    --muted: #666680;
+    --accent: #7c6fff;
+    --accent2: #4ecdc4;
+    --mono: 'JetBrains Mono', monospace;
+    --display: 'Syne', sans-serif;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--mono);
+    font-weight: 300;
+    line-height: 1.7;
+    overflow-x: hidden;
+  }
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image:
+      linear-gradient(rgba(124,111,255,0.03) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(124,111,255,0.03) 1px, transparent 1px);
+    background-size: 60px 60px;
+    pointer-events: none;
+    z-index: 0;
+  }
+  nav {
+    position: fixed;
+    top: 0; left: 0; right: 0;
+    z-index: 100;
+    padding: 1.25rem 2rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid var(--border);
+    background: rgba(10,10,15,0.85);
+    backdrop-filter: blur(12px);
+  }
+  .nav-logo {
+    font-family: var(--display);
+    font-weight: 800;
+    font-size: 1.1rem;
+    letter-spacing: -0.02em;
+    color: var(--text);
+    text-decoration: none;
+  }
+  .nav-right {
+    display: flex;
+    align-items: center;
+    gap: 2rem;
+  }
+  .nav-links {
+    display: flex;
+    gap: 2rem;
+    list-style: none;
+  }
+  .nav-links a {
+    color: var(--muted);
+    text-decoration: none;
+    font-size: 0.75rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    transition: color 0.2s;
+  }
+  .nav-links a:hover { color: var(--text); }
+  .lang-toggle {
+    display: flex;
+    background: var(--bg3);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    overflow: hidden;
+  }
+  .lang-btn {
+    padding: 0.3rem 0.75rem;
+    font-family: var(--mono);
+    font-size: 0.7rem;
+    letter-spacing: 0.08em;
+    background: transparent;
+    color: var(--muted);
+    border: none;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .lang-btn.active {
+    background: var(--accent);
+    color: #fff;
+  }
+  section {
+    position: relative;
+    z-index: 1;
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 0 2rem;
+  }
+  #hero {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    padding-top: 80px;
+    max-width: 900px;
+    margin: 0 auto;
+    padding-left: 2rem;
+    padding-right: 2rem;
+  }
+  .hero-label {
+    font-size: 0.7rem;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 1.5rem;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+  }
+  .hero-label::before {
+    content: '';
+    display: block;
+    width: 32px;
+    height: 1px;
+    background: var(--accent);
+  }
+  h1 {
+    font-family: var(--display);
+    font-weight: 800;
+    font-size: clamp(3rem, 8vw, 5.5rem);
+    line-height: 0.95;
+    letter-spacing: -0.03em;
+    margin-bottom: 1.5rem;
+  }
+  h1 span {
+    display: block;
+    color: var(--muted);
+    font-weight: 400;
+  }
+  .hero-desc {
+    font-size: 0.9rem;
+    color: var(--muted);
+    max-width: 480px;
+    margin-bottom: 3rem;
+    line-height: 1.9;
+  }
+  .hero-cta {
+    display: flex;
+    gap: 1rem;
+    flex-wrap: wrap;
+  }
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.75rem 1.5rem;
+    font-family: var(--mono);
+    font-size: 0.75rem;
+    letter-spacing: 0.05em;
+    text-decoration: none;
+    border-radius: 4px;
+    transition: all 0.2s;
+    cursor: pointer;
+    border: none;
+  }
+  .btn-primary { background: var(--accent); color: #fff; }
+  .btn-primary:hover { background: #6b5ef0; }
+  .btn-secondary {
+    background: transparent;
+    color: var(--text);
+    border: 1px solid var(--border2);
+  }
+  .btn-secondary:hover { border-color: var(--accent); color: var(--accent); }
+  .section-wrap { padding: 6rem 0; }
+  .section-label {
+    font-size: 0.7rem;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 3rem;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+  }
+  .section-label::before {
+    content: '';
+    display: block;
+    width: 32px;
+    height: 1px;
+    background: var(--accent);
+  }
+  .timeline {
+    position: relative;
+    padding-left: 1.5rem;
+  }
+  .timeline::before {
+    content: '';
+    position: absolute;
+    left: 0; top: 0; bottom: 0;
+    width: 1px;
+    background: var(--border2);
+  }
+  .timeline-item {
+    position: relative;
+    margin-bottom: 2.5rem;
+    padding-left: 1.5rem;
+  }
+  .timeline-item::before {
+    content: '';
+    position: absolute;
+    left: -1.875rem;
+    top: 0.45rem;
+    width: 6px; height: 6px;
+    border-radius: 50%;
+    background: var(--accent);
+    box-shadow: 0 0 8px var(--accent);
+  }
+  .timeline-year {
+    font-size: 0.7rem;
+    color: var(--accent2);
+    letter-spacing: 0.1em;
+    margin-bottom: 0.3rem;
+  }
+  .timeline-title {
+    font-family: var(--display);
+    font-size: 1rem;
+    font-weight: 700;
+    margin-bottom: 0.4rem;
+    color: var(--text);
+  }
+  .timeline-desc {
+    font-size: 0.8rem;
+    color: var(--muted);
+    line-height: 1.8;
+  }
+  .skills-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1.5rem;
+  }
+  .skill-card {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 1.5rem;
+    transition: border-color 0.2s;
+  }
+  .skill-card:hover { border-color: var(--border2); }
+  .skill-card-title {
+    font-size: 0.7rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--accent2);
+    margin-bottom: 1rem;
+  }
+  .skill-tags { display: flex; flex-wrap: wrap; gap: 0.5rem; }
+  .tag {
+    font-size: 0.72rem;
+    padding: 0.3rem 0.7rem;
+    background: var(--bg3);
+    border: 1px solid var(--border);
+    border-radius: 3px;
+    color: var(--text);
+    letter-spacing: 0.03em;
+  }
+  .works-grid { display: grid; gap: 1.5rem; }
+  .work-card {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    overflow: hidden;
+    transition: border-color 0.2s, transform 0.2s;
+  }
+  .work-card:hover { border-color: var(--accent); transform: translateY(-2px); }
+  .work-video {
+    width: 100%;
+    max-height: 320px;
+    display: block;
+    background: #000;
+    object-fit: contain;
+  }
+  .work-info { padding: 1.5rem; }
+  .work-tags { display: flex; gap: 0.5rem; flex-wrap: wrap; margin-bottom: 0.75rem; }
+  .work-tag {
+    font-size: 0.65rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    padding: 0.2rem 0.6rem;
+    background: rgba(124,111,255,0.1);
+    color: var(--accent);
+    border-radius: 3px;
+  }
+  .work-title {
+    font-family: var(--display);
+    font-size: 1.2rem;
+    font-weight: 700;
+    margin-bottom: 0.5rem;
+  }
+  .work-desc {
+    font-size: 0.8rem;
+    color: var(--muted);
+    line-height: 1.8;
+    margin-bottom: 1.25rem;
+  }
+  .work-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    font-size: 0.75rem;
+    color: var(--accent);
+    text-decoration: none;
+    border-bottom: 1px solid transparent;
+    transition: border-color 0.2s;
+  }
+  .work-link:hover { border-color: var(--accent); }
+  .work-link svg { width: 12px; height: 12px; }
+  .projects-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 1rem;
+    margin-top: 1.5rem;
+  }
+  .project-card {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 1.25rem;
+    text-decoration: none;
+    color: var(--text);
+    transition: border-color 0.2s, background 0.2s;
+    display: block;
+  }
+  .project-card:hover { border-color: var(--accent); background: var(--bg3); }
+  .project-name {
+    font-family: var(--display);
+    font-size: 0.95rem;
+    font-weight: 700;
+    margin-bottom: 0.3rem;
+  }
+  .project-desc { font-size: 0.72rem; color: var(--muted); line-height: 1.6; }
+  .contact-links { display: flex; gap: 1rem; flex-wrap: wrap; }
+  footer {
+    position: relative;
+    z-index: 1;
+    text-align: center;
+    padding: 3rem 2rem;
+    border-top: 1px solid var(--border);
+    font-size: 0.72rem;
+    color: var(--muted);
+  }
+  .divider { width: 100%; height: 1px; background: var(--border); margin: 0; }
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  .fade-up { opacity: 0; animation: fadeUp 0.6s ease forwards; }
+  .delay-1 { animation-delay: 0.1s; }
+  .delay-2 { animation-delay: 0.2s; }
+  .delay-3 { animation-delay: 0.3s; }
+  @media (max-width: 600px) {
+    .skills-grid { grid-template-columns: 1fr; }
+    nav { padding: 1rem; }
+    .nav-links { gap: 1rem; }
+  }
+</style>
+</head>
+<body>
+
+<nav>
+  <a href="#hero" class="nav-logo">HW</a>
+  <div class="nav-right">
+    <ul class="nav-links">
+      <li><a href="#about"><span data-en="About" data-ja="経歴">About</span></a></li>
+      <li><a href="#skills">Skills</a></li>
+      <li><a href="#works">Works</a></li>
+      <li><a href="#contact">Contact</a></li>
+    </ul>
+    <div class="lang-toggle">
+      <button class="lang-btn active" onclick="setLang('en')">EN</button>
+      <button class="lang-btn" onclick="setLang('ja')">JA</button>
+    </div>
+  </div>
+</nav>
+
+<!-- HERO -->
+<div id="hero">
+  <p class="hero-label fade-up">Software Engineer</p>
+  <h1 class="fade-up delay-1">
+    Hikaru<br>
+    <span>Wakatsuki</span>
+  </h1>
+  <p class="hero-desc fade-up delay-2" data-en="Transitioning from infrastructure engineer to software engineer. 4 years of hands-on infrastructure experience at NEC, currently developing LLM-powered tools and studying systems programming at 42Tokyo." data-ja="インフラエンジニアからソフトウェアエンジニアへ転向中。NECにて4年間インフラエンジニアとして従事し、現在はLLMツール開発と42Tokyoでのシステムプログラミングに取り組んでいる。">
+    Transitioning from infrastructure engineer to software engineer. 4 years of hands-on infrastructure experience at NEC, currently developing LLM-powered tools and studying systems programming at 42Tokyo.
+  </p>
+  <div class="hero-cta fade-up delay-3">
+    <a href="#works" class="btn btn-primary"><span data-en="See Works →" data-ja="実績を見る →">See Works →</span></a>
+    <a href="https://github.com/hikaru-wakatsuki" target="_blank" class="btn btn-secondary">GitHub</a>
+  </div>
+</div>
+
+<div class="divider"></div>
+
+<!-- ABOUT -->
+<section id="about">
+  <div class="section-wrap">
+    <p class="section-label"><span data-en="About" data-ja="経歴">About</span></p>
+    <div class="timeline">
+
+      <div class="timeline-item">
+        <p class="timeline-year">2020</p>
+        <p class="timeline-title" data-en="Chiba University — B.S." data-ja="千葉大学 — 学士課程修了">Chiba University — B.S.</p>
+        <p class="timeline-desc" data-en="Bachelor of Science." data-ja="学士課程修了。">Bachelor of Science.</p>
+      </div>
+
+      <div class="timeline-item">
+        <p class="timeline-year">2022</p>
+        <p class="timeline-title" data-en="Chiba University — M.S. in Materials Science" data-ja="千葉大学大学院 — 物質科学専攻 修士課程修了">Chiba University — M.S. in Materials Science</p>
+        <p class="timeline-desc" data-en="Master's degree in Materials Science." data-ja="物質科学専攻修士課程修了。">Master's degree in Materials Science.</p>
+      </div>
+
+      <div class="timeline-item">
+        <p class="timeline-year">2023</p>
+        <p class="timeline-title" data-en="Electrochemical Society of Japan — Paper Award" data-ja="電気化学会論文賞 受賞">Electrochemical Society of Japan — Paper Award</p>
+        <p class="timeline-desc" data-en='Received the Electrochemical Society of Japan Paper Award (co-authored) for research on compensative electrochromic devices utilizing plasmonic silver nanoparticles and manganese oxide. <a href="https://www.electrochem.jp/award/electrochem-paper-award/" target="_blank" style="color: var(--accent); text-decoration: none; border-bottom: 1px solid var(--accent);">View award →</a>' data-ja='電気化学会論文賞受賞（共著）。プラズモニック銀ナノ粒子と酸化マンガンを用いた補償型エレクトロクロミックデバイスに関する研究。<a href="https://www.electrochem.jp/award/electrochem-paper-award/" target="_blank" style="color: var(--accent); text-decoration: none; border-bottom: 1px solid var(--accent);">受賞一覧を見る →</a>'>Received the Electrochemical Society of Japan Paper Award (co-authored) for research on compensative electrochromic devices utilizing plasmonic silver nanoparticles and manganese oxide. <a href="https://www.electrochem.jp/award/electrochem-paper-award/" target="_blank" style="color: var(--accent); text-decoration: none; border-bottom: 1px solid var(--accent);">View award →</a></p>
+      </div>
+
+      <div class="timeline-item">
+        <p class="timeline-year">2022 – Present</p>
+        <p class="timeline-title" data-en="NEC — Infrastructure Engineer" data-ja="NEC — インフラエンジニア">NEC — Infrastructure Engineer</p>
+        <p class="timeline-desc" data-en="Designing, building, and operating large-scale infrastructure systems. Led cloud lift projects (on-premise → cloud migration) leveraging AWS, Azure, Docker, and PostgreSQL." data-ja="大規模インフラの設計・構築・運用に従事。AWS・Azure・Docker・PostgreSQLを活用したクラウドリフトプロジェクト（オンプレ → クラウド移行）をリード。">Designing, building, and operating large-scale infrastructure systems. Led cloud lift projects (on-premise → cloud migration) leveraging AWS, Azure, Docker, and PostgreSQL.</p>
+      </div>
+
+      <div class="timeline-item">
+        <p class="timeline-year">Oct 2025 – Present</p>
+        <p class="timeline-title" data-en="42Tokyo — Student" data-ja="42Tokyo — 在学中">42Tokyo — Student</p>
+        <p class="timeline-desc" data-en="Peer-to-peer programming school. Studying systems programming in C, algorithms, and Unix internals alongside full-time work." data-ja="ピアラーニング型のプログラミングスクール。社会人として働きながら、C言語・アルゴリズム・Unixシステムの基礎を学んでいる。">Peer-to-peer programming school. Studying systems programming in C, algorithms, and Unix internals alongside full-time work.</p>
+      </div>
+
+      <div class="timeline-item">
+        <p class="timeline-year">2026 – Present</p>
+        <p class="timeline-title" data-en="NEC — LLM Tool Development" data-ja="NEC — LLMツール開発">NEC — LLM Tool Development</p>
+        <p class="timeline-desc" data-en="Developing internal LLM-powered tools at NEC using Python and FastAPI. Leveraging infrastructure expertise for scalable system design." data-ja="Python + FastAPIを用いた社内向けLLMツールを開発中。インフラ経験を活かしたスケーラブルなシステム設計を担当。">Developing internal LLM-powered tools at NEC using Python and FastAPI. Leveraging infrastructure expertise for scalable system design.</p>
+      </div>
+
+    </div>
+
+
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- SKILLS -->
+<section id="skills">
+  <div class="section-wrap">
+    <p class="section-label">Skills</p>
+    <div class="skills-grid">
+      <div class="skill-card">
+        <p class="skill-card-title">Languages</p>
+        <div class="skill-tags">
+          <span class="tag">C</span>
+          <span class="tag">Python</span>
+          <span class="tag">Bash</span>
+          <span class="tag">JavaScript</span>
+        </div>
+      </div>
+      <div class="skill-card">
+        <p class="skill-card-title">Cloud & Infra</p>
+        <div class="skill-tags">
+          <span class="tag">AWS</span>
+          <span class="tag">Azure</span>
+          <span class="tag">Docker</span>
+          <span class="tag">Linux</span>
+        </div>
+      </div>
+      <div class="skill-card">
+        <p class="skill-card-title">Backend & DB</p>
+        <div class="skill-tags">
+          <span class="tag">FastAPI</span>
+          <span class="tag">Node.js</span>
+          <span class="tag">PostgreSQL</span>
+        </div>
+      </div>
+      <div class="skill-card">
+        <p class="skill-card-title">Tools</p>
+        <div class="skill-tags">
+          <span class="tag">Git</span>
+          <span class="tag">GitHub</span>
+          <span class="tag">VSCode</span>
+          <span class="tag">Redmine</span>
+          <span class="tag">Subversion</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- WORKS -->
+<section id="works">
+  <div class="section-wrap">
+    <p class="section-label">Works</p>
+    <div class="works-grid">
+
+      <div class="work-card">
+        <video class="work-video" controls muted playsinline>
+          <source src="push_swap.mp4" type="video/mp4">
+        </video>
+        <div class="work-info">
+          <div class="work-tags">
+            <span class="work-tag">42Tokyo</span>
+            <span class="work-tag">Algorithm</span>
+            <span class="work-tag">C</span>
+          </div>
+          <p class="work-title">Push_swap</p>
+          <p class="work-desc" data-en="Stack sorting algorithm using only push/swap/rotate operations. Implemented Turk sort algorithm, achieving sorting of 500 elements within 5,500 operations." data-ja="push・swap・rotateのみの操作でスタックをソートするアルゴリズムの実装。Turk sortを採用し、500要素を5500操作以内でソート達成。">Stack sorting algorithm using only push/swap/rotate operations. Implemented Turk sort algorithm, achieving sorting of 500 elements within 5,500 operations.</p>
+          <a href="https://github.com/hikaru-wakatsuki/Push_swap" target="_blank" class="work-link">
+            View on GitHub
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6M15 3h6v6M10 14L21 3"/></svg>
+          </a>
+        </div>
+      </div>
+
+      <div class="work-card">
+        <div class="work-info" style="padding: 2rem 1.5rem;">
+          <div class="work-tags">
+            <span class="work-tag">LLM</span>
+            <span class="work-tag">Python</span>
+            <span class="work-tag">FastAPI</span>
+          </div>
+          <p class="work-title"><span data-en="Internal LLM Tool" data-ja="社内LLMツール">Internal LLM Tool</span></p>
+          <p class="work-desc" data-en="Developing an internal LLM-powered tool at NEC. Built with Python and FastAPI, leveraging infrastructure expertise for system design. Details are confidential." data-ja="NECにてLLMを活用した社内ツールを開発中。Python + FastAPIをバックエンドに採用。インフラ経験を活かしたシステム設計。詳細は非公開。">Developing an internal LLM-powered tool at NEC. Built with Python and FastAPI, leveraging infrastructure expertise for system design. Details are confidential.</p>
+          <span style="font-size: 0.75rem; color: var(--muted);">// confidential</span>
+        </div>
+      </div>
+
+    </div>
+
+    <p style="font-size: 0.7rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); margin-top: 3rem; margin-bottom: 0.5rem;">42Tokyo — Curriculum</p>
+    <div class="projects-grid">
+      <a href="https://github.com/hikaru-wakatsuki/libc" target="_blank" class="project-card">
+        <p class="project-name">libft</p>
+        <p class="project-desc" data-en="Custom implementation of the C standard library. 47 functions." data-ja="C標準ライブラリの自作実装。47関数。">Custom implementation of the C standard library. 47 functions.</p>
+      </a>
+      <a href="https://github.com/hikaru-wakatsuki/printf" target="_blank" class="project-card">
+        <p class="project-name">ft_printf</p>
+        <p class="project-desc" data-en="Reimplementation of printf with variadic arguments." data-ja="可変長引数を用いたprintf関数の再実装。">Reimplementation of printf with variadic arguments.</p>
+      </a>
+      <a href="https://github.com/hikaru-wakatsuki/get_next_line" target="_blank" class="project-card">
+        <p class="project-name">get_next_line</p>
+        <p class="project-desc" data-en="Function to read one line at a time from a file descriptor." data-ja="ファイルディスクリプタから1行ずつ読み込む関数。">Function to read one line at a time from a file descriptor.</p>
+      </a>
+      <a href="https://github.com/hikaru-wakatsuki/Born2beroot" target="_blank" class="project-card">
+        <p class="project-name">Born2beroot</p>
+        <p class="project-desc" data-en="Linux server setup and security configuration." data-ja="Linuxサーバー構築・セキュリティ設定。">Linux server setup and security configuration.</p>
+      </a>
+      <a href="https://github.com/hikaru-wakatsuki/Push_swap" target="_blank" class="project-card">
+        <p class="project-name">push_swap</p>
+        <p class="project-desc" data-en="Stack sorting with limited operations." data-ja="限られた操作のみを用いたスタックソート。">Stack sorting with limited operations.</p>
+      </a>
+      <a href="https://github.com/hikaru-wakatsuki/python-module-00" target="_blank" class="project-card">
+        <p class="project-name">Python Module</p>
+        <p class="project-desc" data-en="Python programming exercises from basics to advanced." data-ja="Pythonの基礎から応用までの課題。">Python programming exercises from basics to advanced.</p>
+      </a>
+    </div>
+
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- CONTACT -->
+<section id="contact">
+  <div class="section-wrap">
+    <p class="section-label">Contact</p>
+    <p style="font-size: 0.85rem; color: var(--muted); margin-bottom: 2rem; max-width: 400px;" data-en="Feel free to reach out via GitHub or LinkedIn." data-ja="GitHubやLinkedInからお気軽にご連絡ください。">Feel free to reach out via GitHub or LinkedIn.</p>
+    <div class="contact-links">
+      <a href="https://github.com/hikaru-wakatsuki" target="_blank" class="btn btn-secondary">GitHub →</a>
+      <a href="https://www.linkedin.com/in/hikaru-wakatsuki/" target="_blank" class="btn btn-secondary">LinkedIn →</a>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <p>© 2026 Hikaru Wakatsuki</p>
+</footer>
+
+<script>
+function setLang(lang) {
+  document.querySelectorAll('.lang-btn').forEach(b => b.classList.remove('active'));
+  document.querySelector(`.lang-btn[onclick="setLang('${lang}')"]`).classList.add('active');
+  document.querySelectorAll('[data-en]').forEach(el => {
+    el.textContent = lang === 'en' ? el.dataset.en : el.dataset.ja;
+  });
+}
+</script>
+
+</body>
+</html>
