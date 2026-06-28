@@ -1,10 +1,15 @@
-import { useState, useEffect, useRef, useCallback } from 'react';
+import { useState, useEffect, useRef, useCallback, type ReactNode } from 'react';
 
 const MIN_UPPER_PCT = 20;
 const MAX_UPPER_PCT = 80;
 const MOBILE_BREAKPOINT = 768;
 
-export default function SplitView() {
+interface SplitViewProps {
+  upperContent?: ReactNode;
+  lowerContent?: ReactNode;
+}
+
+export default function SplitView({ upperContent, lowerContent }: SplitViewProps) {
   const [upperPct, setUpperPct] = useState(50);
   const [isDragging, setIsDragging] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
@@ -80,7 +85,7 @@ export default function SplitView() {
       >
         {/* GUI — full screen on mobile */}
         <div className="w-full h-full overflow-y-auto bg-[var(--color-bg,#121212)]">
-          <div className="p-4 text-[var(--color-text,#fff)]">GUI Area Mock</div>
+          {upperContent}
         </div>
 
         {/* Bottom sheet (CLI) */}
@@ -91,7 +96,7 @@ export default function SplitView() {
             isSheetOpen ? 'h-[60vh]' : 'h-0',
           ].join(' ')}
         >
-          <div className="p-4 text-[var(--color-cli-text,#00FF66)] font-mono">CLI Area Mock</div>
+          {lowerContent}
         </div>
 
         {/* Terminal button */}
@@ -115,7 +120,7 @@ export default function SplitView() {
         className="w-full overflow-y-auto bg-[var(--color-bg,#121212)]"
         style={{ height: `${upperPct}vh` }}
       >
-        <div className="p-4 text-[var(--color-text,#fff)]">GUI Area Mock</div>
+        {upperContent}
       </div>
 
       {/* Splitter bar */}
@@ -138,7 +143,7 @@ export default function SplitView() {
         className="w-full overflow-y-auto bg-[var(--color-cli-bg,#050505)]"
         style={{ height: `${lowerPct}vh` }}
       >
-        <div className="p-4 text-[var(--color-cli-text,#00FF66)] font-mono">CLI Area Mock</div>
+        {lowerContent}
       </div>
     </div>
   );

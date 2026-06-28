@@ -6,5 +6,22 @@
   },
   "cli": {
     "welcome": "Hikaru OS Booting...\nSystem ready. Type 'help' to see available commands."
+  },
+  "contact": {
+    "heading": "お問い合わせ",
+    "subheading": "お気軽にご連絡ください",
+    "nameLabel": "お名前",
+    "namePlaceholder": "お名前を入力",
+    "emailLabel": "メールアドレス",
+    "emailPlaceholder": "your@email.com",
+    "messageLabel": "メッセージ",
+    "messagePlaceholder": "メッセージを入力...",
+    "submit": "送信する",
+    "submitting": "送信中...",
+    "success": "メッセージを送信しました！",
+    "errorRequired": "必須項目です",
+    "errorEmail": "有効なメールアドレスを入力してください",
+    "errorMinLength": "10文字以上で入力してください",
+    "errorNetwork": "送信に失敗しました。もう一度お試しください。"
   }
 }
