@@ -1,0 +1,11 @@
+@import "tailwindcss";
+
+/* CLI terminal cursor blink animation */
+@keyframes terminal-blink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0; }
+}
+.terminal-cursor {
+  display: inline-block;
+  animation: terminal-blink 1s step-start infinite;
+}
