@@ -3,6 +3,7 @@ import { useState, useEffect, useRef, useCallback, type ReactNode } from 'react'
 const MIN_UPPER_PCT = 20;
 const MAX_UPPER_PCT = 80;
 const MOBILE_BREAKPOINT = 768;
+const SWIPE_THRESHOLD = 40; // px delta to trigger open/close
 
 interface SplitViewProps {
   upperContent?: ReactNode;
@@ -15,8 +16,10 @@ export default function SplitView({ upperContent, lowerContent }: SplitViewProps
   const [isMobile, setIsMobile] = useState(false);
   const [isSheetOpen, setIsSheetOpen] = useState(false);
 
-  // Touch tracking for swipe-up gesture
-  const touchStartY = useRef<number | null>(null);
+  // Touch tracking for main area (swipe-up to open)
+  const mainTouchStartY = useRef<number | null>(null);
+  // Touch tracking for sheet (swipe-down to close)
+  const sheetTouchStartY = useRef<number | null>(null);
 
   // Detect mobile breakpoint
   useEffect(() => {
@@ -51,22 +54,40 @@ export default function SplitView({ upperContent, lowerContent }: SplitViewProps
     };
   }, [isDragging]);
 
-  // Mobile swipe-up to open bottom sheet
-  const handleTouchStart = useCallback((e: React.TouchEvent) => {
-    touchStartY.current = e.touches[0].clientY;
+  // ── Main area: swipe-up to OPEN sheet ────────────────────────────────────
+  const handleMainTouchStart = useCallback((e: React.TouchEvent) => {
+    mainTouchStartY.current = e.touches[0].clientY;
   }, []);
 
-  const handleTouchMove = useCallback((e: React.TouchEvent) => {
-    if (touchStartY.current === null) return;
-    const delta = touchStartY.current - e.touches[0].clientY;
-    if (delta > 40) {
+  const handleMainTouchMove = useCallback((e: React.TouchEvent) => {
+    if (mainTouchStartY.current === null) return;
+    const delta = mainTouchStartY.current - e.touches[0].clientY; // positive = up
+    if (delta > SWIPE_THRESHOLD) {
       setIsSheetOpen(true);
-      touchStartY.current = null;
+      mainTouchStartY.current = null;
     }
   }, []);
 
-  const handleTouchEnd = useCallback(() => {
-    touchStartY.current = null;
+  const handleMainTouchEnd = useCallback(() => {
+    mainTouchStartY.current = null;
+  }, []);
+
+  // ── Sheet area: swipe-down to CLOSE sheet ─────────────────────────────────
+  const handleSheetTouchStart = useCallback((e: React.TouchEvent) => {
+    sheetTouchStartY.current = e.touches[0].clientY;
+  }, []);
+
+  const handleSheetTouchMove = useCallback((e: React.TouchEvent) => {
+    if (sheetTouchStartY.current === null) return;
+    const delta = e.touches[0].clientY - sheetTouchStartY.current; // positive = down
+    if (delta > SWIPE_THRESHOLD) {
+      setIsSheetOpen(false);
+      sheetTouchStartY.current = null;
+    }
+  }, []);
+
+  const handleSheetTouchEnd = useCallback(() => {
+    sheetTouchStartY.current = null;
   }, []);
 
   // Disable body scroll while in split view
@@ -79,32 +100,35 @@ export default function SplitView({ upperContent, lowerContent }: SplitViewProps
     return (
       <div
         className="relative w-full h-screen overflow-hidden"
-        onTouchStart={handleTouchStart}
-        onTouchMove={handleTouchMove}
-        onTouchEnd={handleTouchEnd}
+        onTouchStart={handleMainTouchStart}
+        onTouchMove={handleMainTouchMove}
+        onTouchEnd={handleMainTouchEnd}
       >
         {/* GUI — full screen on mobile */}
         <div className="w-full h-full overflow-y-auto bg-[var(--color-bg,#121212)]">
           {upperContent}
         </div>
 
-        {/* Bottom sheet (CLI) */}
+        {/* Bottom sheet (CLI) — swipe-down to close */}
         <div
           className={[
             'fixed bottom-0 left-0 right-0 overflow-y-auto bg-[var(--color-cli-bg,#050505)]',
             'transition-[height] duration-300 ease-in-out',
             isSheetOpen ? 'h-[60vh]' : 'h-0',
           ].join(' ')}
+          onTouchStart={handleSheetTouchStart}
+          onTouchMove={handleSheetTouchMove}
+          onTouchEnd={handleSheetTouchEnd}
         >
           {lowerContent}
         </div>
 
-        {/* Terminal button */}
+        {/* Terminal toggle button */}
         <button
           onClick={() => setIsSheetOpen((v) => !v)}
           className="fixed bottom-4 right-4 z-50 px-4 py-2 rounded-full bg-[var(--color-cli-text,#00FF66)] text-black font-mono text-sm font-bold shadow-lg"
         >
-          Terminal
+          {isSheetOpen ? '✕ Close' : 'Terminal'}
         </button>
       </div>
     );

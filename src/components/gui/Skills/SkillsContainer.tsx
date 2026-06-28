@@ -1,39 +1,20 @@
+import { useAppState } from '../../../context/AppStateContext';
 import { useTagFilter } from './tagFilterStore';
 
 // ── Data ────────────────────────────────────────────────────────────────────
 
 interface SkillCategory {
   id: string;
-  label: string;
+  // label is derived via t(`skills.${id}`) at render time
   tags: string[];
 }
 
 const SKILL_CATEGORIES: SkillCategory[] = [
-  {
-    id: 'lang',
-    label: 'Languages',
-    tags: ['C', 'TypeScript', 'Python', 'Bash', 'SQL'],
-  },
-  {
-    id: 'frontend',
-    label: 'Frontend',
-    tags: ['React', 'Astro', 'Tailwind CSS', 'HTML', 'CSS'],
-  },
-  {
-    id: 'backend',
-    label: 'Backend',
-    tags: ['Node.js', 'REST API'],
-  },
-  {
-    id: 'infra',
-    label: 'Infrastructure',
-    tags: ['Docker', 'Linux', 'Nginx', 'AWS', 'Git'],
-  },
-  {
-    id: '42tokyo',
-    label: '42 Tokyo',
-    tags: ['C', 'Makefile', 'POSIX', 'Algorithms'],
-  },
+  { id: 'lang',     tags: ['C', 'TypeScript', 'Python', 'Bash', 'SQL'] },
+  { id: 'frontend', tags: ['React', 'Astro', 'Tailwind CSS', 'HTML', 'CSS'] },
+  { id: 'backend',  tags: ['Node.js', 'REST API'] },
+  { id: 'infra',    tags: ['Docker', 'Linux', 'Nginx', 'AWS', 'Git'] },
+  { id: '42tokyo',  tags: ['C', 'Makefile', 'POSIX', 'Algorithms'] },
 ];
 
 /** Stable element ID used by PortfolioContainer to scroll here */
@@ -42,6 +23,7 @@ export const SKILLS_SECTION_ID = 'skills-section';
 // ── Component ────────────────────────────────────────────────────────────────
 
 export default function SkillsContainer() {
+  const { t, triggerHoverLog, clearHoverLog } = useAppState();
   const { activeTag, toggleTag } = useTagFilter();
 
   return (
@@ -49,6 +31,8 @@ export default function SkillsContainer() {
       id={SKILLS_SECTION_ID}
       className="w-full px-6 py-8 scroll-mt-4"
       style={{ color: 'var(--color-text)' }}
+      onMouseEnter={() => triggerHoverLog('skills')}
+      onMouseLeave={() => clearHoverLog()}
     >
       <div className="flex items-center gap-3 mb-6">
         <h2 className="text-2xl font-bold tracking-wide">Skills</h2>
@@ -68,10 +52,8 @@ export default function SkillsContainer() {
       <div className="flex flex-col gap-5">
         {SKILL_CATEGORIES.map((cat) => (
           <div key={cat.id}>
-            <p
-              className="text-xs font-semibold uppercase tracking-widest mb-2 opacity-50"
-            >
-              {cat.label}
+            <p className="text-xs font-semibold uppercase tracking-widest mb-2 opacity-50">
+              {t(`skills.${cat.id}`) || cat.id}
             </p>
             <div className="flex flex-wrap gap-2">
               {cat.tags.map((tag) => {

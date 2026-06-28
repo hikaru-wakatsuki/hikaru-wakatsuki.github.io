@@ -8,7 +8,6 @@ interface MagnetIconProps {
   label: string;
   children: React.ReactNode;
   isDark: boolean;
-  /** Called when focus enters/leaves this icon (for event bridge) */
   onFocusEnter?: () => void;
   onFocusLeave?: () => void;
 }
@@ -25,6 +24,10 @@ export default function MagnetIcon({
   const [pos, setPos] = useState({ x: 0, y: 0 });
   const [inRange, setInRange] = useState(false);
 
+  // Use a ref to track inRange without re-registering the listener on each change.
+  // Avoids the gap between listener removal and re-attachment that caused visual jank.
+  const inRangeRef = useRef(false);
+
   useEffect(() => {
     const onMouseMove = (e: MouseEvent) => {
       const el = anchorRef.current;
@@ -38,15 +41,18 @@ export default function MagnetIcon({
       const dist = Math.sqrt(dx * dx + dy * dy);
 
       if (dist < THRESHOLD && dist > 0) {
-        // Proportional pull: stronger as cursor approaches center
         const ratio = 1 - dist / THRESHOLD;
         setPos({
           x: (dx / dist) * MAX_PULL * ratio,
           y: (dy / dist) * MAX_PULL * ratio,
         });
-        if (!inRange) setInRange(true);
+        if (!inRangeRef.current) {
+          inRangeRef.current = true;
+          setInRange(true);
+        }
       } else {
-        if (inRange) {
+        if (inRangeRef.current) {
+          inRangeRef.current = false;
           setPos({ x: 0, y: 0 });
           setInRange(false);
         }
@@ -55,11 +61,9 @@ export default function MagnetIcon({
 
     window.addEventListener('mousemove', onMouseMove);
     return () => window.removeEventListener('mousemove', onMouseMove);
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [inRange]);
+  }, []); // registered once on mount — inRangeRef handles state without re-subscribing
 
   const isMailto = href.startsWith('mailto:');
-
   const baseColor = isDark ? '#00FF66' : '#1A1A1A';
   const hoverBg = isDark ? 'rgba(0,255,102,0.12)' : 'rgba(26,26,26,0.08)';
 

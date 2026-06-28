@@ -2,11 +2,12 @@ import { useState, useEffect, useRef, useCallback } from 'react';
 import type { PortfolioProject } from '../../../types/portfolio';
 import { useTagFilter } from '../Skills/tagFilterStore';
 import { SKILLS_SECTION_ID } from '../Skills/SkillsContainer';
+import { useAppState } from '../../../context/AppStateContext';
 
 // ── Config ───────────────────────────────────────────────────────────────────
 
 const GITHUB_USERNAME =
-  (import.meta.env.PUBLIC_GITHUB_USERNAME as string | undefined) ?? 'hikarucraft';
+  (import.meta.env.PUBLIC_GITHUB_USERNAME as string | undefined) ?? 'waka9648';
 
 // ── Mock data (shown on API error / rate limit) ───────────────────────────────
 
@@ -93,24 +94,35 @@ interface CardProps {
   language: 'ja' | 'en';
   activeTag: string | null;
   onTagClick: (tag: string) => void;
+  onHoverEnter: () => void;
+  onHoverLeave: () => void;
 }
 
-function PortfolioCard({ project, language, activeTag, onTagClick }: CardProps) {
+function PortfolioCard({
+  project,
+  language,
+  activeTag,
+  onTagClick,
+  onHoverEnter,
+  onHoverLeave,
+}: CardProps) {
   const videoRef = useRef<HTMLVideoElement>(null);
 
   const handleMouseEnter = useCallback(() => {
+    onHoverEnter();
     videoRef.current?.play().catch(() => {
       // Autoplay may be blocked by browser policy; silently ignore
     });
-  }, []);
+  }, [onHoverEnter]);
 
   const handleMouseLeave = useCallback(() => {
+    onHoverLeave();
     const v = videoRef.current;
     if (v) {
       v.pause();
       v.currentTime = 0;
     }
-  }, []);
+  }, [onHoverLeave]);
 
   return (
     <article
@@ -139,9 +151,7 @@ function PortfolioCard({ project, language, activeTag, onTagClick }: CardProps) 
             loading="lazy"
           />
         ) : (
-          <div
-            className="absolute inset-0 flex items-center justify-center font-mono text-sm opacity-30"
-          >
+          <div className="absolute inset-0 flex items-center justify-center font-mono text-sm opacity-30">
             {project.title}
           </div>
         )}
@@ -217,13 +227,12 @@ function PortfolioCard({ project, language, activeTag, onTagClick }: CardProps) 
 // ── PortfolioContainer ────────────────────────────────────────────────────────
 
 export default function PortfolioContainer() {
+  // [C-3] Use language from AppStateContext so EN/JP toggle updates card descriptions
+  const { language, triggerHoverLog, clearHoverLog } = useAppState();
+
   const [projects, setProjects] = useState<PortfolioProject[]>(MOCK_PROJECTS);
   const [isLoading, setIsLoading] = useState(true);
   const [isFromApi, setIsFromApi] = useState(false);
-  // Simple language detection without requiring AppStateProvider
-  const [language] = useState<'ja' | 'en'>(() =>
-    typeof navigator !== 'undefined' && navigator.language.startsWith('ja') ? 'ja' : 'en',
-  );
 
   const { activeTag, toggleTag } = useTagFilter();
 
@@ -269,7 +278,12 @@ export default function PortfolioContainer() {
 
   // ── Render ────────────────────────────────────────────────────────────────
   return (
-    <section className="w-full px-6 py-8" style={{ color: 'var(--color-text)' }}>
+    <section
+      className="w-full px-6 py-8"
+      style={{ color: 'var(--color-text)' }}
+      onMouseEnter={() => triggerHoverLog('portfolio')}
+      onMouseLeave={() => clearHoverLog()}
+    >
       {/* Header */}
       <div className="flex flex-wrap items-center gap-3 mb-6">
         <h2 className="text-2xl font-bold tracking-wide">Portfolio</h2>
@@ -314,6 +328,8 @@ export default function PortfolioContainer() {
               language={language}
               activeTag={activeTag}
               onTagClick={handleCardTagClick}
+              onHoverEnter={() => triggerHoverLog(`portfolio-${project.id}`)}
+              onHoverLeave={() => clearHoverLog()}
             />
           ))}
         </div>

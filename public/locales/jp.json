@@ -5,7 +5,35 @@
     "bio": "NEC所属のインフラエンジニア。42 Tokyoで低レイヤC言語の世界に没頭中。"
   },
   "cli": {
-    "welcome": "Hikaru OS Booting...\nSystem ready. Type 'help' to see available commands."
+    "welcome": "Hikaru OS Booting...\nSystem ready. Type 'help' to see available commands.",
+    "askSuffix": "について解析中...",
+    "askPending": "(API連携は後ほど実装されます)",
+    "notFound": "コマンドが見つかりません。'help' と入力してください",
+    "hover": {
+      "profile": {
+        "cmd": "cat profile.json",
+        "content": "若月 光 — インフラエンジニア / 42 Tokyo在校生"
+      },
+      "skills": {
+        "cmd": "cat skills.json",
+        "content": "技術: C · TypeScript · Docker · Kubernetes · Linux · React"
+      },
+      "portfolio": {
+        "cmd": "ls portfolio/",
+        "content": "プロジェクト: minishell · inception · ft_printf · portfolio"
+      },
+      "contact": {
+        "cmd": "vim contact.form",
+        "content": "お問い合わせフォームが準備できています。"
+      }
+    }
+  },
+  "skills": {
+    "lang": "言語",
+    "frontend": "フロントエンド",
+    "backend": "バックエンド",
+    "infra": "インフラ",
+    "42tokyo": "42 Tokyo"
   },
   "contact": {
     "heading": "お問い合わせ",

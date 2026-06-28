@@ -1,7 +1,8 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
+import { useAppState } from '../../context/AppStateContext';
 import CommandInput, { PROMPT } from './CommandInput';
 
-// ─── Boot sequence ──────────────────────────────────────────────────────────
+// ─── Boot sequence (language-neutral system log) ─────────────────────────────
 
 const BOOT_LINES = [
   'Hikaru OS v1.0.0 — Initializing...',
@@ -24,11 +25,15 @@ type LogEntry = {
   id: string;
   command: string;
   output: string[];
+  isAuto?: boolean; // true for hover-generated entries
 };
 
-// ─── Command processor ───────────────────────────────────────────────────────
+// ─── Command processor (language-aware) ──────────────────────────────────────
 
-function processCommand(raw: string): { clear: boolean; output: string[] } {
+function processCommand(
+  raw: string,
+  t: (key: string) => string,
+): { clear: boolean; output: string[] } {
   const trimmed = raw.trim();
   const lower = trimmed.toLowerCase();
 
@@ -66,7 +71,7 @@ function processCommand(raw: string): { clear: boolean; output: string[] } {
     };
   }
 
-  // ask "question" または ask question
+  // ask "question" or ask question — [C-2] response text now goes through t()
   const askMatch =
     trimmed.match(/^ask\s+"(.+)"$/i) ?? trimmed.match(/^ask\s+(.+)$/i);
   if (askMatch) {
@@ -74,8 +79,8 @@ function processCommand(raw: string): { clear: boolean; output: string[] } {
     return {
       clear: false,
       output: [
-        `AI Engine: "${question}" について解析中...`,
-        '(API連携は後ほど実装されます)',
+        `AI Engine: "${question}" ${t('cli.askSuffix')}`,
+        t('cli.askPending'),
       ],
     };
   }
@@ -84,13 +89,53 @@ function processCommand(raw: string): { clear: boolean; output: string[] } {
     return { clear: false, output: [] };
   }
 
+  // [C-2] error message localized
   return {
     clear: false,
-    output: [`bash: ${trimmed}: command not found  (try 'help')`],
+    output: [`bash: ${trimmed}: ${t('cli.notFound')}`],
   };
 }
 
-// ─── Theme detection ─────────────────────────────────────────────────────────
+// ─── Hover log builder ────────────────────────────────────────────────────────
+
+function buildHoverInfo(
+  hoverId: string,
+  t: (key: string) => string,
+): { cmd: string; content: string[] } | null {
+  // Top-level section hovers
+  const sections = ['profile', 'skills', 'portfolio', 'contact'] as const;
+  for (const section of sections) {
+    if (hoverId === section) {
+      const cmd = t(`cli.hover.${section}.cmd`);
+      const content = t(`cli.hover.${section}.content`);
+      // If t() returned the key itself, locale hasn't loaded yet — skip
+      if (cmd === `cli.hover.${section}.cmd`) return null;
+      return { cmd, content: content ? [content] : [] };
+    }
+  }
+
+  // Portfolio card-level hover: portfolio-{id}
+  if (hoverId.startsWith('portfolio-')) {
+    const projectId = hoverId.replace('portfolio-', '');
+    return {
+      cmd: `cat portfolio/${projectId}.json`,
+      content: [],
+    };
+  }
+
+  // Profile link hovers: profile-link-{platform}
+  if (hoverId.startsWith('profile-link-')) {
+    const platform = hoverId.replace('profile-link-', '');
+    return {
+      cmd: `open ${platform}`,
+      content: [],
+    };
+  }
+
+  return null;
+}
+
+// ─── Theme detection (local — Terminal is independent of provider theme) ──────
 
 function detectDark(): boolean {
   if (typeof document === 'undefined') return true;
@@ -103,6 +148,9 @@ function detectDark(): boolean {
 // ─── Component ───────────────────────────────────────────────────────────────
 
 export default function TerminalContainer() {
+  // [C-1][C-2] Pull t() and activeHoverId from AppStateContext
+  const { t, activeHoverId } = useAppState();
+
   const [isDark, setIsDark] = useState(true);
   const [bootText, setBootText] = useState('');
   const [isBooting, setIsBooting] = useState(true);
@@ -111,6 +159,18 @@ export default function TerminalContainer() {
 
   const inputRef = useRef<HTMLInputElement>(null);
   const bottomRef = useRef<HTMLDivElement>(null);
+
+  // Keep a ref to t() so hover effect closures always use the latest translator
+  const tRef = useRef(t);
+  useEffect(() => { tRef.current = t; }, [t]);
+
+  // Track last hover id and isBooting to prevent duplicate/early triggers
+  const lastHoverIdRef = useRef<string | null>(null);
+  const isBootingRef = useRef(isBooting);
+  useEffect(() => { isBootingRef.current = isBooting; }, [isBooting]);
+
+  // Pending timers for hover log (cancelled on new hover)
+  const pendingTimersRef = useRef<ReturnType<typeof setTimeout>[]>([]);
 
   // ── Theme observer ──────────────────────────────────────────────────────
   useEffect(() => {
@@ -156,22 +216,76 @@ export default function TerminalContainer() {
     if (!isBooting) inputRef.current?.focus();
   }, [isBooting]);
 
-  // ── Command handler ─────────────────────────────────────────────────────
-  const handleSubmit = useCallback((value: string) => {
-    setInputValue('');
+  // ── [C-1] Event Bridge: GUI hover → CLI auto-log ────────────────────────
+  useEffect(() => {
+    // Cancel any in-flight hover timers first
+    pendingTimersRef.current.forEach(clearTimeout);
+    pendingTimersRef.current = [];
 
-    const { clear, output } = processCommand(value);
-
-    if (clear) {
-      setLogs([]);
+    if (!activeHoverId) {
+      // Mouse left any section — reset so the next entry to same section re-fires
+      lastHoverIdRef.current = null;
       return;
     }
 
-    setLogs((prev) => [
-      ...prev,
-      { id: crypto.randomUUID(), command: value, output },
-    ]);
-  }, []);
+    // Don't fire during boot or for the same element twice in a row
+    if (isBootingRef.current) return;
+    if (activeHoverId === lastHoverIdRef.current) return;
+    lastHoverIdRef.current = activeHoverId;
+
+    const info = buildHoverInfo(activeHoverId, tRef.current);
+    if (!info) return;
+
+    const logId = crypto.randomUUID();
+
+    // Phase 1 (200ms dwell): prevents flooding from rapid hover across sections
+    const phase1 = setTimeout(() => {
+      setLogs((prev) => [
+        ...prev,
+        { id: logId, command: info.cmd, output: ['...'], isAuto: true },
+      ]);
+
+      // Phase 2 (500ms later): reveal actual content; keep '...' if empty
+      if (info.content.length > 0) {
+        const phase2 = setTimeout(() => {
+          setLogs((prev) =>
+            prev.map((e) =>
+              e.id === logId ? { ...e, output: info.content } : e,
+            ),
+          );
+        }, 500);
+        pendingTimersRef.current.push(phase2);
+      }
+    }, 200);
+
+    pendingTimersRef.current = [phase1];
+
+    // Cleanup: cancel all pending timers on re-run or unmount
+    return () => {
+      pendingTimersRef.current.forEach(clearTimeout);
+      pendingTimersRef.current = [];
+    };
+  }, [activeHoverId]);
+
+  // ── Command handler ─────────────────────────────────────────────────────
+  const handleSubmit = useCallback(
+    (value: string) => {
+      setInputValue('');
+
+      const { clear, output } = processCommand(value, tRef.current);
+
+      if (clear) {
+        setLogs([]);
+        return;
+      }
+
+      setLogs((prev) => [
+        ...prev,
+        { id: crypto.randomUUID(), command: value, output },
+      ]);
+    },
+    [], // tRef.current used inside — no dep needed
+  );
 
   const focusInput = useCallback(() => {
     inputRef.current?.focus();
@@ -180,6 +294,7 @@ export default function TerminalContainer() {
   // ── Derived styles ──────────────────────────────────────────────────────
   const bg = isDark ? '#050505' : '#F0F0F0';
   const textColor = isDark ? '#00FF66' : '#1A1A1A';
+  const autoColor = isDark ? 'rgba(0,255,102,0.45)' : 'rgba(26,26,26,0.4)';
 
   return (
     <div
@@ -205,21 +320,26 @@ export default function TerminalContainer() {
         {/* Command history */}
         {!isBooting &&
           logs.map((entry) => (
-            <div
-              key={entry.id}
-              className="mt-1"
-            >
+            <div key={entry.id} className="mt-1">
+              {/* Command line — dimmed for auto-generated hover entries */}
               <div
                 className="text-sm font-mono"
-                style={{ fontFamily: "'Courier New', Courier, monospace" }}
+                style={{
+                  fontFamily: "'Courier New', Courier, monospace",
+                  color: entry.isAuto ? autoColor : textColor,
+                }}
               >
-                <span style={{ opacity: 0.7 }}>{PROMPT}</span>
+                <span style={{ opacity: 0.6 }}>{PROMPT}</span>
                 {entry.command}
               </div>
+
               {entry.output.length > 0 && (
                 <pre
                   className="whitespace-pre-wrap break-words text-sm font-mono m-0 mt-0.5 leading-relaxed"
-                  style={{ fontFamily: "'Courier New', Courier, monospace" }}
+                  style={{
+                    fontFamily: "'Courier New', Courier, monospace",
+                    color: entry.isAuto ? autoColor : textColor,
+                  }}
                 >
                   {entry.output.join('\n')}
                 </pre>

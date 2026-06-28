@@ -5,7 +5,35 @@
     "bio": "Infrastructure engineer at NEC. Currently deep in low-level C at 42 Tokyo."
   },
   "cli": {
-    "welcome": "Hikaru OS Booting...\nSystem ready. Type 'help' to see available commands."
+    "welcome": "Hikaru OS Booting...\nSystem ready. Type 'help' to see available commands.",
+    "askSuffix": "is being analyzed...",
+    "askPending": "(API integration coming soon)",
+    "notFound": "command not found — try 'help'",
+    "hover": {
+      "profile": {
+        "cmd": "cat profile.json",
+        "content": "Hikaru Wakatsuki — Infrastructure Engineer / 42 Tokyo student"
+      },
+      "skills": {
+        "cmd": "cat skills.json",
+        "content": "Stack: C · TypeScript · Docker · Kubernetes · Linux · React"
+      },
+      "portfolio": {
+        "cmd": "ls portfolio/",
+        "content": "Projects: minishell · inception · ft_printf · portfolio"
+      },
+      "contact": {
+        "cmd": "vim contact.form",
+        "content": "Contact form ready — feel free to send a message."
+      }
+    }
+  },
+  "skills": {
+    "lang": "Languages",
+    "frontend": "Frontend",
+    "backend": "Backend",
+    "infra": "Infrastructure",
+    "42tokyo": "42 Tokyo"
   },
   "contact": {
     "heading": "Contact",
