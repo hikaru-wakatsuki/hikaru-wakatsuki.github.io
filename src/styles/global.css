@@ -1,5 +1,25 @@
 @import "tailwindcss";
 
+/* ── Theme CSS custom properties ── */
+:root,
+[data-theme="dark"] {
+  --color-bg: #121212;
+  --color-cli-bg: #050505;
+  --color-cli-text: #00FF66;
+  --color-text: #ffffff;
+  --color-splitter: #333333;
+  --color-splitter-hover: #00FF66;
+}
+
+[data-theme="light"] {
+  --color-bg: #FAFAFA;
+  --color-cli-bg: #F0F0F0;
+  --color-cli-text: #1A1A1A;
+  --color-text: #1A1A1A;
+  --color-splitter: #cccccc;
+  --color-splitter-hover: #1A1A1A;
+}
+
 /* CLI terminal cursor blink animation */
 @keyframes terminal-blink {
   0%, 100% { opacity: 1; }

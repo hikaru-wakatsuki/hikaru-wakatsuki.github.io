@@ -1,0 +1,10 @@
+{
+  "profile": {
+    "name": "Hikaru Wakatsuki",
+    "title": "Infrastructure Engineer",
+    "bio": "Infrastructure engineer at NEC. Currently deep in low-level C at 42 Tokyo."
+  },
+  "cli": {
+    "welcome": "Hikaru OS Booting...\nSystem ready. Type 'help' to see available commands."
+  }
+}
