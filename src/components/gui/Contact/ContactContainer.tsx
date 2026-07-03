@@ -1,19 +1,14 @@
-import { useState, useCallback, useEffect, useId } from 'react';
+import { useState, useEffect, useCallback, useId } from 'react';
+import { useForm } from '@formspree/react';
 import { useAppState } from '../../../context/AppStateContext';
 import type { Language } from '../../../types/portfolio';
 import Toast from './Toast';
 
-// ─── Base64-encoded destination ────────────────────────────────────────────
-// Keeps the address off HTML surface; decoded only at send time.
-// atob(DEST_B64) === 'waka9648hika46@gmail.com'
-const DEST_B64 = 'd2FrYTk2NDhoaWthNDZAZ21haWwuY29t';
+// ─── Formspree form ID ───────────────────────────────────────────────────────
+const FORM_ID = 'maqgankk';
 
-// Set to btoa('https://formspree.io/f/YOUR_FORM_ID') when deploying for real.
-// Empty string → demo mode (simulated 1.5s network delay).
-const ENDPOINT_B64 = '';
-
-// ─── Inline fallbacks ──────────────────────────────────────────────────────
-// Active when public/locales/*.json don't yet carry the contact keys.
+// ─── Inline i18n fallback ─────────────────────────────────────────────────────
+// Used when public/locales/*.json hasn't loaded yet or doesn't carry the keys.
 const FALLBACK: Record<Language, Record<string, string>> = {
   en: {
     'contact.heading': 'Contact',
@@ -51,43 +46,50 @@ const FALLBACK: Record<Language, Record<string, string>> = {
   },
 };
 
-// ─── Types ────────────────────────────────────────────────────────────────
-
+// ─── Field error codes (language-independent) ─────────────────────────────────
+// Storing codes rather than strings lets onChange logic work without depending
+// on the current locale string value.
+type ErrorCode = 'required' | 'email' | 'minLength';
 type FieldName = 'name' | 'email' | 'message';
 
 interface Field {
   value: string;
+  /** true once the user has left the field or attempted to submit */
   touched: boolean;
-  error: string | null;
+  error: ErrorCode | null;
 }
 
 const initField = (): Field => ({ value: '', touched: false, error: null });
 
-// ─── Network layer ────────────────────────────────────────────────────────
-
-async function postForm(name: string, email: string, message: string): Promise<void> {
-  const replyTo = atob(DEST_B64);
-
-  if (!ENDPOINT_B64) {
-    // Demo mode — simulates a real round-trip
-    await new Promise<void>((resolve) => setTimeout(resolve, 1500));
-    return;
-  }
-
-  const endpoint = atob(ENDPOINT_B64);
-  const res = await fetch(endpoint, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
-    body: JSON.stringify({ name, email, message, _replyto: replyTo }),
-  });
-
-  if (!res.ok) {
-    const json = (await res.json().catch(() => ({}))) as { error?: string };
-    throw new Error(json.error ?? 'Network error');
+function errorMessage(code: ErrorCode | null, ct: (k: string) => string): string | null {
+  if (!code) return null;
+  switch (code) {
+    case 'required':  return ct('contact.errorRequired');
+    case 'email':     return ct('contact.errorEmail');
+    case 'minLength': return ct('contact.errorMinLength');
   }
 }
 
-// ─── Spinner ─────────────────────────────────────────────────────────────
+// ─── Validation ───────────────────────────────────────────────────────────────
+// TLD must be ≥2 chars → rejects .c but passes .jp, .io, .co.jp, etc.
+const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
+
+function validateField(field: FieldName, value: string): ErrorCode | null {
+  switch (field) {
+    case 'name':
+      return value.trim() ? null : 'required';
+    case 'email':
+      if (!value.trim()) return 'required';
+      if (!EMAIL_RE.test(value.trim())) return 'email';
+      return null;
+    case 'message':
+      if (!value.trim()) return 'required';
+      if (value.trim().length < 10) return 'minLength';
+      return null;
+  }
+}
+
+// ─── Spinner ─────────────────────────────────────────────────────────────────
 
 function Spinner({ color }: { color: string }) {
   return (
@@ -105,12 +107,15 @@ function Spinner({ color }: { color: string }) {
   );
 }
 
-// ─── ContactContainer ─────────────────────────────────────────────────────
+// ─── ContactContainer ─────────────────────────────────────────────────────────
 
 export default function ContactContainer() {
   const { t, theme, language, triggerHoverLog, clearHoverLog } = useAppState();
   const isDark = theme === 'dark';
   const uid = useId();
+
+  // Formspree hook – handles the actual HTTP submission
+  const [formState, formspreeSubmit] = useForm(FORM_ID);
 
   // Translation helper: locale file first, inline fallback second
   const ct = useCallback(
@@ -121,111 +126,96 @@ export default function ContactContainer() {
     [t, language],
   );
 
-  // ── Form state ────────────────────────────────────────────────────────
+  // ── Form field state ──────────────────────────────────────────────────────
   const [fields, setFields] = useState<Record<FieldName, Field>>({
-    name: initField(),
-    email: initField(),
+    name:    initField(),
+    email:   initField(),
     message: initField(),
   });
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [submitError, setSubmitError] = useState<string | null>(null);
   const [toastVisible, setToastVisible] = useState(false);
 
-  // ── Validation ────────────────────────────────────────────────────────
-  const getError = useCallback(
-    (field: FieldName, value: string): string | null => {
-      switch (field) {
-        case 'name':
-          return value.trim() ? null : ct('contact.errorRequired');
-        case 'email':
-          if (!value.trim()) return ct('contact.errorRequired');
-          if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value.trim()))
-            return ct('contact.errorEmail');
-          return null;
-        case 'message':
-          if (!value.trim()) return ct('contact.errorRequired');
-          if (value.trim().length < 10) return ct('contact.errorMinLength');
-          return null;
-      }
-    },
-    [ct],
-  );
+  // ── Success: clear fields + show toast ───────────────────────────────────
+  useEffect(() => {
+    if (!formState.succeeded) return;
+    setFields({ name: initField(), email: initField(), message: initField() });
+    setToastVisible(true);
+  }, [formState.succeeded]);
 
-  const handleChange = useCallback(
-    (field: FieldName, value: string) => {
-      setFields((prev) => ({
-        ...prev,
-        [field]: { value, touched: true, error: getError(field, value) },
-      }));
-      setSubmitError(null);
-    },
-    [getError],
-  );
-
-  const handleBlur = useCallback(
-    (field: FieldName) => {
-      setFields((prev) => ({
-        ...prev,
-        [field]: {
-          ...prev[field],
-          touched: true,
-          error: getError(field, prev[field].value),
-        },
-      }));
-    },
-    [getError],
-  );
-
-  // ── Toast auto-dismiss after 3 s ──────────────────────────────────────
+  // ── Toast auto-dismiss ────────────────────────────────────────────────────
   useEffect(() => {
     if (!toastVisible) return;
     const timer = setTimeout(() => setToastVisible(false), 3000);
     return () => clearTimeout(timer);
   }, [toastVisible]);
 
-  // ── Submit handler ────────────────────────────────────────────────────
+  // ── onChange: only CLEARS errors, never adds new ones ────────────────────
+  // This keeps the UX non-aggressive while the user is still typing.
+  const handleChange = useCallback((field: FieldName, value: string) => {
+    setFields((prev) => {
+      const f = prev[field];
+      let code: ErrorCode | null = f.error;
+
+      if (code === 'required' && value.trim()) {
+        // User started typing → clear the "required" complaint
+        code = null;
+      } else if (code === 'email') {
+        // User is fixing the email → stop showing format error; re-check on blur
+        code = null;
+      } else if (code === 'minLength' && value.trim().length >= 10) {
+        // Message now meets the minimum → clear
+        code = null;
+      }
+
+      return { ...prev, [field]: { value, touched: f.touched, error: code } };
+    });
+  }, []);
+
+  // ── onBlur: run full validation ───────────────────────────────────────────
+  const handleBlur = useCallback((field: FieldName) => {
+    setFields((prev) => ({
+      ...prev,
+      [field]: {
+        ...prev[field],
+        touched: true,
+        error: validateField(field, prev[field].value),
+      },
+    }));
+  }, []);
+
+  // ── onSubmit: validate all → Formspree ───────────────────────────────────
   const handleSubmit = useCallback(
-    async (e: { preventDefault(): void }) => {
+    async (e: React.FormEvent<HTMLFormElement>) => {
       e.preventDefault();
 
-      // Touch-all and validate
+      // 1. Client-side validation
       const errs = {
-        name: getError('name', fields.name.value),
-        email: getError('email', fields.email.value),
-        message: getError('message', fields.message.value),
-      };
+        name:    validateField('name',    fields.name.value),
+        email:   validateField('email',   fields.email.value),
+        message: validateField('message', fields.message.value),
+      } as const;
+
       setFields((prev) => ({
-        name: { ...prev.name, touched: true, error: errs.name },
-        email: { ...prev.email, touched: true, error: errs.email },
+        name:    { ...prev.name,    touched: true, error: errs.name },
+        email:   { ...prev.email,   touched: true, error: errs.email },
         message: { ...prev.message, touched: true, error: errs.message },
       }));
 
       if (errs.name || errs.email || errs.message) return;
 
-      setIsSubmitting(true);
-      setSubmitError(null);
-
-      try {
-        await postForm(fields.name.value, fields.email.value, fields.message.value);
-        setFields({ name: initField(), email: initField(), message: initField() });
-        setToastVisible(true);
-      } catch {
-        setSubmitError(ct('contact.errorNetwork'));
-      } finally {
-        setIsSubmitting(false);
-      }
+      // 2. Delegate to Formspree (reads FormData from e.target via name= attrs)
+      await formspreeSubmit(e);
     },
-    [fields, getError, ct],
+    [fields, formspreeSubmit],
   );
 
-  // ─── Derived colors ─────────────────────────────────────────────────
-  const textColor = isDark ? '#00FF66' : '#1A1A1A';
-  const dimColor = isDark ? 'rgba(0,255,102,0.65)' : 'rgba(26,26,26,0.55)';
+  // ─── Derived colors ───────────────────────────────────────────────────────
+  const textColor  = isDark ? '#00FF66' : '#1A1A1A';
+  const dimColor   = isDark ? 'rgba(0,255,102,0.65)' : 'rgba(26,26,26,0.55)';
   const sectionBorder = isDark ? 'rgba(0,255,102,0.15)' : 'rgba(26,26,26,0.12)';
 
   const fieldBorderColor = (f: Field) => {
     if (!f.touched) return isDark ? 'rgba(0,255,102,0.25)' : 'rgba(26,26,26,0.22)';
-    if (f.error) return isDark ? '#FF4444' : '#ef4444';
+    if (f.error)   return isDark ? '#FF4444' : '#ef4444';
     return isDark ? '#00FF66' : '#22c55e';
   };
 
@@ -249,7 +239,7 @@ export default function ContactContainer() {
     boxSizing: 'border-box',
     boxShadow: fieldShadow(f),
     transition: 'border-color 0.2s ease, box-shadow 0.2s ease',
-    opacity: isSubmitting ? 0.6 : 1,
+    opacity: formState.submitting ? 0.6 : 1,
   });
 
   const labelStyle: React.CSSProperties = {
@@ -283,16 +273,21 @@ export default function ContactContainer() {
     padding: '1px 6px',
   };
 
-  const nameId = `${uid}-name`;
-  const emailId = `${uid}-email`;
-  const messageId = `${uid}-message`;
-  const nameErrId = `${uid}-name-err`;
-  const emailErrId = `${uid}-email-err`;
+  // Formspree server-side error (null when no error or already succeeded)
+  const serverError: string | null = (!formState.succeeded && formState.errors)
+    ? ct('contact.errorNetwork')
+    : null;
+
+  const nameId       = `${uid}-name`;
+  const emailId      = `${uid}-email`;
+  const messageId    = `${uid}-message`;
+  const nameErrId    = `${uid}-name-err`;
+  const emailErrId   = `${uid}-email-err`;
   const messageErrId = `${uid}-message-err`;
 
   return (
     <>
-      {/* Component-scoped keyframes & placeholder color */}
+      {/* Component-scoped keyframes & placeholder styling */}
       <style>{`
         @keyframes contact-spin { to { transform: rotate(360deg); } }
         [data-contact-form] input::placeholder,
@@ -302,19 +297,14 @@ export default function ContactContainer() {
         }
         [data-contact-form] input:disabled,
         [data-contact-form] textarea:disabled { cursor: not-allowed; }
-        [data-contact-form] button:hover:not(:disabled) {
-          opacity: 0.85 !important;
-        }
+        [data-contact-form] button:hover:not(:disabled) { opacity: 0.85 !important; }
       `}</style>
 
       <section
         data-contact-form
         onMouseEnter={() => triggerHoverLog('contact')}
         onMouseLeave={() => clearHoverLog()}
-        style={{
-          padding: '2rem',
-          borderBottom: `1px solid ${sectionBorder}`,
-        }}
+        style={{ padding: '2rem', borderBottom: `1px solid ${sectionBorder}` }}
         aria-label="Contact"
       >
         {/* ── Section label ── */}
@@ -356,11 +346,12 @@ export default function ContactContainer() {
             </label>
             <input
               id={nameId}
+              name="name"
               type="text"
               autoComplete="name"
               value={fields.name.value}
               placeholder={ct('contact.namePlaceholder')}
-              disabled={isSubmitting}
+              disabled={formState.submitting}
               aria-required="true"
               aria-invalid={fields.name.touched && !!fields.name.error}
               aria-describedby={fields.name.error ? nameErrId : undefined}
@@ -370,7 +361,7 @@ export default function ContactContainer() {
             />
             {fields.name.touched && fields.name.error && (
               <p id={nameErrId} role="alert" style={errorMsgStyle}>
-                {fields.name.error}
+                {errorMessage(fields.name.error, ct)}
               </p>
             )}
           </div>
@@ -382,12 +373,13 @@ export default function ContactContainer() {
             </label>
             <input
               id={emailId}
+              name="email"
               type="email"
               autoComplete="email"
               inputMode="email"
               value={fields.email.value}
               placeholder={ct('contact.emailPlaceholder')}
-              disabled={isSubmitting}
+              disabled={formState.submitting}
               aria-required="true"
               aria-invalid={fields.email.touched && !!fields.email.error}
               aria-describedby={fields.email.error ? emailErrId : undefined}
@@ -397,7 +389,7 @@ export default function ContactContainer() {
             />
             {fields.email.touched && fields.email.error && (
               <p id={emailErrId} role="alert" style={errorMsgStyle}>
-                {fields.email.error}
+                {errorMessage(fields.email.error, ct)}
               </p>
             )}
           </div>
@@ -409,9 +401,10 @@ export default function ContactContainer() {
             </label>
             <textarea
               id={messageId}
+              name="message"
               value={fields.message.value}
               placeholder={ct('contact.messagePlaceholder')}
-              disabled={isSubmitting}
+              disabled={formState.submitting}
               rows={5}
               aria-required="true"
               aria-invalid={fields.message.touched && !!fields.message.error}
@@ -422,25 +415,22 @@ export default function ContactContainer() {
             />
             {fields.message.touched && fields.message.error && (
               <p id={messageErrId} role="alert" style={errorMsgStyle}>
-                {fields.message.error}
+                {errorMessage(fields.message.error, ct)}
               </p>
             )}
           </div>
 
-          {/* ── Network error ── */}
-          {submitError && (
-            <p
-              role="alert"
-              style={{ ...errorMsgStyle, fontSize: '0.8rem', marginBottom: '1rem' }}
-            >
-              {submitError}
+          {/* ── Server / network error ── */}
+          {serverError && (
+            <p role="alert" style={{ ...errorMsgStyle, fontSize: '0.8rem', marginBottom: '1rem' }}>
+              {serverError}
             </p>
           )}
 
           {/* ── Submit button ── */}
           <button
             type="submit"
-            disabled={isSubmitting}
+            disabled={formState.submitting}
             style={{
               display: 'inline-flex',
               alignItems: 'center',
@@ -454,13 +444,13 @@ export default function ContactContainer() {
               fontSize: '0.875rem',
               fontWeight: 700,
               letterSpacing: '0.04em',
-              cursor: isSubmitting ? 'not-allowed' : 'pointer',
-              opacity: isSubmitting ? 0.7 : 1,
+              cursor: formState.submitting ? 'not-allowed' : 'pointer',
+              opacity: formState.submitting ? 0.7 : 1,
               transition: 'opacity 0.2s ease',
             }}
           >
-            {isSubmitting && <Spinner color={isDark ? '#000' : '#fff'} />}
-            {isSubmitting ? ct('contact.submitting') : ct('contact.submit')}
+            {formState.submitting && <Spinner color={isDark ? '#000' : '#fff'} />}
+            {formState.submitting ? ct('contact.submitting') : ct('contact.submit')}
           </button>
         </form>
       </section>
