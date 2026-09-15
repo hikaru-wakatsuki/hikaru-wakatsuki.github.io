@@ -2,17 +2,12 @@ import { useAppState } from '../../../context/AppStateContext';
 
 const COPY = {
   ja: {
-    company: '日本電気株式会社（NEC）',
-    tenure: '2022.04 — 現在',
-    lead: '基盤の設計・移行から、Python・生成AIアプリの開発へ。',
-    summary: '通信事業者向けの基幹システムで約4年、Linux・Azure・データベースの設計、構築、移行、障害・性能調査を経験。現在はPythonと生成AI APIを使った業務アプリケーションを開発し、処理設計から実装・評価・リリースまで担当しています。',
     strengthsTitle: '開発で活かせる強み',
     strengths: [
       { title: '設計からリリースまで進める', body: '曖昧な要件を処理フローとデータ構造に落とし込み、実装・評価・配布まで一貫して担当。' },
       { title: '失敗時の動作まで設計する', body: 'LLMの構造化出力を検証し、API障害時には既存検索へ切り替え。人が確認できる導線も実装。' },
       { title: '既存コードと基盤を読み解く', body: '依存関係を整理して共通モジュールを切り出し、運用・ネットワーク・DBの知見を開発に活用。' },
     ],
-    experienceTitle: '主な業務・実績',
     jobs: [
       {
         date: '2026.04 — 現在', title: 'Python・生成AIによる業務アプリケーション開発',
@@ -49,8 +44,6 @@ const COPY = {
         ],
       },
     ],
-    learningTitle: '42Tokyoでのソフトウェア開発',
-    learningDate: '2025.10 — 現在 · Piscine参加者の上位5%',
     learning: [
       'Python：ローカルLLMのFunction Callingで関数選択と引数生成を分離し、制約付き生成・Pydantic検証・統合テストを実装。',
       'チーム開発：2名で迷路生成・可視化を開発。入出力を合意して分担し、再利用可能なPythonパッケージとして整理。Gitで変更を統合。',
@@ -58,20 +51,14 @@ const COPY = {
     ],
     credentialsTitle: '資格',
     credentials: ['基本情報技術者（2022）', 'Azure Fundamentals / AZ-900（2023）', '応用情報技術者（2024）', 'Azure Administrator / AZ-104（2025）', 'AWS Cloud Practitioner（2025）'],
-    educationTitle: '学歴・研究',
-    education: '千葉大学 工学部 画像科学科 卒業（2020）／千葉大学大学院 融合理工学府 修士課程 修了（2022）。電気化学会 論文賞（2023）。',
   },
   en: {
-    company: 'NEC Corporation', tenure: 'Apr 2022 — Present',
-    lead: 'From infrastructure design and migration to Python and generative AI applications.',
-    summary: 'Around four years designing, building and migrating Linux, Azure and database infrastructure for mission-critical telecom systems, including incident and performance investigations. Now developing business applications with Python and generative AI APIs, from processing design and implementation through evaluation and release.',
     strengthsTitle: 'What I bring to development',
     strengths: [
       { title: 'Deliver from design to release', body: 'Translate broad requirements into processing flows and data structures, then implement, evaluate and distribute the application.' },
       { title: 'Design for failure', body: 'Validate structured LLM output, fall back to existing search during API failures, and include human review before registration.' },
       { title: 'Understand code and infrastructure', body: 'Untangle dependencies and extract reusable modules, informed by hands-on operations, networking and database experience.' },
     ],
-    experienceTitle: 'Selected professional experience',
     jobs: [
       {
         date: 'Apr 2026 — Present', title: 'Python and generative AI business applications',
@@ -105,8 +92,6 @@ const COPY = {
         ],
       },
     ],
-    learningTitle: 'Software development at 42Tokyo',
-    learningDate: 'Oct 2025 — Present · Top 5% of Piscine participants',
     learning: [
       'Python: separated function selection and argument generation for local LLM function calling; implemented constrained generation, Pydantic validation and integration tests.',
       'Team development: built maze generation and visualization with a partner, agreed input/output contracts, packaged reusable Python functionality and integrated changes with Git.',
@@ -114,8 +99,6 @@ const COPY = {
     ],
     credentialsTitle: 'Certifications',
     credentials: ['Fundamental Information Technology Engineer (2022)', 'Azure Fundamentals / AZ-900 (2023)', 'Applied Information Technology Engineer (2024)', 'Azure Administrator / AZ-104 (2025)', 'AWS Cloud Practitioner (2025)'],
-    educationTitle: 'Education & research',
-    education: 'B.Eng., Image Science, Chiba University (2020). Master’s degree, Graduate School of Science and Engineering, Chiba University (2022). Electrochemical Society of Japan Paper Award (2023).',
   },
 };
 
@@ -141,33 +124,30 @@ export default function CareerContainer() {
     },
     {
       date: ja ? '2022年4月〜現在' : 'Apr 2022 — Present',
-      title: ja ? '日本電気株式会社（NEC）入社' : 'Joined NEC Corporation',
+      title: ja ? '日本電気株式会社（NEC）' : 'NEC Corporation',
       body: ja ? '通信事業者向け基幹システムのLinux・Azure・データベースの設計、構築、移行を担当。障害・性能調査や運用要件の整理も経験しています。' : 'Designed, built and migrated Linux, Azure and database infrastructure for mission-critical telecom systems, including incident/performance investigations and operational requirements analysis.',
       links: [], kind: 'infrastructure',
     },
     {
-      date: ja ? '2025年10月〜現在' : 'Oct 2025 — Present', title: ja ? '42TokyoでC・Python・チーム開発を学習' : 'Studying C, Python and team development at 42Tokyo',
-      body: ja ? 'Piscine参加者の上位5%。アルゴリズム、並行処理、LLMを用いた開発と、Gitによるチーム開発に取り組んでいます。' : 'Top 5% of Piscine participants. Working on algorithms, concurrency, LLM applications and collaborative development with Git.',
+      date: ja ? '2025年10月〜現在' : 'Oct 2025 — Present', title: '42Tokyo',
+      body: ja ? 'C・Python・チーム開発を学習。Piscine参加者の上位5%。アルゴリズム、並行処理、LLMを用いた開発と、Gitによるチーム開発に取り組んでいます。' : 'Top 5% of Piscine participants. Working on algorithms, concurrency, LLM applications and collaborative development with Git.',
       links: [], kind: 'learning',
     },
     {
       date: ja ? '2026年4月〜現在' : 'Apr 2026 — Present', title: ja ? 'Python・生成AIの業務アプリ開発を担当' : 'Developing Python and generative AI business applications',
-      body: ja ? '処理設計から実装・評価・リリースまで担当。自動化ツールの登録・検索・推薦アプリと、議事録からアクションを抽出するWebアプリを開発・リリースしました。' : 'Owned processing design, implementation, evaluation and release. Developed and released automation-tool registration/search/recommendation software and a meeting action-extraction web application.',
+      body: ja ? 'NECでの業務として、処理設計から実装・評価・リリースまで担当。自動化ツールの登録・検索・推薦アプリと、議事録からアクションを抽出するWebアプリを開発・リリースしました。' : 'Owned processing design, implementation, evaluation and release. Developed and released automation-tool registration/search/recommendation software and a meeting action-extraction web application.',
       links: [], kind: 'application',
     },
   ];
 
   return (
     <div className="p-5 sm:p-8 space-y-9">
-      <div>
-        <p className="text-xl sm:text-2xl font-bold leading-relaxed max-w-3xl">{copy.lead}</p>
-        <p className="mt-4 text-sm leading-7 opacity-80 max-w-4xl">{copy.summary}</p>
-      </div>
-
-      <ol className="space-y-7" aria-label={ja ? '学歴・研究・職歴' : 'Education, research and career history'}>
-        {history.map((entry) => (
-          <li key={entry.date} className="border-l-2 border-[var(--color-splitter)] pl-4 sm:pl-6">
-            <p className="font-mono text-xs opacity-65 mb-2">{entry.date}</p>
+      <ol className="divide-y divide-[var(--color-splitter)]" aria-label={ja ? '学歴・研究・職歴' : 'Education, research and career history'}>
+        {history.map((entry, index) => (
+          <li key={entry.date} className="grid gap-3 md:grid-cols-[10rem_minmax(0,1fr)] py-6 first:pt-0 last:pb-0">
+            <p className="font-mono text-sm font-bold leading-7">{entry.date}</p>
+            <div className="min-w-0 md:border-l border-[var(--color-splitter)] md:pl-6">
+            <p className="text-xs opacity-60 mb-1">{(ja ? ['学歴 · 学士', '学歴 · 修士・研究', '研究 · 表彰', '職歴 · 通信基盤', '学習 · ソフトウェア開発', '職歴 · アプリケーション開発'] : ['Education · Bachelor’s', 'Education · Master’s & research', 'Research · Award', 'Employment · Telecom infrastructure', 'Learning · Software development', 'Employment · Application development'])[index]}</p>
             <h3 className="font-bold leading-7">{entry.title}</h3>
             {entry.body && <p className="mt-2 text-sm leading-7 opacity-80">{entry.body}</p>}
             {entry.links.length > 0 && (
@@ -203,6 +183,7 @@ export default function CareerContainer() {
                 </div>
               </details>
             )}
+            </div>
           </li>
         ))}
       </ol>
