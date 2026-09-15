@@ -119,22 +119,95 @@ const COPY = {
   },
 };
 
+const PAPER_URL = 'https://www.jstage.jst.go.jp/article/electrochemistry/90/4/90_22-00006/_article/-char/ja';
+const AWARD_URL = 'https://www.electrochem.jp/post_news/5137/';
+
 export default function CareerContainer() {
   const { language } = useAppState();
   const copy = COPY[language];
+  const ja = language === 'ja';
+  const history = [
+    { date: ja ? '2020年3月' : 'Mar 2020', title: ja ? '千葉大学 工学部 画像科学科 卒業' : 'B.Eng., Image Science, Chiba University', body: '', links: [] },
+    {
+      date: ja ? '2022年3月' : 'Mar 2022',
+      title: ja ? '千葉大学大学院 融合理工学府 修士課程 修了' : 'Master’s degree, Graduate School of Science and Engineering, Chiba University',
+      body: ja ? '銀ナノ粒子と酸化マンガンを用い、色の変化と無給電での色保持を両立する電気化学デバイスの研究に取り組みました。学術誌「Electrochemistry」に共著論文を発表（2022年）。' : 'Researched an electrochromic device using silver nanoparticles and manganese oxide to combine color changes with color retention without power. Co-authored a paper published in Electrochemistry (2022).',
+      links: [{ label: ja ? '共著論文（J-STAGE）' : 'Co-authored paper (J-STAGE)', url: PAPER_URL }],
+    },
+    {
+      date: ja ? '2023年' : '2023', title: ja ? '電気化学会 論文賞' : 'Electrochemical Society of Japan Paper Award',
+      body: ja ? '上記の共著論文が2023年電気化学会論文賞を受賞。学会の受賞者一覧に共著者として掲載されています。' : 'The co-authored paper received the 2023 Electrochemical Society of Japan Paper Award. Listed among its authors in the official award announcement.',
+      links: [{ label: ja ? '表彰・受賞者一覧（電気化学会）' : 'Official award announcement', url: AWARD_URL }, { label: ja ? '受賞論文（J-STAGE）' : 'Award-winning paper (J-STAGE)', url: PAPER_URL }],
+    },
+    {
+      date: ja ? '2022年4月〜現在' : 'Apr 2022 — Present',
+      title: ja ? '日本電気株式会社（NEC）入社' : 'Joined NEC Corporation',
+      body: ja ? '通信事業者向け基幹システムのLinux・Azure・データベースの設計、構築、移行を担当。障害・性能調査や運用要件の整理も経験しています。' : 'Designed, built and migrated Linux, Azure and database infrastructure for mission-critical telecom systems, including incident/performance investigations and operational requirements analysis.',
+      links: [], kind: 'infrastructure',
+    },
+    {
+      date: ja ? '2025年10月〜現在' : 'Oct 2025 — Present', title: ja ? '42TokyoでC・Python・チーム開発を学習' : 'Studying C, Python and team development at 42Tokyo',
+      body: ja ? 'Piscine参加者の上位5%。アルゴリズム、並行処理、LLMを用いた開発と、Gitによるチーム開発に取り組んでいます。' : 'Top 5% of Piscine participants. Working on algorithms, concurrency, LLM applications and collaborative development with Git.',
+      links: [], kind: 'learning',
+    },
+    {
+      date: ja ? '2026年4月〜現在' : 'Apr 2026 — Present', title: ja ? 'Python・生成AIの業務アプリ開発を担当' : 'Developing Python and generative AI business applications',
+      body: ja ? '処理設計から実装・評価・リリースまで担当。自動化ツールの登録・検索・推薦アプリと、議事録からアクションを抽出するWebアプリを開発・リリースしました。' : 'Owned processing design, implementation, evaluation and release. Developed and released automation-tool registration/search/recommendation software and a meeting action-extraction web application.',
+      links: [], kind: 'application',
+    },
+  ];
 
   return (
     <div className="p-5 sm:p-8 space-y-9">
       <div>
-        <div className="flex flex-wrap items-baseline justify-between gap-2 mb-4">
-          <p className="font-bold text-lg">{copy.company}</p>
-          <p className="font-mono text-xs opacity-65">{copy.tenure}</p>
-        </div>
         <p className="text-xl sm:text-2xl font-bold leading-relaxed max-w-3xl">{copy.lead}</p>
         <p className="mt-4 text-sm leading-7 opacity-80 max-w-4xl">{copy.summary}</p>
       </div>
 
-      <div>
+      <ol className="space-y-7" aria-label={ja ? '学歴・研究・職歴' : 'Education, research and career history'}>
+        {history.map((entry) => (
+          <li key={entry.date} className="border-l-2 border-[var(--color-splitter)] pl-4 sm:pl-6">
+            <p className="font-mono text-xs opacity-65 mb-2">{entry.date}</p>
+            <h3 className="font-bold leading-7">{entry.title}</h3>
+            {entry.body && <p className="mt-2 text-sm leading-7 opacity-80">{entry.body}</p>}
+            {entry.links.length > 0 && (
+              <div className="mt-3 space-y-3">
+                {entry.links.map((link) => (
+                  <a key={link.label} href={link.url} target="_blank" rel="noopener noreferrer" className="block text-sm underline underline-offset-4 hover:opacity-70">
+                    <span className="font-bold">{link.label} ↗</span>
+                    <span className="block mt-1 font-mono text-xs break-all opacity-65">{link.url}</span>
+                  </a>
+                ))}
+              </div>
+            )}
+            {entry.kind && (
+              <details className="mt-4 rounded border border-[var(--color-splitter)] p-4">
+                <summary className="cursor-pointer font-mono text-sm">{ja ? '担当内容・実績を見る' : 'View responsibilities and achievements'}</summary>
+                <div className="mt-4 space-y-5">
+                  {entry.kind === 'learning' ? (
+                    <ul className="list-disc pl-4 space-y-2 text-sm leading-7 opacity-80">
+                      {copy.learning.map((point) => <li key={point}>{point}</li>)}
+                    </ul>
+                  ) : (entry.kind === 'application' ? copy.jobs.slice(0, 1) : copy.jobs.slice(1).reverse()).map((job) => (
+                    <article key={job.title}>
+                      <p className="font-mono text-xs opacity-65 mb-2">{job.date}</p>
+                      <h4 className="font-bold text-sm leading-7">{job.title}</h4>
+                      <div className="flex flex-wrap gap-2 my-3">
+                        {job.tags.map((tag) => <span key={tag} className="font-mono text-xs px-2 py-1 rounded border border-[var(--color-splitter)]">{tag}</span>)}
+                      </div>
+                      <ul className="list-disc pl-4 space-y-2 text-sm leading-7 opacity-80">
+                        {job.points.map((point) => <li key={point}>{point}</li>)}
+                      </ul>
+                    </article>
+                  ))}
+                </div>
+              </details>
+            )}
+          </li>
+        ))}
+      </ol>
+
+      <div className="border-t border-[var(--color-splitter)] pt-6">
         <h3 className="font-bold mb-4">{copy.strengthsTitle}</h3>
         <div className="grid lg:grid-cols-3 gap-3">
           {copy.strengths.map((strength, index) => (
@@ -147,43 +220,11 @@ export default function CareerContainer() {
         </div>
       </div>
 
-      <div>
-        <h3 className="font-bold mb-5">{copy.experienceTitle}</h3>
-        <div className="space-y-7">
-          {copy.jobs.map((job) => (
-            <article key={job.title} className="border-l-2 border-[var(--color-splitter)] pl-4 sm:pl-6">
-              <p className="font-mono text-xs opacity-65 mb-2">{job.date}</p>
-              <h4 className="font-bold leading-7">{job.title}</h4>
-              <div className="flex flex-wrap gap-2 my-3">
-                {job.tags.map((tag) => <span key={tag} className="font-mono text-xs px-2 py-1 rounded border border-[var(--color-splitter)]">{tag}</span>)}
-              </div>
-              <ul className="list-disc pl-4 space-y-2 text-sm leading-7 opacity-80">
-                {job.points.map((point) => <li key={point}>{point}</li>)}
-              </ul>
-            </article>
-          ))}
-        </div>
-      </div>
-
       <div className="border-t border-[var(--color-splitter)] pt-6">
-        <h3 className="font-bold">{copy.learningTitle}</h3>
-        <p className="font-mono text-xs opacity-65 mt-2 mb-4">{copy.learningDate}</p>
-        <ul className="list-disc pl-4 space-y-2 text-sm leading-7 opacity-80">
-          {copy.learning.map((point) => <li key={point}>{point}</li>)}
+        <h3 className="font-bold mb-3">{copy.credentialsTitle}</h3>
+        <ul className="space-y-2 text-sm leading-6 opacity-80">
+          {copy.credentials.map((credential) => <li key={credential}>{credential}</li>)}
         </ul>
-      </div>
-
-      <div className="grid lg:grid-cols-2 gap-6 border-t border-[var(--color-splitter)] pt-6">
-        <div>
-          <h3 className="font-bold mb-3">{copy.credentialsTitle}</h3>
-          <ul className="space-y-2 text-sm leading-6 opacity-80">
-            {copy.credentials.map((credential) => <li key={credential}>{credential}</li>)}
-          </ul>
-        </div>
-        <div>
-          <h3 className="font-bold mb-3">{copy.educationTitle}</h3>
-          <p className="text-sm leading-7 opacity-80">{copy.education}</p>
-        </div>
       </div>
     </div>
   );
