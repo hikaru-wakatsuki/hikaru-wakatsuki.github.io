@@ -1,9 +1,4 @@
-import { useState, useEffect, useRef, useCallback, type ReactNode } from 'react';
-
-const MIN_UPPER_PCT = 20;
-const MAX_UPPER_PCT = 80;
-const MOBILE_BREAKPOINT = 768;
-const SWIPE_THRESHOLD = 40; // px delta to trigger open/close
+import { useState, useEffect, useRef, useCallback, useId, type ReactNode } from 'react';
 
 interface SplitViewProps {
   upperContent?: ReactNode;
@@ -11,164 +6,75 @@ interface SplitViewProps {
 }
 
 export default function SplitView({ upperContent, lowerContent }: SplitViewProps) {
-  const [upperPct, setUpperPct] = useState(50);
-  const [isDragging, setIsDragging] = useState(false);
-  const [isMobile, setIsMobile] = useState(false);
-  const [isSheetOpen, setIsSheetOpen] = useState(false);
+  const [isOpen, setIsOpen] = useState(false);
+  const [hasOpened, setHasOpened] = useState(false);
+  const terminalId = useId();
+  const toggleRef = useRef<HTMLButtonElement>(null);
+  const panelRef = useRef<HTMLElement>(null);
 
-  // Touch tracking for main area (swipe-up to open)
-  const mainTouchStartY = useRef<number | null>(null);
-  // Touch tracking for sheet (swipe-down to close)
-  const sheetTouchStartY = useRef<number | null>(null);
-
-  // Detect mobile breakpoint
-  useEffect(() => {
-    const mq = window.matchMedia(`(max-width: ${MOBILE_BREAKPOINT - 1}px)`);
-    const update = (e: MediaQueryListEvent | MediaQueryList) => setIsMobile(e.matches);
-    update(mq);
-    mq.addEventListener('change', update);
-    return () => mq.removeEventListener('change', update);
-  }, []);
-
-  // PC drag handlers
-  const handleMouseDown = useCallback((e: React.MouseEvent) => {
-    e.preventDefault();
-    setIsDragging(true);
+  const closeTerminal = useCallback(() => {
+    setIsOpen(false);
+    requestAnimationFrame(() => toggleRef.current?.focus({ preventScroll: true }));
   }, []);
 
   useEffect(() => {
-    if (!isDragging) return;
+    if (!isOpen) return;
+    panelRef.current?.querySelector<HTMLInputElement>('input')?.focus({ preventScroll: true });
 
-    const handleMouseMove = (e: MouseEvent) => {
-      const pct = (e.clientY / window.innerHeight) * 100;
-      setUpperPct(Math.min(MAX_UPPER_PCT, Math.max(MIN_UPPER_PCT, pct)));
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') closeTerminal();
     };
-
-    const handleMouseUp = () => setIsDragging(false);
-
-    window.addEventListener('mousemove', handleMouseMove);
-    window.addEventListener('mouseup', handleMouseUp);
-    return () => {
-      window.removeEventListener('mousemove', handleMouseMove);
-      window.removeEventListener('mouseup', handleMouseUp);
-    };
-  }, [isDragging]);
-
-  // ── Main area: swipe-up to OPEN sheet ────────────────────────────────────
-  const handleMainTouchStart = useCallback((e: React.TouchEvent) => {
-    mainTouchStartY.current = e.touches[0].clientY;
-  }, []);
-
-  const handleMainTouchMove = useCallback((e: React.TouchEvent) => {
-    if (mainTouchStartY.current === null) return;
-    const delta = mainTouchStartY.current - e.touches[0].clientY; // positive = up
-    if (delta > SWIPE_THRESHOLD) {
-      setIsSheetOpen(true);
-      mainTouchStartY.current = null;
-    }
-  }, []);
-
-  const handleMainTouchEnd = useCallback(() => {
-    mainTouchStartY.current = null;
-  }, []);
-
-  // ── Sheet area: swipe-down to CLOSE sheet ─────────────────────────────────
-  const handleSheetTouchStart = useCallback((e: React.TouchEvent) => {
-    sheetTouchStartY.current = e.touches[0].clientY;
-  }, []);
-
-  const handleSheetTouchMove = useCallback((e: React.TouchEvent) => {
-    if (sheetTouchStartY.current === null) return;
-    const delta = e.touches[0].clientY - sheetTouchStartY.current; // positive = down
-    if (delta > SWIPE_THRESHOLD) {
-      setIsSheetOpen(false);
-      sheetTouchStartY.current = null;
-    }
-  }, []);
-
-  const handleSheetTouchEnd = useCallback(() => {
-    sheetTouchStartY.current = null;
-  }, []);
-
-  // Disable body scroll while in split view
-  useEffect(() => {
-    document.body.style.overflow = 'hidden';
-    return () => { document.body.style.overflow = ''; };
-  }, []);
-
-  if (isMobile) {
-    return (
-      <div
-        className="relative w-full h-screen overflow-hidden"
-        onTouchStart={handleMainTouchStart}
-        onTouchMove={handleMainTouchMove}
-        onTouchEnd={handleMainTouchEnd}
-      >
-        {/* GUI — full screen on mobile */}
-        <div className="w-full h-full overflow-y-auto bg-[var(--color-bg,#121212)]">
-          {upperContent}
-        </div>
-
-        {/* Bottom sheet (CLI) — swipe-down to close */}
-        <div
-          className={[
-            'fixed bottom-0 left-0 right-0 overflow-y-auto bg-[var(--color-cli-bg,#050505)]',
-            'transition-[height] duration-300 ease-in-out',
-            isSheetOpen ? 'h-[60vh]' : 'h-0',
-          ].join(' ')}
-          onTouchStart={handleSheetTouchStart}
-          onTouchMove={handleSheetTouchMove}
-          onTouchEnd={handleSheetTouchEnd}
-        >
-          {lowerContent}
-        </div>
-
-        {/* Terminal toggle button */}
-        <button
-          onClick={() => setIsSheetOpen((v) => !v)}
-          className="fixed bottom-4 right-4 z-50 px-4 py-2 rounded-full bg-[var(--color-cli-text,#00FF66)] text-black font-mono text-sm font-bold shadow-lg"
-        >
-          {isSheetOpen ? '✕ Close' : 'Terminal'}
-        </button>
-      </div>
-    );
-  }
-
-  // PC layout
-  const lowerPct = 100 - upperPct;
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [isOpen, closeTerminal]);
 
   return (
-    <div className="flex flex-col w-full h-screen overflow-hidden select-none">
-      {/* Upper area — GUI */}
+    <div className="flex flex-col w-full h-dvh overflow-hidden">
       <div
-        className="w-full overflow-y-auto bg-[var(--color-bg,#121212)]"
-        style={{ height: `${upperPct}vh` }}
+        className="w-full flex-1 min-h-0 overflow-y-auto bg-[var(--color-bg,#121212)]"
+        style={{ paddingBottom: isOpen ? 0 : '5rem' }}
       >
         {upperContent}
       </div>
 
-      {/* Splitter bar */}
-      <div
-        onMouseDown={handleMouseDown}
-        className={[
-          'w-full shrink-0 cursor-ns-resize',
-          'bg-[var(--color-splitter,#333)] hover:bg-[var(--color-splitter-hover,#00FF66)]',
-          'transition-colors duration-150',
-          isDragging ? 'bg-[var(--color-splitter-hover,#00FF66)]' : '',
-        ].join(' ')}
-        style={{ height: '4px' }}
-        role="separator"
-        aria-orientation="horizontal"
-        aria-label="Drag to resize panels"
-      />
-
-      {/* Lower area — CLI */}
-      <div
-        className="w-full overflow-y-auto bg-[var(--color-cli-bg,#050505)]"
-        style={{ height: `${lowerPct}vh` }}
+      <section
+        ref={panelRef}
+        id={terminalId}
+        aria-label="Terminal"
+        className="flex-col w-full shrink-0 h-[60dvh] md:h-[45dvh] border-t border-[var(--color-splitter,#333)] bg-[var(--color-cli-bg,#050505)] text-[var(--color-cli-text,#00FF66)]"
+        style={{ display: isOpen ? 'flex' : 'none' }}
       >
-        {lowerContent}
-      </div>
+        <div className="flex items-center justify-between px-4 py-2 shrink-0 border-b border-[var(--color-splitter,#333)] font-mono text-sm">
+          <span>Terminal</span>
+          <button
+            type="button"
+            onClick={closeTerminal}
+            aria-label="Close Terminal"
+            className="px-3 py-1 rounded border border-[var(--color-splitter,#333)] hover:opacity-70 focus-visible:outline-2 focus-visible:outline-offset-2 cursor-pointer"
+          >
+            ✕ Close
+          </button>
+        </div>
+        <div className="flex-1 min-h-0">
+          {hasOpened && lowerContent}
+        </div>
+      </section>
+
+      {!isOpen && (
+        <button
+          ref={toggleRef}
+          type="button"
+          onClick={() => {
+            setHasOpened(true);
+            setIsOpen(true);
+          }}
+          aria-expanded={isOpen}
+          aria-controls={terminalId}
+          className="fixed bottom-4 right-4 z-50 px-4 py-3 rounded-full border border-[var(--color-splitter,#333)] bg-[var(--color-cli-bg,#050505)] text-[var(--color-cli-text,#00FF66)] font-mono text-sm font-bold shadow-lg hover:opacity-80 focus-visible:outline-2 focus-visible:outline-offset-2 cursor-pointer"
+        >
+          &gt;_ Terminal
+        </button>
+      )}
     </div>
   );
 }
