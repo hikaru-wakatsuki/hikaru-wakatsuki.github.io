@@ -5,6 +5,7 @@ import tailwindcss from '@tailwindcss/vite';
 
 // https://astro.build/config
 export default defineConfig({
+  site: 'https://hikaru-wakatsuki.github.io',
   integrations: [react()],
 
   server: {
