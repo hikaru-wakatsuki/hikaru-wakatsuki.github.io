@@ -42,8 +42,8 @@ const FALLBACK: Record<Language, Translations> = {
   en: {
     profile: {
       name: 'Hikaru Wakatsuki',
-      title: 'Infrastructure Engineer',
-      bio: 'Infrastructure engineer at NEC. Currently deep in low-level C at 42 Tokyo.',
+      title: 'Python · Generative AI · Cloud / Linux',
+      bio: 'At NEC, I work on telecom infrastructure and Python applications powered by generative AI. I connect infrastructure knowledge with application development, considering design through operations. I also study C, Python and collaborative development at 42Tokyo.',
     },
     cli: {
       welcome: "Hikaru OS Booting...\nSystem ready. Type 'help' to see available commands.",
@@ -51,9 +51,9 @@ const FALLBACK: Record<Language, Translations> = {
   },
   ja: {
     profile: {
-      name: 'Hikaru Wakatsuki',
-      title: 'Infrastructure Engineer',
-      bio: 'NEC所属のインフラエンジニア。42 Tokyoで低レイヤC言語の世界に没頭中。',
+      name: '若月 洸 / Hikaru Wakatsuki',
+      title: 'Python · Generative AI · Cloud / Linux',
+      bio: 'NECで通信基盤の設計・移行と、Python・生成AIを使った業務アプリケーション開発を担当。基盤とアプリケーションの両方を理解し、設計から運用まで考えて開発します。42TokyoでC・Pythonとチーム開発を学んでいます。',
     },
     cli: {
       welcome: "Hikaru OS Booting...\nSystem ready. Type 'help' to see available commands.",

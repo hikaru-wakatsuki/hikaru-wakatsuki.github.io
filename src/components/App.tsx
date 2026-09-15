@@ -2,6 +2,7 @@ import { useState, useEffect, type ReactNode } from 'react';
 import { AppStateProvider, useAppState } from '../context/AppStateContext';
 import SplitView from './core/SplitView';
 import ProfileContainer from './gui/Profile/ProfileContainer';
+import CareerContainer from './gui/Career/CareerContainer';
 import SkillsContainer, { SKILLS_SECTION_ID } from './gui/Skills/SkillsContainer';
 import PortfolioContainer from './gui/Portfolio/PortfolioContainer';
 import ContactContainer from './gui/Contact/ContactContainer';
@@ -162,7 +163,7 @@ function GuiArea() {
   };
 
   const contents = [
-    <ProfileContainer />,
+    <CareerContainer />,
     <SkillsContainer />,
     <PortfolioContainer onNavigateToSkills={() => navigateToSection(SKILLS_SECTION_ID)} />,
     <ContactContainer />,
@@ -204,6 +205,9 @@ function GuiArea() {
         )}
         <main className="flex-1 min-w-0 px-4 py-6 sm:px-6 sm:py-8">
           <div className="max-w-6xl mx-auto">
+            <div className="mb-8 border border-[var(--color-splitter)] rounded overflow-hidden">
+              <ProfileContainer />
+            </div>
             {SECTIONS.map((section, index) => (
               <CollapsibleSection
                 key={section.id}

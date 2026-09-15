@@ -41,7 +41,7 @@ const SOCIAL_LINKS = [
   {
     id: 'github',
     label: 'GitHub',
-    href: 'https://github.com/waka9648',
+    href: 'https://github.com/hikaru-wakatsuki',
     icon: <GitHubIcon />,
   },
   {
@@ -126,7 +126,6 @@ export default function ProfileContainer() {
   const isDark = theme === 'dark';
   const textColor = isDark ? '#00FF66' : '#1A1A1A';
   const dimColor = isDark ? 'rgba(0,255,102,0.65)' : 'rgba(26,26,26,0.6)';
-  const borderColor = isDark ? 'rgba(0,255,102,0.15)' : 'rgba(26,26,26,0.12)';
 
   return (
     <section
@@ -134,7 +133,6 @@ export default function ProfileContainer() {
       onMouseLeave={() => clearHoverLog()}
       style={{
         padding: '2rem',
-        borderBottom: `1px solid ${borderColor}`,
         fontFamily: "'Courier New', Courier, monospace",
       }}
       aria-label="Profile"
@@ -154,7 +152,7 @@ export default function ProfileContainer() {
       >
         <Avatar isDark={isDark} />
 
-        <div style={{ flex: 1, minWidth: '14rem' }}>
+        <div style={{ flex: 1, minWidth: 0, flexBasis: '14rem' }}>
           {/* Name */}
           <h1
             style={{
