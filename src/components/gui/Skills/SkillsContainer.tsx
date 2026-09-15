@@ -28,14 +28,12 @@ export default function SkillsContainer() {
 
   return (
     <section
-      id={SKILLS_SECTION_ID}
       className="w-full px-6 py-8 scroll-mt-4"
       style={{ color: 'var(--color-text)' }}
       onMouseEnter={() => triggerHoverLog('skills')}
       onMouseLeave={() => clearHoverLog()}
     >
       <div className="flex items-center gap-3 mb-6">
-        <h2 className="text-2xl font-bold tracking-wide">Skills</h2>
         {activeTag && (
           <span
             className="text-xs px-2 py-0.5 rounded-full border font-mono"

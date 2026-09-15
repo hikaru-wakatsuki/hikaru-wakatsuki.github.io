@@ -310,18 +310,6 @@ export default function ContactContainer() {
         {/* ── Section label ── */}
         <span style={sectionTagStyle}>$ vim contact.form</span>
 
-        <h2
-          style={{
-            margin: '1.25rem 0 0.25rem',
-            fontSize: '1.25rem',
-            fontWeight: 700,
-            color: textColor,
-            fontFamily: "'Courier New', Courier, monospace",
-            letterSpacing: '0.02em',
-          }}
-        >
-          {ct('contact.heading')}
-        </h2>
         <p
           style={{
             margin: '0 0 1.75rem',

@@ -226,7 +226,7 @@ function PortfolioCard({
 
 // ── PortfolioContainer ────────────────────────────────────────────────────────
 
-export default function PortfolioContainer() {
+export default function PortfolioContainer({ onNavigateToSkills }: { onNavigateToSkills?: () => void }) {
   // [C-3] Use language from AppStateContext so EN/JP toggle updates card descriptions
   const { language, triggerHoverLog, clearHoverLog } = useAppState();
 
@@ -272,9 +272,12 @@ export default function PortfolioContainer() {
   // ── Tag click from card: set filter + scroll to Skills ───────────────────
   const handleCardTagClick = useCallback((tag: string) => {
     toggleTag(tag);
-    const skillsEl = document.getElementById(SKILLS_SECTION_ID);
-    skillsEl?.scrollIntoView({ behavior: 'smooth', block: 'start' });
-  }, [toggleTag]);
+    if (onNavigateToSkills) {
+      onNavigateToSkills();
+    } else {
+      document.getElementById(SKILLS_SECTION_ID)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+  }, [toggleTag, onNavigateToSkills]);
 
   // ── Render ────────────────────────────────────────────────────────────────
   return (
@@ -286,7 +289,6 @@ export default function PortfolioContainer() {
     >
       {/* Header */}
       <div className="flex flex-wrap items-center gap-3 mb-6">
-        <h2 className="text-2xl font-bold tracking-wide">Portfolio</h2>
         {activeTag && (
           <span
             className="text-xs px-2 py-0.5 rounded-full border font-mono"
