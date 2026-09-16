@@ -78,6 +78,8 @@ const PROJECTS: PortfolioProject[] = [
       "pygame"
     ],
     "githubUrl": "https://github.com/hikaru-wakatsuki/Fly-in",
+    "imageUrl": "/videos/fly-in-demo-poster.png",
+    "videoUrl": "/videos/fly-in-demo.mp4",
     "highlights": {
       "ja": [
         "グラフ上で複数ドローンの移動を計画・可視化。",
