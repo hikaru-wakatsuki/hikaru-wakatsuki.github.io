@@ -48,6 +48,8 @@ const PROJECTS: PortfolioProject[] = [
       "Algorithms"
     ],
     "githubUrl": "https://github.com/hikaru-wakatsuki/Codexion",
+    "imageUrl": "/videos/codexion-demo-poster.png",
+    "videoUrl": "/videos/codexion-demo.mp4",
     "highlights": {
       "ja": [
         "複数スレッドが共有資源を取り合う並行処理シミュレーション。",
