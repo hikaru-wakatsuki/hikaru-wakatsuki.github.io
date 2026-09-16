@@ -179,18 +179,18 @@ function PortfolioCard({
           ? { aspectRatio: '16 / 9', background: '#050505' }
           : { height: '3rem', background: 'var(--color-splitter)' }}
       >
-        {project.imageUrl ? (
+        {project.imageUrl && !project.videoUrl ? (
           <img
             src={project.imageUrl}
             alt={project.title}
             className="absolute inset-0 w-full h-full object-cover"
             loading="lazy"
           />
-        ) : (
+        ) : !project.videoUrl ? (
           <div className="absolute inset-0 flex items-center justify-center font-mono text-sm opacity-30">
             {project.title}
           </div>
-        )}
+        ) : null}
 
         {project.videoUrl && (
           <video
