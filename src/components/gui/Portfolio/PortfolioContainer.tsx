@@ -108,6 +108,8 @@ const PROJECTS: PortfolioProject[] = [
       "Algorithms"
     ],
     "githubUrl": "https://github.com/souaoao/A-Maze-ing",
+    "imageUrl": "/videos/a-maze-ing-demo-poster.png",
+    "videoUrl": "/videos/a-maze-ing-demo.mp4",
     "highlights": {
       "ja": [
         "2名でPythonの迷路生成・最短経路・可視化を開発。",
