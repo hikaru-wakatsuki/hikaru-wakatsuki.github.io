@@ -68,32 +68,22 @@ const SOCIAL_LINKS = [
 
 function Avatar({ isDark }: { isDark: boolean }) {
   const borderColor = isDark ? '#00FF66' : '#1A1A1A';
-  const bgColor = isDark ? 'rgba(0,255,102,0.08)' : 'rgba(26,26,26,0.06)';
-  const textColor = isDark ? '#00FF66' : '#1A1A1A';
 
   return (
-    <div
+    <img
+      src="/profile-avatar.jpg"
+      alt="Hikaru Wakatsuki"
+      width={80}
+      height={80}
       style={{
         width: '5rem',
         height: '5rem',
         borderRadius: '9999px',
         border: `2px solid ${borderColor}`,
-        backgroundColor: bgColor,
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
+        objectFit: 'cover',
         flexShrink: 0,
-        fontFamily: "'Courier New', Courier, monospace",
-        fontSize: '1.25rem',
-        fontWeight: 700,
-        letterSpacing: '0.05em',
-        color: textColor,
-        userSelect: 'none',
       }}
-      aria-hidden
-    >
-      HW
-    </div>
+    />
   );
 }
 
