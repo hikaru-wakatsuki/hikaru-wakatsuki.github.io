@@ -65,7 +65,7 @@ function processCommand(
         '│                                          │',
         '│  Skills: Docker · Kubernetes · Linux     │',
         '│          TypeScript · React · C · Go     │',
-        '│  GitHub:  github.com/waka9648            │',
+        '│  GitHub:  github.com/hikaru-wakatsuki            │',
         '└──────────────────────────────────────────┘',
       ],
     };

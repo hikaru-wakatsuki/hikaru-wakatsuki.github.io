@@ -42,8 +42,8 @@ const FALLBACK: Record<Language, Translations> = {
   en: {
     profile: {
       name: 'Hikaru Wakatsuki',
-      title: 'Python · Generative AI · Cloud / Linux',
-      bio: 'At NEC, I work on telecom infrastructure and Python applications powered by generative AI. I connect infrastructure knowledge with application development, considering design through operations. I also study C, Python and collaborative development at 42Tokyo.',
+      title: 'Infrastructure × Python / LLM × CS fundamentals',
+      bio: 'Around four years of hands-on Linux, Azure and database experience in telecom infrastructure. I design, implement, evaluate and release Python/LLM business applications. At 42 Tokyo, I build algorithms, concurrent systems and structured LLM output in C and Python, including team development. My goal is to grow as a software engineer connecting infrastructure and application development.',
     },
     cli: {
       welcome: "Hikaru OS Booting...\nSystem ready. Type 'help' to see available commands.",
@@ -52,8 +52,8 @@ const FALLBACK: Record<Language, Translations> = {
   ja: {
     profile: {
       name: '若月 洸 / Hikaru Wakatsuki',
-      title: 'Python · Generative AI · Cloud / Linux',
-      bio: 'NECで通信基盤の設計・移行と、Python・生成AIを使った業務アプリケーション開発を担当。基盤とアプリケーションの両方を理解し、設計から運用まで考えて開発します。42TokyoでC・Pythonとチーム開発を学んでいます。',
+      title: 'Infrastructure × Python / LLM × CS fundamentals',
+      bio: '通信基盤のLinux・Azure・DBで約4年の実務経験。Python・生成AIの業務アプリを設計・実装・評価からリリースまで担当しています。42 TokyoではC・Pythonでアルゴリズム、並行処理、LLMの構造化出力とチーム開発に取り組んでいます。基盤とアプリの経験を活かすSoftware Engineerを目指しています。',
     },
     cli: {
       welcome: "Hikaru OS Booting...\nSystem ready. Type 'help' to see available commands.",

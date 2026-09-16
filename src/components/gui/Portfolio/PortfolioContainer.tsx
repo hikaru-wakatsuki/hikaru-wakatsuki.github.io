@@ -1,91 +1,123 @@
-import { useState, useEffect, useRef, useCallback } from 'react';
+import { useRef, useCallback } from 'react';
 import type { PortfolioProject } from '../../../types/portfolio';
 import { useTagFilter } from '../Skills/tagFilterStore';
 import { SKILLS_SECTION_ID } from '../Skills/SkillsContainer';
 import { useAppState } from '../../../context/AppStateContext';
 
-// ── Config ───────────────────────────────────────────────────────────────────
-
-const GITHUB_USERNAME =
-  (import.meta.env.PUBLIC_GITHUB_USERNAME as string | undefined) ?? 'waka9648';
-
-// ── Mock data (shown on API error / rate limit) ───────────────────────────────
-
-const MOCK_PROJECTS: PortfolioProject[] = [
+const PROJECTS: PortfolioProject[] = [
   {
-    id: 'portfolio',
-    title: 'Portfolio Site',
-    description: {
-      ja: 'AstroとReactで構築したポートフォリオ。CLI/GUIの2分割レイアウトとAIチャットを実装。',
-      en: 'Portfolio built with Astro & React. Dual CLI/GUI split layout with AI chat integration.',
+    "id": "Call_Me_Maybe",
+    "title": "Call Me Maybe",
+    "description": {
+      "ja": "自然言語をローカルLLMでFunction Call JSONへ変換。",
+      "en": "Local LLM converts natural language into function-call JSON."
     },
-    tags: ['React', 'Astro', 'TypeScript', 'Tailwind CSS', 'Docker'],
-    githubUrl: `https://github.com/${GITHUB_USERNAME}/portfolio`,
-    videoUrl: '',
-    imageUrl: '',
+    "tags": [
+      "Python",
+      "LLM",
+      "Pydantic"
+    ],
+    "githubUrl": "https://github.com/hikaru-wakatsuki/Call_Me_Maybe",
+    "highlights": {
+      "ja": [
+        "自然言語をローカルLLMでFunction Call JSONへ変換。",
+        "JSON構文と引数型の制約を守る生成が課題。",
+        "関数選択と引数生成を分離し、制約付き生成・Pydantic検証を実装。",
+        "責務分離とエラー処理を備え、Integration Testで動作を検証。"
+      ],
+      "en": [
+        "Local LLM converts natural language into function-call JSON.",
+        "Challenge: enforce JSON syntax and argument types.",
+        "Separate selection and argument generation with constrained decoding and Pydantic.",
+        "Modular responsibilities, error handling and integration tests."
+      ]
+    }
   },
   {
-    id: 'minishell',
-    title: 'minishell',
-    description: {
-      ja: '42 TokyoのプロジェクトでCで実装したBashライクなシェル。パイプ、リダイレクト、シグナル処理に対応。',
-      en: 'Bash-like shell in C for 42 Tokyo. Supports pipes, redirections, and signal handling.',
+    "id": "Codexion",
+    "title": "Codexion",
+    "description": {
+      "ja": "複数スレッドが共有資源を取り合う並行処理シミュレーション。",
+      "en": "POSIX-thread simulation of shared resource contention."
     },
-    tags: ['C', 'POSIX', 'Algorithms', 'Makefile'],
-    githubUrl: `https://github.com/${GITHUB_USERNAME}/minishell`,
-    videoUrl: '',
-    imageUrl: '',
+    "tags": [
+      "C",
+      "POSIX",
+      "Algorithms"
+    ],
+    "githubUrl": "https://github.com/hikaru-wakatsuki/Codexion",
+    "highlights": {
+      "ja": [
+        "複数スレッドが共有資源を取り合う並行処理シミュレーション。",
+        "デッドロック・飢餓・資源配分の公平性が課題。",
+        "mutexの取得順序とmin-heapによるFIFO・EDFを実装。",
+        "資源の待機・クールダウン・停止監視とログ出力を実装。"
+      ],
+      "en": [
+        "POSIX-thread simulation of shared resource contention.",
+        "Challenge: deadlocks, starvation and fair arbitration.",
+        "Ordered mutex acquisition and min-heap FIFO/EDF scheduling.",
+        "Implemented waiting, cooldown, stop monitoring and serialized logs."
+      ]
+    }
   },
   {
-    id: 'inception',
-    title: 'Inception',
-    description: {
-      ja: 'Dockerを使ってNginx・WordPress・MariaDBのマルチコンテナ環境を1から構築する42プロジェクト。',
-      en: '42 project: multi-container Nginx/WordPress/MariaDB stack built from scratch with Docker.',
+    "id": "Fly-in",
+    "title": "Fly-in",
+    "description": {
+      "ja": "グラフ上で複数ドローンの移動を計画・可視化。",
+      "en": "Plan and visualize drone movements across a graph."
     },
-    tags: ['Docker', 'Linux', 'Nginx', 'Bash'],
-    githubUrl: `https://github.com/${GITHUB_USERNAME}/inception`,
-    videoUrl: '',
-    imageUrl: '',
+    "tags": [
+      "Python",
+      "Algorithms",
+      "pygame"
+    ],
+    "githubUrl": "https://github.com/hikaru-wakatsuki/Fly-in",
+    "highlights": {
+      "ja": [
+        "グラフ上で複数ドローンの移動を計画・可視化。",
+        "経路だけでなく、区画・接続の容量と混雑を考慮。",
+        "重み付き経路探索とターン単位の移動制御を分離。",
+        "入力検証、容量チェック、pygameによる可視化まで実装。"
+      ],
+      "en": [
+        "Plan and visualize drone movements across a graph.",
+        "Challenge: zone/link capacities and congestion.",
+        "Separate weighted pathfinding from turn-based scheduling.",
+        "Implemented input validation, capacity checks and pygame visualization."
+      ]
+    }
   },
   {
-    id: 'ft_printf',
-    title: 'ft_printf',
-    description: {
-      ja: '42の課題で実装した printf の再実装。書式指定子と可変長引数を完全サポート。',
-      en: 'Custom printf reimplementation for 42. Full format specifier and variadic argument support.',
+    "id": "souaoao/A-Maze-ing",
+    "title": "A-Maze-ing",
+    "description": {
+      "ja": "2名でPythonの迷路生成・最短経路・可視化を開発。",
+      "en": "Two-person Python maze generation and visualization project."
     },
-    tags: ['C', 'Algorithms', 'Makefile'],
-    githubUrl: `https://github.com/${GITHUB_USERNAME}/ft_printf`,
-    videoUrl: '',
-    imageUrl: '',
-  },
+    "tags": [
+      "Python",
+      "Pydantic",
+      "Algorithms"
+    ],
+    "githubUrl": "https://github.com/souaoao/A-Maze-ing",
+    "highlights": {
+      "ja": [
+        "2名でPythonの迷路生成・最短経路・可視化を開発。",
+        "壁のビット表現と生成条件を満たす迷路が課題。",
+        "DFS・BFS、設定検証、再現可能な乱数シードを実装。",
+        "mazegenを再利用可能なパッケージとして配布できる形に整理。"
+      ],
+      "en": [
+        "Two-person Python maze generation and visualization project.",
+        "Challenge: bit-encoded walls and generation constraints.",
+        "DFS/BFS, configuration validation and reproducible seeds.",
+        "Packaged mazegen as reusable wheel/source distributions."
+      ]
+    }
+  }
 ];
-
-// ── GitHub API types ─────────────────────────────────────────────────────────
-
-interface GitHubRepo {
-  id: number;
-  name: string;
-  html_url: string;
-  description: string | null;
-  topics: string[];
-  homepage: string | null;
-}
-
-function reposToProjects(repos: GitHubRepo[]): PortfolioProject[] {
-  return repos
-    .filter((r) => r.topics.includes('portfolio'))
-    .map((r) => ({
-      id: String(r.id),
-      title: r.name,
-      description: { ja: r.description ?? '', en: r.description ?? '' },
-      tags: r.topics.filter((t) => t !== 'portfolio'),
-      githubUrl: r.html_url,
-      videoUrl: r.homepage ?? undefined,
-      imageUrl: undefined,
-    }));
-}
 
 // ── PortfolioCard ─────────────────────────────────────────────────────────────
 
@@ -141,7 +173,7 @@ function PortfolioCard({
       {/* ── Media area ── */}
       <div
         className="relative w-full overflow-hidden"
-        style={{ aspectRatio: '16/9', background: 'var(--color-splitter)' }}
+        style={{ height: '3rem', background: 'var(--color-splitter)' }}
       >
         {project.imageUrl ? (
           <img
@@ -172,9 +204,14 @@ function PortfolioCard({
       <div className="p-4 flex flex-col gap-3">
         <h3 className="font-bold text-base leading-snug">{project.title}</h3>
 
-        <p className="text-sm leading-relaxed opacity-75">
-          {project.description[language] || project.description.en}
-        </p>
+        <dl className="space-y-2 text-sm leading-relaxed">
+          {project.highlights?.[language].map((value, index) => (
+            <div key={index}>
+              <dt className="font-bold text-xs mb-0.5">{(language === 'ja' ? ['作ったもの', '課題', '工夫', '実装・検証'] : ['Built', 'Challenge', 'Approach', 'Outcome'])[index]}</dt>
+              <dd className="opacity-75">{value}</dd>
+            </div>
+          ))}
+        </dl>
 
         {/* Tags */}
         <div className="flex flex-wrap gap-1.5">
@@ -230,44 +267,12 @@ export default function PortfolioContainer({ onNavigateToSkills }: { onNavigateT
   // [C-3] Use language from AppStateContext so EN/JP toggle updates card descriptions
   const { language, triggerHoverLog, clearHoverLog } = useAppState();
 
-  const [projects, setProjects] = useState<PortfolioProject[]>(MOCK_PROJECTS);
-  const [isLoading, setIsLoading] = useState(true);
-  const [isFromApi, setIsFromApi] = useState(false);
-
   const { activeTag, toggleTag } = useTagFilter();
-
-  // ── GitHub API fetch ──────────────────────────────────────────────────────
-  useEffect(() => {
-    let cancelled = false;
-
-    async function fetchRepos() {
-      try {
-        const res = await fetch(
-          `https://api.github.com/users/${GITHUB_USERNAME}/repos?per_page=100&sort=updated`,
-          { headers: { Accept: 'application/vnd.github+json' } },
-        );
-        if (!res.ok) throw new Error(`GitHub API ${res.status}`);
-        const repos = (await res.json()) as GitHubRepo[];
-        const portfolio = reposToProjects(repos);
-        if (!cancelled && portfolio.length > 0) {
-          setProjects(portfolio);
-          setIsFromApi(true);
-        }
-      } catch {
-        // Rate-limited or network error — keep mock data silently
-      } finally {
-        if (!cancelled) setIsLoading(false);
-      }
-    }
-
-    fetchRepos();
-    return () => { cancelled = true; };
-  }, []);
 
   // ── Filtered view ─────────────────────────────────────────────────────────
   const displayed = activeTag
-    ? projects.filter((p) => p.tags.includes(activeTag))
-    : projects;
+    ? PROJECTS.filter((p) => p.tags.includes(activeTag))
+    : PROJECTS;
 
   // ── Tag click from card: set filter + scroll to Skills ───────────────────
   const handleCardTagClick = useCallback((tag: string) => {
@@ -300,12 +305,6 @@ export default function PortfolioContainer({ onNavigateToSkills }: { onNavigateT
             filtered: {activeTag}
           </span>
         )}
-        {isLoading && (
-          <span className="text-xs opacity-40 font-mono animate-pulse">fetching repos…</span>
-        )}
-        {!isLoading && isFromApi && (
-          <span className="text-xs opacity-30 font-mono">via GitHub API</span>
-        )}
         {activeTag && (
           <button
             onClick={() => toggleTag(activeTag)}
@@ -316,13 +315,14 @@ export default function PortfolioContainer({ onNavigateToSkills }: { onNavigateT
         )}
       </div>
 
+      <p className="text-sm opacity-65 mb-6">{language === 'ja' ? '42 Tokyoでの個人・共同開発。設計と実装の詳細は各GitHub READMEへ。' : 'Individual and collaborative 42 Tokyo projects. See each GitHub README for implementation details.'}</p>
       {/* Cards grid */}
       {displayed.length === 0 ? (
         <p className="text-sm opacity-50 font-mono py-12 text-center">
           No projects match &ldquo;{activeTag}&rdquo;.
         </p>
       ) : (
-        <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+        <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-2">
           {displayed.map((project) => (
             <PortfolioCard
               key={project.id}
@@ -336,6 +336,12 @@ export default function PortfolioContainer({ onNavigateToSkills }: { onNavigateT
           ))}
         </div>
       )}
+      <div className="mt-8 pt-6 border-t border-[var(--color-splitter)]">
+        <h3 className="font-bold mb-3">{language === 'ja' ? 'その他42課題' : 'Other 42 projects'}</h3>
+        <div className="flex flex-wrap gap-4 text-sm">
+          {['Push_swap', 'get_next_line', 'printf', 'Born2beroot', 'NetPractice'].map((name) => <a key={name} href={`https://github.com/hikaru-wakatsuki/${name}`} target="_blank" rel="noopener noreferrer" className="underline underline-offset-4">{name} ↗</a>)}
+        </div>
+      </div>
     </section>
   );
 }

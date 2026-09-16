@@ -1,8 +1,8 @@
 {
   "profile": {
     "name": "若月 洸 / Hikaru Wakatsuki",
-    "title": "Python · Generative AI · Cloud / Linux",
-    "bio": "NECで通信基盤の設計・移行と、Python・生成AIを使った業務アプリケーション開発を担当。基盤とアプリケーションの両方を理解し、設計から運用まで考えて開発します。42TokyoでC・Pythonとチーム開発を学んでいます。"
+    "title": "Infrastructure × Python / LLM × CS fundamentals",
+    "bio": "通信基盤のLinux・Azure・DBで約4年の実務経験。Python・生成AIの業務アプリを設計・実装・評価からリリースまで担当しています。42 TokyoではC・Pythonでアルゴリズム、並行処理、LLMの構造化出力とチーム開発に取り組んでいます。基盤とアプリの経験を活かすSoftware Engineerを目指しています。"
   },
   "cli": {
     "welcome": "Hikaru OS Booting...\nSystem ready. Type 'help' to see available commands.",
@@ -16,11 +16,11 @@
       },
       "skills": {
         "cmd": "cat skills.json",
-        "content": "技術: C · TypeScript · Docker · Kubernetes · Linux · React"
+        "content": "Python · LLM · Linux · Azure · PostgreSQL · C · POSIX"
       },
       "portfolio": {
         "cmd": "ls portfolio/",
-        "content": "プロジェクト: minishell · inception · ft_printf · portfolio"
+        "content": "Call Me Maybe · Codexion · Fly-in · A-Maze-ing"
       },
       "contact": {
         "cmd": "vim contact.form",
@@ -29,11 +29,10 @@
     }
   },
   "skills": {
-    "lang": "言語",
-    "frontend": "フロントエンド",
-    "backend": "バックエンド",
-    "infra": "インフラ",
-    "42tokyo": "42 Tokyo"
+    "workapp": "実務 · アプリケーション開発",
+    "workinfra": "実務 · 通信基盤",
+    "42tokyo": "学習・個人／共同開発 · 42 Tokyo",
+    "frontend": "個人開発 · このサイト"
   },
   "contact": {
     "heading": "お問い合わせ",

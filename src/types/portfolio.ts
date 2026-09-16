@@ -13,6 +13,7 @@ export interface PortfolioProject {
   id: string;
   title: string;
   description: { ja: string; en: string };
+  highlights?: { ja: string[]; en: string[] };
   tags: string[]; // ['React', 'Docker' など]
   githubUrl: string;
   videoUrl?: string;

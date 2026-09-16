@@ -1,8 +1,8 @@
 {
   "profile": {
     "name": "Hikaru Wakatsuki",
-    "title": "Python · Generative AI · Cloud / Linux",
-    "bio": "At NEC, I work on telecom infrastructure and Python applications powered by generative AI. I connect infrastructure knowledge with application development, considering design through operations. I also study C, Python and collaborative development at 42Tokyo."
+    "title": "Infrastructure × Python / LLM × CS fundamentals",
+    "bio": "Around four years of hands-on Linux, Azure and database experience in telecom infrastructure. I design, implement, evaluate and release Python/LLM business applications. At 42 Tokyo, I build algorithms, concurrent systems and structured LLM output in C and Python, including team development. My goal is to grow as a software engineer connecting infrastructure and application development."
   },
   "cli": {
     "welcome": "Hikaru OS Booting...\nSystem ready. Type 'help' to see available commands.",
@@ -16,11 +16,11 @@
       },
       "skills": {
         "cmd": "cat skills.json",
-        "content": "Stack: C · TypeScript · Docker · Kubernetes · Linux · React"
+        "content": "Python · LLM · Linux · Azure · PostgreSQL · C · POSIX"
       },
       "portfolio": {
         "cmd": "ls portfolio/",
-        "content": "Projects: minishell · inception · ft_printf · portfolio"
+        "content": "Call Me Maybe · Codexion · Fly-in · A-Maze-ing"
       },
       "contact": {
         "cmd": "vim contact.form",
@@ -29,11 +29,10 @@
     }
   },
   "skills": {
-    "lang": "Languages",
-    "frontend": "Frontend",
-    "backend": "Backend",
-    "infra": "Infrastructure",
-    "42tokyo": "42 Tokyo"
+    "workapp": "Professional · Applications",
+    "workinfra": "Professional · Infrastructure",
+    "42tokyo": "Study & individual/team projects · 42 Tokyo",
+    "frontend": "Personal project · This site"
   },
   "contact": {
     "heading": "Contact",
