@@ -122,11 +122,11 @@ export default function CareerContainer() {
       </h3>
       <ol className="divide-y divide-[var(--color-splitter)]" aria-label={ja ? '学歴・職歴・学習歴' : 'Education, employment and learning history'}>
         {history.map((entry) => (
-          <li key={`${entry.institution}-${entry.title}`} className="grid gap-3 md:grid-cols-[10rem_minmax(0,1fr)] py-6 first:pt-0 last:pb-0">
-            <p className="font-mono text-sm font-bold leading-7">{entry.period}</p>
-            <div className="min-w-0 md:border-l border-[var(--color-splitter)] md:pl-6">
-              <p className="text-xs opacity-65 mb-1">{entry.institution}</p>
-              <h4 className="font-bold leading-7">{entry.title}</h4>
+          <li key={`${entry.institution}-${entry.title}`} className="grid grid-cols-[minmax(5.5rem,30%)_minmax(0,1fr)] sm:grid-cols-[14rem_minmax(0,1fr)] gap-3 sm:gap-6 py-6 first:pt-0 last:pb-0">
+            <p className="font-mono text-xs sm:text-sm font-bold leading-7">{entry.period}</p>
+            <div className="min-w-0 border-l border-[var(--color-splitter)] pl-3 sm:pl-6">
+              <h4 className="text-base sm:text-lg font-bold leading-7">{entry.institution}</h4>
+              <p className="text-sm leading-6 opacity-75 mt-1">{entry.title}</p>
               {entry.points.length > 0 && (
                 <ul className="list-disc pl-4 mt-3 space-y-2 text-sm leading-7 opacity-80">
                   {entry.points.map((point) => <li key={point}>{point}</li>)}
