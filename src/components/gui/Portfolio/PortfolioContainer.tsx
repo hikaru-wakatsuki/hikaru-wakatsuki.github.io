@@ -18,6 +18,8 @@ const PROJECTS: PortfolioProject[] = [
       "Pydantic"
     ],
     "githubUrl": "https://github.com/hikaru-wakatsuki/Call_Me_Maybe",
+    "imageUrl": "/videos/call-me-maybe-demo-poster.png",
+    "videoUrl": "/videos/call-me-maybe-demo.mp4",
     "highlights": {
       "ja": [
         "自然言語をローカルLLMでFunction Call JSONへ変換。",
@@ -173,7 +175,9 @@ function PortfolioCard({
       {/* ── Media area ── */}
       <div
         className="relative w-full overflow-hidden"
-        style={{ height: '3rem', background: 'var(--color-splitter)' }}
+        style={project.videoUrl
+          ? { aspectRatio: '16 / 9', background: '#050505' }
+          : { height: '3rem', background: 'var(--color-splitter)' }}
       >
         {project.imageUrl ? (
           <img
@@ -192,10 +196,14 @@ function PortfolioCard({
           <video
             ref={videoRef}
             src={project.videoUrl}
+            poster={project.imageUrl}
             muted
             loop
             playsInline
-            className="absolute inset-0 w-full h-full object-cover"
+            controls
+            preload="metadata"
+            aria-label={`${project.title} demo`}
+            className="absolute inset-0 w-full h-full object-contain"
           />
         )}
       </div>
