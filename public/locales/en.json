@@ -30,15 +30,15 @@
   },
   "skills": {
     "backend": "Backend",
-    "backendDescription": "Design, implement, evaluate and release Python business applications at work. In personal projects, build LLM integrations and validate structured data with JSON and Pydantic.",
+    "backendDescription": "Design, implement, evaluate and release Python business applications.",
     "database": "Database",
-    "databaseDescription": "Experience designing, building and migrating PostgreSQL and MySQL systems, including incident and performance investigation.",
+    "databaseDescription": "Design, build and migrate database systems.",
     "infrastructure": "Infrastructure & Cloud",
-    "infrastructureDescription": "Design and build Linux and Azure environments, perform cloud lifts and OS upgrades, and prepare Docker and Bash-based development environments.",
+    "infrastructureDescription": "Build Linux, Azure and Docker environments.",
     "engineering": "Engineering & CS",
-    "engineeringDescription": "Implement synchronization and scheduling with C and POSIX threads, graph algorithms, and collaborative development with Git.",
+    "engineeringDescription": "Implement synchronization, scheduling and graph search, and develop with Git.",
     "additional": "Additional",
-    "additionalDescription": "Designed and implemented this portfolio with TypeScript, React and Astro, then published it on GitHub Pages."
+    "additionalDescription": "Implement this portfolio UI and publish it on GitHub Pages."
   },
   "contact": {
     "heading": "Contact",

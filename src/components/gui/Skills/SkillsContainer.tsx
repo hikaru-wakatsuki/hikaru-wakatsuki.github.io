@@ -36,8 +36,8 @@ export default function SkillsContainer() {
       <div className="flex items-center gap-3 mb-6">
         <p className="text-sm leading-7 opacity-65">
           {language === 'ja'
-            ? '技術名とあわせて、実務・個人開発・42 Tokyoで実装できることを示しています。'
-            : 'Capabilities demonstrated through professional work, personal projects and 42 Tokyo.'}
+            ? '技術名とあわせて、できることを示しています。技術タグを選択すると、その技術を使ったポートフォリオだけを表示できます。'
+            : 'Each category describes what I can build. Select a technology tag to show only the matching portfolio projects.'}
         </p>
         {activeTag && (
           <span
