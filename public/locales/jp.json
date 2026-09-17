@@ -31,14 +31,39 @@
   "skills": {
     "backend": "Backend",
     "backendDescription": "Python業務アプリの設計・実装・評価・リリースができます。",
+    "backendCapabilities": [
+      "業務要件を処理フローへ落とし込み、Pythonで実装・評価してリリースまで進める",
+      "JSON入出力の設計、出力検証、エラー処理、API障害時のフォールバックを実装する",
+      "個人開発でPydanticによる型検証と、ローカルLLMのFunction Callingを実装する"
+    ],
     "database": "Database",
     "databaseDescription": "データベースの設計・構築・移行ができます。",
+    "databaseCapabilities": [
+      "PostgreSQL・MySQLを使用するシステムの構成を設計し、環境を構築する",
+      "既存データベースの移行計画を検討し、移行と動作確認を行う",
+      "障害発生時のログ・実行状況を調査し、性能上の問題を切り分ける"
+    ],
     "infrastructure": "Infrastructure & Cloud",
     "infrastructureDescription": "Linux・Azure・Docker環境の構築ができます。",
+    "infrastructureCapabilities": [
+      "Linux・Azure環境を設計・構築し、通信基盤の運用を考慮して移行する",
+      "Azureクラウドリフト、OS更改、プライベートクラウド移行を計画・実施する",
+      "Dockerで開発環境を整備し、Bashで定型作業を実行・自動化する"
+    ],
     "engineering": "Engineering & CS",
     "engineeringDescription": "排他制御、スケジューリング、グラフ探索、Gitを使った開発ができます。",
+    "engineeringCapabilities": [
+      "C・POSIX threads・mutexで共有資源を制御し、デッドロックと公平性を考慮する",
+      "FIFO・EDFスケジューリング、重み付きグラフ探索、ターン単位の移動制御を実装する",
+      "Git、Peer Review、役割分担を使ってチームで設計・実装する"
+    ],
     "additional": "Additional",
-    "additionalDescription": "このポートフォリオのUI実装とGitHub Pagesへの公開ができます。"
+    "additionalDescription": "このポートフォリオのUI実装とGitHub Pagesへの公開ができます。",
+    "additionalCapabilities": [
+      "TypeScript・React・AstroでレスポンシブなポートフォリオUIを実装する",
+      "日英切り替え、テーマ変更、タグ絞り込み、動画表示などの操作を実装する",
+      "Astroで静的ビルドし、GitHub ActionsからGitHub Pagesへ継続的に公開する"
+    ]
   },
   "contact": {
     "heading": "お問い合わせ",

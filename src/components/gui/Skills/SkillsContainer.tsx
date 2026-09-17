@@ -7,14 +7,15 @@ interface SkillCategory {
   id: string;
   // label is derived via t(`skills.${id}`) at render time
   tags: string[];
+  capabilityCount: number;
 }
 
 const SKILL_CATEGORIES: SkillCategory[] = [
-  { id: 'backend', tags: ['Python', 'JSON', 'Pydantic', 'LLM'] },
-  { id: 'database', tags: ['PostgreSQL', 'MySQL'] },
-  { id: 'infrastructure', tags: ['Linux', 'Azure', 'Docker', 'Bash'] },
-  { id: 'engineering', tags: ['Git', 'C', 'POSIX', 'Algorithms'] },
-  { id: 'additional', tags: ['TypeScript', 'React', 'Astro'] },
+  { id: 'backend', tags: ['Python', 'JSON', 'Pydantic', 'LLM'], capabilityCount: 3 },
+  { id: 'database', tags: ['PostgreSQL', 'MySQL'], capabilityCount: 3 },
+  { id: 'infrastructure', tags: ['Linux', 'Azure', 'Docker', 'Bash'], capabilityCount: 3 },
+  { id: 'engineering', tags: ['Git', 'C', 'POSIX', 'Algorithms'], capabilityCount: 3 },
+  { id: 'additional', tags: ['TypeScript', 'React', 'Astro'], capabilityCount: 3 },
 ];
 
 /** Stable element ID used by PortfolioContainer to scroll here */
@@ -61,6 +62,13 @@ export default function SkillsContainer() {
             <p className="mb-3 max-w-3xl text-sm leading-7 opacity-75">
               {t(`skills.${cat.id}Description`)}
             </p>
+            <ul className="mb-4 max-w-4xl list-disc space-y-1 pl-5 text-sm leading-7 opacity-70">
+              {Array.from({ length: cat.capabilityCount }, (_, index) => (
+                <li key={`${cat.id}-capability-${index}`}>
+                  {t(`skills.${cat.id}Capabilities.${index}`)}
+                </li>
+              ))}
+            </ul>
             <div className="flex flex-wrap gap-2">
               {cat.tags.map((tag) => {
                 const isActive = activeTag === tag;

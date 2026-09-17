@@ -31,14 +31,39 @@
   "skills": {
     "backend": "Backend",
     "backendDescription": "Design, implement, evaluate and release Python business applications.",
+    "backendCapabilities": [
+      "Translate business requirements into processing flows, implement them in Python, evaluate them and carry them through release",
+      "Design JSON input/output and implement output validation, error handling and fallback behavior for API failures",
+      "Implement Pydantic type validation and local-LLM function calling in personal projects"
+    ],
     "database": "Database",
     "databaseDescription": "Design, build and migrate database systems.",
+    "databaseCapabilities": [
+      "Design and build system configurations using PostgreSQL and MySQL",
+      "Plan database migrations, execute them and verify operation after migration",
+      "Investigate logs and execution behavior to isolate incidents and performance issues"
+    ],
     "infrastructure": "Infrastructure & Cloud",
     "infrastructureDescription": "Build Linux, Azure and Docker environments.",
+    "infrastructureCapabilities": [
+      "Design, build and migrate Linux and Azure environments with production operations in mind",
+      "Plan and execute Azure cloud lifts, OS upgrades and private-cloud migrations",
+      "Prepare Docker development environments and execute or automate routine work with Bash"
+    ],
     "engineering": "Engineering & CS",
     "engineeringDescription": "Implement synchronization, scheduling and graph search, and develop with Git.",
+    "engineeringCapabilities": [
+      "Control shared resources with C, POSIX threads and mutexes while accounting for deadlocks and fairness",
+      "Implement FIFO/EDF scheduling, weighted graph search and turn-based movement control",
+      "Design and implement collaboratively using Git, peer review and clear task ownership"
+    ],
     "additional": "Additional",
-    "additionalDescription": "Implement this portfolio UI and publish it on GitHub Pages."
+    "additionalDescription": "Implement this portfolio UI and publish it on GitHub Pages.",
+    "additionalCapabilities": [
+      "Build a responsive portfolio UI with TypeScript, React and Astro",
+      "Implement language and theme switching, tag filters and video presentation",
+      "Create a static Astro build and continuously deploy it to GitHub Pages with GitHub Actions"
+    ]
   },
   "contact": {
     "heading": "Contact",
