@@ -23,7 +23,7 @@ export const SKILLS_SECTION_ID = 'skills-section';
 // ── Component ────────────────────────────────────────────────────────────────
 
 export default function SkillsContainer() {
-  const { t, triggerHoverLog, clearHoverLog } = useAppState();
+  const { t, language, triggerHoverLog, clearHoverLog } = useAppState();
   const { activeTag, toggleTag } = useTagFilter();
 
   return (
@@ -34,6 +34,11 @@ export default function SkillsContainer() {
       onMouseLeave={() => clearHoverLog()}
     >
       <div className="flex items-center gap-3 mb-6">
+        <p className="text-sm leading-7 opacity-65">
+          {language === 'ja'
+            ? '技術名とあわせて、実務・個人開発・42 Tokyoで実装できることを示しています。'
+            : 'Capabilities demonstrated through professional work, personal projects and 42 Tokyo.'}
+        </p>
         {activeTag && (
           <span
             className="text-xs px-2 py-0.5 rounded-full border font-mono"
@@ -52,6 +57,9 @@ export default function SkillsContainer() {
           <div key={cat.id}>
             <p className="text-xs font-semibold uppercase tracking-widest mb-2 opacity-50">
               {t(`skills.${cat.id}`) || cat.id}
+            </p>
+            <p className="mb-3 max-w-3xl text-sm leading-7 opacity-75">
+              {t(`skills.${cat.id}Description`)}
             </p>
             <div className="flex flex-wrap gap-2">
               {cat.tags.map((tag) => {

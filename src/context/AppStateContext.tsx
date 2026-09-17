@@ -48,6 +48,18 @@ const FALLBACK: Record<Language, Translations> = {
     cli: {
       welcome: "Hikaru OS Booting...\nSystem ready. Type 'help' to see available commands.",
     },
+    skills: {
+      backend: 'Backend',
+      backendDescription: 'Design, implement, evaluate and release Python business applications at work. In personal projects, build LLM integrations and validate structured data with JSON and Pydantic.',
+      database: 'Database',
+      databaseDescription: 'Experience designing, building and migrating PostgreSQL and MySQL systems, including incident and performance investigation.',
+      infrastructure: 'Infrastructure & Cloud',
+      infrastructureDescription: 'Design and build Linux and Azure environments, perform cloud lifts and OS upgrades, and prepare Docker and Bash-based development environments.',
+      engineering: 'Engineering & CS',
+      engineeringDescription: 'Implement synchronization and scheduling with C and POSIX threads, graph algorithms, and collaborative development with Git.',
+      additional: 'Additional',
+      additionalDescription: 'Designed and implemented this portfolio with TypeScript, React and Astro, then published it on GitHub Pages.',
+    },
   },
   ja: {
     profile: {
@@ -57,6 +69,18 @@ const FALLBACK: Record<Language, Translations> = {
     },
     cli: {
       welcome: "Hikaru OS Booting...\nSystem ready. Type 'help' to see available commands.",
+    },
+    skills: {
+      backend: 'Backend',
+      backendDescription: '実務でPython業務アプリの処理設計・実装・評価・リリースを担当。個人開発ではJSON・Pydanticによる構造化データの検証とLLM連携を実装しています。',
+      database: 'Database',
+      databaseDescription: '通信基盤でPostgreSQL・MySQLの設計、構築、移行、障害・性能調査を経験しています。',
+      infrastructure: 'Infrastructure & Cloud',
+      infrastructureDescription: 'Linux・Azure環境の設計、構築、クラウドリフト、OS更改に加え、Docker環境整備とBashによる作業を行えます。',
+      engineering: 'Engineering & CS',
+      engineeringDescription: 'C・POSIX threadsによる排他制御とスケジューリング、グラフ探索、Gitを使ったチーム開発を実装・実践しています。',
+      additional: 'Additional',
+      additionalDescription: 'TypeScript・React・Astroを使い、このポートフォリオのUI設計と実装、GitHub Pagesへの公開を行っています。',
     },
   },
 };
