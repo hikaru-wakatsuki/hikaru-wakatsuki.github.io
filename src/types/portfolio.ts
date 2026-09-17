@@ -14,6 +14,9 @@ export interface PortfolioProject {
   title: string;
   description: { ja: string; en: string };
   highlights?: { ja: string[]; en: string[] };
+  projectType?: { ja: string; en: string };
+  resultBadge?: { ja: string; en: string };
+  collaboration?: { ja: string[]; en: string[] };
   tags: string[]; // ['React', 'Docker' など]
   githubUrl: string;
   videoUrl?: string;
