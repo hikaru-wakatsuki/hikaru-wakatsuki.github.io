@@ -53,7 +53,22 @@ function Controls({ menuOpen, onToggleMenu }: { menuOpen: boolean; onToggleMenu:
           <path d="M4 6h16M4 12h16M4 18h16" />
         </svg>
       </button>
-      <span className="mr-auto font-mono text-xs sm:text-sm">Hikaru Wakatsuki</span>
+      <a
+        href="#top"
+        onClick={(event) => {
+          event.preventDefault();
+          document.getElementById('top')?.scrollIntoView({
+            behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches
+              ? 'auto'
+              : 'smooth',
+            block: 'start',
+          });
+        }}
+        aria-label={language === 'ja' ? 'ページの先頭へ戻る' : 'Back to top'}
+        className="mr-auto font-mono text-xs sm:text-sm hover:opacity-60 focus-visible:outline-2 focus-visible:outline-offset-4"
+      >
+        Hikaru Wakatsuki
+      </a>
       {/* Language */}
       <button
         style={language === 'en' ? activeBtn : btnBase}
@@ -170,7 +185,7 @@ function GuiArea() {
   ];
 
   return (
-    <div className="w-full min-h-full" style={{ background: 'var(--color-bg)', color: 'var(--color-text)' }}>
+    <div id="top" className="w-full min-h-full scroll-mt-14" style={{ background: 'var(--color-bg)', color: 'var(--color-text)' }}>
       <Controls menuOpen={menuOpen} onToggleMenu={() => setMenuOpen((previous) => !previous)} />
       <div className="flex items-start">
         {menuOpen && (
