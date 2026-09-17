@@ -1,8 +1,8 @@
 {
   "profile": {
     "name": "Hikaru Wakatsuki",
-    "title": "Infrastructure × Python / LLM × CS fundamentals",
-    "bio": "Around four years of hands-on Linux, Azure and database experience in telecom infrastructure. I design, implement, evaluate and release Python/LLM business applications. At 42 Tokyo, I build algorithms, concurrent systems and structured LLM output in C and Python, including team development. My goal is to grow as a software engineer connecting infrastructure and application development."
+    "title": "Backend Engineer / Python",
+    "bio": "After around four years designing and migrating Linux, Azure and database infrastructure for telecom systems, I now design, implement, evaluate and release Python business applications. I bring an operations-focused infrastructure perspective, plus experience with LLM integration, structured data, concurrency and algorithms, to reliable backend development."
   },
   "cli": {
     "welcome": "Hikaru OS Booting...\nSystem ready. Type 'help' to see available commands.",
@@ -12,11 +12,11 @@
     "hover": {
       "profile": {
         "cmd": "cat profile.json",
-        "content": "Hikaru Wakatsuki — Python & generative AI applications / Linux & Azure / 42Tokyo"
+        "content": "Hikaru Wakatsuki — Backend Engineer / Python"
       },
       "skills": {
         "cmd": "cat skills.json",
-        "content": "Python · LLM · Linux · Azure · PostgreSQL · C · POSIX"
+        "content": "Python · JSON · Pydantic · PostgreSQL · Linux · Azure · C · POSIX"
       },
       "portfolio": {
         "cmd": "ls portfolio/",
@@ -29,10 +29,11 @@
     }
   },
   "skills": {
-    "workapp": "Professional · Applications",
-    "workinfra": "Professional · Infrastructure",
-    "42tokyo": "Study & individual/team projects · 42 Tokyo",
-    "frontend": "Personal project · This site"
+    "backend": "Backend",
+    "database": "Database",
+    "infrastructure": "Infrastructure & Cloud",
+    "engineering": "Engineering & CS",
+    "additional": "Additional"
   },
   "contact": {
     "heading": "Contact",

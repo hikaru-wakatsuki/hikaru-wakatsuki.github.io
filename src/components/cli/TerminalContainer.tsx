@@ -61,10 +61,10 @@ function processCommand(
       output: [
         '┌──────────────────────────────────────────┐',
         '│  Hikaru Wakatsuki                        │',
-        '│  Infrastructure Engineer / 42 Tokyo      │',
+        '│  Backend Engineer / Python               │',
         '│                                          │',
-        '│  Skills: Docker · Kubernetes · Linux     │',
-        '│          TypeScript · React · C · Go     │',
+        '│  Skills: Python · JSON · PostgreSQL      │',
+        '│          Linux · Azure · C · POSIX       │',
         '│  GitHub:  github.com/hikaru-wakatsuki            │',
         '└──────────────────────────────────────────┘',
       ],

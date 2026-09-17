@@ -22,8 +22,8 @@ const COPY = {
       {
         institution: '日本電気株式会社', period: '2022年4月〜現在',
         points: [
-          '2026年4月から業務アプリ開発を担当。自動化ツールの登録・検索・推薦アプリを主担当として開発し、3段階のLLM処理、出力検証、API障害時の検索フォールバックを実装・検証。約100名を利用対象とする環境へリリースしました。',
-          '2名で議事録から担当者・期限・アクションを抽出するWebアプリを開発・リリース。JSONと画面表示の連携、不具合調査、Docker環境整備を担当しました。',
+          'Pythonで業務アプリケーションの処理設計・実装・評価を担当。自動化ツールの登録・検索・推薦機能に、3段階のLLM処理、JSON出力検証、API障害時の検索フォールバックを実装し、約100名向けの環境へリリースしました。',
+          'Pythonを用いた議事録から担当者・期限・アクションを抽出するWebアプリを2名で開発・リリース。JSONと画面表示の連携、不具合調査、Docker環境整備を担当しました。',
           'それ以前は約4年、通信基盤のLinux・Azure・DBの設計、構築、移行、障害・性能調査を経験。運用まで考えたアプリ開発に活かしています。',
         ],
         links: [],
@@ -56,8 +56,8 @@ const COPY = {
       {
         institution: 'NEC Corporation', period: 'Apr 2022 — Present',
         points: [
-          'Developing business applications since Apr 2026. Primary developer of automation-tool registration, search and recommendation software: implemented and verified a three-stage LLM pipeline, output validation and fallback search during API failures. Released to an environment intended for approximately 100 users.',
-          'Developed and released a meeting action-extraction web app with a partner. Owned JSON-to-display integration, debugging and Docker environment setup.',
+          'Design, implementation and evaluation of Python business-application logic. Built a three-stage LLM pipeline, JSON output validation and fallback search for API failures in an automation-tool registration, search and recommendation application; released it to an environment for approximately 100 users.',
+          'Developed and released a Python web application with one teammate to extract owners, deadlines and actions from meeting notes. Owned JSON-to-display integration, debugging and Docker environment setup.',
           'Previously spent around four years designing, building and migrating Linux, Azure and database infrastructure for telecom systems, including incident and performance investigations. This experience informs operationally aware application development.',
         ],
         links: [],
@@ -88,43 +88,49 @@ export default function CareerContainer() {
       institution: ja ? '千葉大学' : 'Chiba University',
       period: bachelor.period,
       title: ja ? '工学部 画像科学科 · 学士' : 'B.Eng., Image Science',
-      points: [], links: [],
+      points: [], links: [], badge: undefined,
     },
     {
       institution: graduate.institution, period: graduate.period,
       title: ja ? '融合理工学府 先進理化学専攻 物質科学コース · 修士' : 'Graduate School of Science and Engineering · Master’s',
-      points: graduate.points, links: graduate.links,
+      points: graduate.points, links: graduate.links, badge: undefined,
     },
     {
       institution: nec.institution,
       period: ja ? '2022年4月〜2026年3月' : 'Apr 2022 — Mar 2026',
       title: ja ? 'インフラエンジニア' : 'Infrastructure Engineer',
       points: [ja ? '約4年、通信基盤のLinux・Azure・DBの設計、構築、移行、障害・性能調査を担当。Azureクラウドリフト、OS更改、プライベートクラウド移行を経験しました。' : 'Around four years designing, building and migrating Linux, Azure and database infrastructure for telecom systems, including incident/performance investigations, Azure cloud lift, OS refresh and private cloud migration.'],
-      links: [],
+      links: [], badge: undefined,
     },
     {
       institution: nec.institution,
       period: ja ? '2026年4月〜現在' : 'Apr 2026 — Present',
       title: ja ? 'バックエンドエンジニア' : 'Backend Engineer',
       points: nec.points.slice(0, 2), links: [],
+      badge: ja ? '現在の担当' : 'Current role',
     },
     {
       institution: tokyo.institution, period: tokyo.period,
       title: ja ? 'C・Python・チーム開発' : 'C, Python & collaborative development',
-      points: tokyo.points, links: [],
+      points: tokyo.points, links: [], badge: undefined,
     },
   ];
 
   return (
     <div className="p-5 sm:p-8">
       <h3 className="font-bold text-xl sm:text-2xl leading-relaxed mb-8">
-        {ja ? '大学院での研究、通信基盤の経験を、アプリケーション開発へ。' : 'Bringing graduate research and telecom infrastructure experience to application development.'}
+        {ja ? 'Pythonで業務アプリを設計・実装・リリース。通信基盤で培った運用視点をバックエンドへ。' : 'Designing, implementing and releasing Python business applications, backed by an infrastructure operations perspective.'}
       </h3>
       <ol className="divide-y divide-[var(--color-splitter)]" aria-label={ja ? '学歴・職歴・学習歴' : 'Education, employment and learning history'}>
         {history.map((entry) => (
           <li key={`${entry.institution}-${entry.title}`} className="grid grid-cols-[minmax(5.5rem,30%)_minmax(0,1fr)] sm:grid-cols-[14rem_minmax(0,1fr)] gap-3 sm:gap-6 py-6 first:pt-0 last:pb-0">
             <p className="font-mono text-xs sm:text-sm font-bold leading-7">{entry.period}</p>
             <div className="min-w-0 border-l border-[var(--color-splitter)] pl-3 sm:pl-6">
+              {entry.badge && (
+                <span className="inline-block mb-2 rounded border border-[var(--color-cli-text)] px-2 py-0.5 text-[0.65rem] font-bold uppercase tracking-wider text-[var(--color-cli-text)]">
+                  {entry.badge}
+                </span>
+              )}
               <h4 className="text-base sm:text-lg font-bold leading-7">{entry.institution}</h4>
               <p className="text-sm leading-6 opacity-75 mt-1">{entry.title}</p>
               {entry.points.length > 0 && (

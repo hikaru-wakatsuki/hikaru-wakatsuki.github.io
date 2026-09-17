@@ -10,10 +10,11 @@ interface SkillCategory {
 }
 
 const SKILL_CATEGORIES: SkillCategory[] = [
-  { id: 'workapp', tags: ['Python', 'LLM', 'JSON', 'Docker', 'PowerShell'] },
-  { id: 'workinfra', tags: ['Linux', 'Azure', 'PostgreSQL', 'MySQL', 'Bash'] },
-  { id: '42tokyo', tags: ['C', 'Python', 'POSIX', 'Algorithms', 'Pydantic', 'Git', 'Makefile'] },
-  { id: 'frontend', tags: ['React', 'Astro', 'TypeScript', 'Tailwind CSS'] },
+  { id: 'backend', tags: ['Python', 'JSON', 'Pydantic', 'LLM'] },
+  { id: 'database', tags: ['PostgreSQL', 'MySQL'] },
+  { id: 'infrastructure', tags: ['Linux', 'Azure', 'Docker', 'Bash'] },
+  { id: 'engineering', tags: ['Git', 'C', 'POSIX', 'Algorithms'] },
+  { id: 'additional', tags: ['TypeScript', 'React', 'Astro'] },
 ];
 
 /** Stable element ID used by PortfolioContainer to scroll here */

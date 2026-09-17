@@ -22,16 +22,16 @@ const PROJECTS: PortfolioProject[] = [
     "videoUrl": "/videos/call-me-maybe-demo.mp4",
     "highlights": {
       "ja": [
-        "自然言語をローカルLLMでFunction Call JSONへ変換。",
+        "自然言語から呼び出す関数を選び、型付きJSON引数を生成するローカルLLMツール。",
         "JSON構文と引数型の制約を守る生成が課題。",
         "関数選択と引数生成を分離し、制約付き生成・Pydantic検証を実装。",
-        "責務分離とエラー処理を備え、Integration Testで動作を検証。"
+        "4種類の関数で関数選択・JSON生成・型整合性をIntegration Testにより検証。"
       ],
       "en": [
-        "Local LLM converts natural language into function-call JSON.",
+        "A local LLM tool that selects a function and generates typed JSON arguments from natural language.",
         "Challenge: enforce JSON syntax and argument types.",
         "Separate selection and argument generation with constrained decoding and Pydantic.",
-        "Modular responsibilities, error handling and integration tests."
+        "Integration tests verify function selection, JSON generation and type safety across four functions."
       ]
     }
   },
@@ -55,13 +55,13 @@ const PROJECTS: PortfolioProject[] = [
         "複数スレッドが共有資源を取り合う並行処理シミュレーション。",
         "デッドロック・飢餓・資源配分の公平性が課題。",
         "mutexの取得順序とmin-heapによるFIFO・EDFを実装。",
-        "資源の待機・クールダウン・停止監視とログ出力を実装。"
+        "待機・コンパイル・回復の状態を管理し、各ワーカーの完了までを可視化。"
       ],
       "en": [
         "POSIX-thread simulation of shared resource contention.",
         "Challenge: deadlocks, starvation and fair arbitration.",
         "Ordered mutex acquisition and min-heap FIFO/EDF scheduling.",
-        "Implemented waiting, cooldown, stop monitoring and serialized logs."
+        "Managed waiting, compiling and recovery states, with visualization through worker completion."
       ]
     }
   },
@@ -85,13 +85,13 @@ const PROJECTS: PortfolioProject[] = [
         "グラフ上で複数ドローンの移動を計画・可視化。",
         "経路だけでなく、区画・接続の容量と混雑を考慮。",
         "重み付き経路探索とターン単位の移動制御を分離。",
-        "入力検証、容量チェック、pygameによる可視化まで実装。"
+        "入力検証と容量違反チェックを行い、全ドローンの到着までをpygameで可視化。"
       ],
       "en": [
         "Plan and visualize drone movements across a graph.",
         "Challenge: zone/link capacities and congestion.",
         "Separate weighted pathfinding from turn-based scheduling.",
-        "Implemented input validation, capacity checks and pygame visualization."
+        "Validated inputs and capacity constraints, then visualized every drone through arrival in pygame."
       ]
     }
   },
@@ -221,7 +221,7 @@ function PortfolioCard({
         <dl className="space-y-2 text-sm leading-relaxed">
           {project.highlights?.[language].map((value, index) => (
             <div key={index}>
-              <dt className="font-bold text-xs mb-0.5">{(language === 'ja' ? ['作ったもの', '課題', '工夫', '実装・検証'] : ['Built', 'Challenge', 'Approach', 'Outcome'])[index]}</dt>
+              <dt className="font-bold text-xs mb-0.5">{(language === 'ja' ? ['作ったもの', '技術的課題', '実装', '結果'] : ['Built', 'Technical challenge', 'Implementation', 'Result'])[index]}</dt>
               <dd className="opacity-75">{value}</dd>
             </div>
           ))}
@@ -329,7 +329,7 @@ export default function PortfolioContainer({ onNavigateToSkills }: { onNavigateT
         )}
       </div>
 
-      <p className="text-sm opacity-65 mb-6">{language === 'ja' ? '42 Tokyoでの個人・共同開発。設計と実装の詳細は各GitHub READMEへ。' : 'Individual and collaborative 42 Tokyo projects. See each GitHub README for implementation details.'}</p>
+      <p className="text-sm opacity-65 mb-6">{language === 'ja' ? 'バックエンドの信頼性、構造化データ、並行処理、アルゴリズムに焦点を当てた技術プロジェクト。' : 'Selected engineering projects focused on backend reliability, structured data, concurrency, and algorithms.'}</p>
       {/* Cards grid */}
       {displayed.length === 0 ? (
         <p className="text-sm opacity-50 font-mono py-12 text-center">

@@ -1,8 +1,8 @@
 {
   "profile": {
     "name": "若月 洸 / Hikaru Wakatsuki",
-    "title": "Infrastructure × Python / LLM × CS fundamentals",
-    "bio": "通信基盤のLinux・Azure・DBで約4年の実務経験。Python・生成AIの業務アプリを設計・実装・評価からリリースまで担当しています。42 TokyoではC・Pythonでアルゴリズム、並行処理、LLMの構造化出力とチーム開発に取り組んでいます。基盤とアプリの経験を活かすSoftware Engineerを目指しています。"
+    "title": "Backend Engineer / Python",
+    "bio": "約4年間、通信基盤でLinux・Azure・データベースの設計・構築・移行を経験。現在はPythonを用いた業務アプリケーションの設計・実装・評価・リリースを担当しています。インフラで培った運用視点と、LLM連携・構造化データ・並行処理・アルゴリズムの知識を、信頼性の高いバックエンド開発に活かします。"
   },
   "cli": {
     "welcome": "Hikaru OS Booting...\nSystem ready. Type 'help' to see available commands.",
@@ -12,11 +12,11 @@
     "hover": {
       "profile": {
         "cmd": "cat profile.json",
-        "content": "若月 洸 — Python・生成AIアプリ開発 / Linux・Azure / 42Tokyo"
+        "content": "若月 洸 — Backend Engineer / Python"
       },
       "skills": {
         "cmd": "cat skills.json",
-        "content": "Python · LLM · Linux · Azure · PostgreSQL · C · POSIX"
+        "content": "Python · JSON · Pydantic · PostgreSQL · Linux · Azure · C · POSIX"
       },
       "portfolio": {
         "cmd": "ls portfolio/",
@@ -29,10 +29,11 @@
     }
   },
   "skills": {
-    "workapp": "実務 · アプリケーション開発",
-    "workinfra": "実務 · 通信基盤",
-    "42tokyo": "学習・個人／共同開発 · 42 Tokyo",
-    "frontend": "個人開発 · このサイト"
+    "backend": "Backend",
+    "database": "Database",
+    "infrastructure": "Infrastructure & Cloud",
+    "engineering": "Engineering & CS",
+    "additional": "Additional"
   },
   "contact": {
     "heading": "お問い合わせ",

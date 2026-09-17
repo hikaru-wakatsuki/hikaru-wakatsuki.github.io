@@ -42,8 +42,8 @@ const FALLBACK: Record<Language, Translations> = {
   en: {
     profile: {
       name: 'Hikaru Wakatsuki',
-      title: 'Infrastructure × Python / LLM × CS fundamentals',
-      bio: 'Around four years of hands-on Linux, Azure and database experience in telecom infrastructure. I design, implement, evaluate and release Python/LLM business applications. At 42 Tokyo, I build algorithms, concurrent systems and structured LLM output in C and Python, including team development. My goal is to grow as a software engineer connecting infrastructure and application development.',
+      title: 'Backend Engineer / Python',
+      bio: 'After around four years designing and migrating Linux, Azure and database infrastructure for telecom systems, I now design, implement, evaluate and release Python business applications. I bring an operations-focused infrastructure perspective, plus experience with LLM integration, structured data, concurrency and algorithms, to reliable backend development.',
     },
     cli: {
       welcome: "Hikaru OS Booting...\nSystem ready. Type 'help' to see available commands.",
@@ -52,8 +52,8 @@ const FALLBACK: Record<Language, Translations> = {
   ja: {
     profile: {
       name: '若月 洸 / Hikaru Wakatsuki',
-      title: 'Infrastructure × Python / LLM × CS fundamentals',
-      bio: '通信基盤のLinux・Azure・DBで約4年の実務経験。Python・生成AIの業務アプリを設計・実装・評価からリリースまで担当しています。42 TokyoではC・Pythonでアルゴリズム、並行処理、LLMの構造化出力とチーム開発に取り組んでいます。基盤とアプリの経験を活かすSoftware Engineerを目指しています。',
+      title: 'Backend Engineer / Python',
+      bio: '約4年間、通信基盤でLinux・Azure・データベースの設計・構築・移行を経験。現在はPythonを用いた業務アプリケーションの設計・実装・評価・リリースを担当しています。インフラで培った運用視点と、LLM連携・構造化データ・並行処理・アルゴリズムの知識を、信頼性の高いバックエンド開発に活かします。',
     },
     cli: {
       welcome: "Hikaru OS Booting...\nSystem ready. Type 'help' to see available commands.",
