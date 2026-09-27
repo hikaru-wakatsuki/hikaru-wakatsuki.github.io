@@ -112,7 +112,7 @@ function Spinner({ color }: { color: string }) {
 // ─── ContactContainer ─────────────────────────────────────────────────────────
 
 export default function ContactContainer() {
-  const { t, theme, language, triggerHoverLog, clearHoverLog } = useAppState();
+  const { t, theme, language } = useAppState();
   const isDark = theme === 'dark';
   const uid = useId();
 
@@ -304,8 +304,6 @@ export default function ContactContainer() {
 
       <section
         data-contact-form
-        onMouseEnter={() => triggerHoverLog('contact')}
-        onMouseLeave={() => clearHoverLog()}
         style={{ padding: '2rem', borderBottom: `1px solid ${sectionBorder}` }}
         aria-label="Contact"
       >

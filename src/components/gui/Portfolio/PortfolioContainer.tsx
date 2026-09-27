@@ -226,8 +226,6 @@ interface CardProps {
   activeTag: string | null;
   onTagClick: (tag: string) => void;
   onOpenVideo: (project: PortfolioProject) => void;
-  onHoverEnter: () => void;
-  onHoverLeave: () => void;
 }
 
 function PortfolioCard({
@@ -236,26 +234,22 @@ function PortfolioCard({
   activeTag,
   onTagClick,
   onOpenVideo,
-  onHoverEnter,
-  onHoverLeave,
 }: CardProps) {
   const videoRef = useRef<HTMLVideoElement>(null);
 
   const handleMouseEnter = useCallback(() => {
-    onHoverEnter();
     videoRef.current?.play().catch(() => {
       // Autoplay may be blocked by browser policy; silently ignore
     });
-  }, [onHoverEnter]);
+  }, []);
 
   const handleMouseLeave = useCallback(() => {
-    onHoverLeave();
     const v = videoRef.current;
     if (v) {
       v.pause();
       v.currentTime = 0;
     }
-  }, [onHoverLeave]);
+  }, []);
 
   return (
     <article
@@ -479,7 +473,7 @@ export default function PortfolioContainer({
   onClearTag,
 }: PortfolioContainerProps) {
   // [C-3] Use language from AppStateContext so EN/JP toggle updates card descriptions
-  const { language, triggerHoverLog, clearHoverLog } = useAppState();
+  const { language } = useAppState();
 
   const [expandedProject, setExpandedProject] = useState<PortfolioProject | null>(null);
 
@@ -516,8 +510,6 @@ export default function PortfolioContainer({
     <section
       className="w-full px-6 py-8"
       style={{ color: 'var(--color-text)' }}
-      onMouseEnter={() => triggerHoverLog('portfolio')}
-      onMouseLeave={() => clearHoverLog()}
     >
       {/* Header */}
       <div
@@ -572,8 +564,6 @@ export default function PortfolioContainer({
               activeTag={activeTag}
               onTagClick={handleCardTagClick}
               onOpenVideo={setExpandedProject}
-              onHoverEnter={() => triggerHoverLog(`portfolio-${project.id}`)}
-              onHoverLeave={() => clearHoverLog()}
             />
           ))}
         </div>

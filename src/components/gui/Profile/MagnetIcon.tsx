@@ -8,8 +8,6 @@ interface MagnetIconProps {
   label: string;
   children: React.ReactNode;
   isDark: boolean;
-  onFocusEnter?: () => void;
-  onFocusLeave?: () => void;
   onClick?: React.MouseEventHandler<HTMLAnchorElement>;
 }
 
@@ -18,8 +16,6 @@ export default function MagnetIcon({
   label,
   children,
   isDark,
-  onFocusEnter,
-  onFocusLeave,
   onClick,
 }: MagnetIconProps) {
   const anchorRef = useRef<HTMLAnchorElement>(null);
@@ -78,8 +74,6 @@ export default function MagnetIcon({
       rel={opensInCurrentPage ? undefined : 'noopener noreferrer'}
       aria-label={label}
       onClick={onClick}
-      onMouseEnter={onFocusEnter}
-      onMouseLeave={onFocusLeave}
       style={{
         display: 'inline-flex',
         alignItems: 'center',

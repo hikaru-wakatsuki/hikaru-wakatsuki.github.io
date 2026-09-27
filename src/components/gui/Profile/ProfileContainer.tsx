@@ -91,7 +91,7 @@ function Tag({ isDark, children }: { isDark: boolean; children: React.ReactNode 
 // ─── Main component ────────────────────────────────────────────────────────
 
 export default function ProfileContainer() {
-  const { t, theme, language, triggerHoverLog, clearHoverLog } = useAppState();
+  const { t, theme, language } = useAppState();
 
   const isDark = theme === 'dark';
   const textColor = isDark ? '#00FF66' : '#1A1A1A';
@@ -119,8 +119,6 @@ export default function ProfileContainer() {
 
   return (
     <section
-      onMouseEnter={() => triggerHoverLog('profile')}
-      onMouseLeave={() => clearHoverLog()}
       style={{
         padding: '2rem',
         fontFamily: "'Courier New', Courier, monospace",
@@ -197,8 +195,6 @@ export default function ProfileContainer() {
                 href={href}
                 label={label}
                 isDark={isDark}
-                onFocusEnter={() => triggerHoverLog(`profile-link-${id}`)}
-                onFocusLeave={() => clearHoverLog()}
               >
                 {icon}
               </MagnetIcon>
@@ -208,8 +204,6 @@ export default function ProfileContainer() {
               label={language === 'ja' ? 'お問い合わせへ移動' : 'Go to contact form'}
               isDark={isDark}
               onClick={navigateToContact}
-              onFocusEnter={() => triggerHoverLog('profile-link-contact')}
-              onFocusLeave={() => clearHoverLog()}
             >
               <MailIcon />
             </MagnetIcon>

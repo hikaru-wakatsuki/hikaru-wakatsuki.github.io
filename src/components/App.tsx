@@ -1,12 +1,10 @@
 import { useState, useEffect, type ReactNode } from 'react';
 import { AppStateProvider, useAppState } from '../context/AppStateContext';
-import SplitView from './core/SplitView';
 import ProfileContainer from './gui/Profile/ProfileContainer';
 import CareerContainer from './gui/Career/CareerContainer';
 import SkillsContainer, { SKILLS_SECTION_ID } from './gui/Skills/SkillsContainer';
 import PortfolioContainer, { PROJECT_TAG_COUNTS } from './gui/Portfolio/PortfolioContainer';
 import ContactContainer from './gui/Contact/ContactContainer';
-import TerminalContainer from './cli/TerminalContainer';
 
 // ── Controls bar (theme + language toggles) ───────────────────────────────────
 
@@ -273,10 +271,7 @@ function GuiArea() {
 export default function App() {
   return (
     <AppStateProvider>
-      <SplitView
-        upperContent={<GuiArea />}
-        lowerContent={<TerminalContainer />}
-      />
+      <GuiArea />
     </AppStateProvider>
   );
 }

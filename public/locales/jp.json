@@ -4,28 +4,6 @@
     "title": "Backend Engineer / Python",
     "bio": "約4年間、通信基盤でLinux・Azure・データベースの設計・構築・移行を経験。現在はPythonを用いた業務アプリケーションの設計・実装・評価・リリースを担当しています。インフラで培った運用視点と、LLM連携・構造化データ・並行処理・アルゴリズムの知識を、信頼性の高いバックエンド開発に活かします。"
   },
-  "cli": {
-    "welcome": "Hikaru OS Booting...\nSystem ready. Type 'help' to see available commands.",
-    "notFound": "コマンドが見つかりません。'help' と入力してください",
-    "hover": {
-      "profile": {
-        "cmd": "cat profile.json",
-        "content": "若月 洸 — Backend Engineer / Python"
-      },
-      "skills": {
-        "cmd": "cat skills.json",
-        "content": "Python · JSON · Pydantic · PostgreSQL · Linux · Azure · C · POSIX"
-      },
-      "portfolio": {
-        "cmd": "ls portfolio/",
-        "content": "Call Me Maybe · Codexion · Fly-in · A-Maze-ing"
-      },
-      "contact": {
-        "cmd": "vim contact.form",
-        "content": "お問い合わせフォームが準備できています。"
-      }
-    }
-  },
   "skills": {
     "backend": "Backend",
     "backendDescription": "Python業務アプリの設計・実装・評価・リリースができます。",

@@ -4,28 +4,6 @@
     "title": "Backend Engineer / Python",
     "bio": "After around four years designing and migrating Linux, Azure and database infrastructure for telecom systems, I now design, implement, evaluate and release Python business applications. I bring an operations-focused infrastructure perspective, plus experience with LLM integration, structured data, concurrency and algorithms, to reliable backend development."
   },
-  "cli": {
-    "welcome": "Hikaru OS Booting...\nSystem ready. Type 'help' to see available commands.",
-    "notFound": "command not found — try 'help'",
-    "hover": {
-      "profile": {
-        "cmd": "cat profile.json",
-        "content": "Hikaru Wakatsuki — Backend Engineer / Python"
-      },
-      "skills": {
-        "cmd": "cat skills.json",
-        "content": "Python · JSON · Pydantic · PostgreSQL · Linux · Azure · C · POSIX"
-      },
-      "portfolio": {
-        "cmd": "ls portfolio/",
-        "content": "Call Me Maybe · Codexion · Fly-in · A-Maze-ing"
-      },
-      "contact": {
-        "cmd": "vim contact.form",
-        "content": "Contact form ready — feel free to send a message."
-      }
-    }
-  },
   "skills": {
     "backend": "Backend",
     "backendDescription": "Design, implement, evaluate and release Python business applications.",

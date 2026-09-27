@@ -27,11 +27,6 @@ interface AppState {
 
   // Localization
   t: (key: string) => string;
-
-  // Event Bridge: GUI hover → CLI log
-  activeHoverId: string | null;
-  triggerHoverLog: (elementId: string) => void;
-  clearHoverLog: () => void;
 }
 
 // ---------------------------------------------------------------------------
@@ -44,9 +39,6 @@ const FALLBACK: Record<Language, Translations> = {
       name: 'Hikaru Wakatsuki',
       title: 'Backend Engineer / Python',
       bio: 'After around four years designing and migrating Linux, Azure and database infrastructure for telecom systems, I now design, implement, evaluate and release Python business applications. I bring an operations-focused infrastructure perspective, plus experience with LLM integration, structured data, concurrency and algorithms, to reliable backend development.',
-    },
-    cli: {
-      welcome: "Hikaru OS Booting...\nSystem ready. Type 'help' to see available commands.",
     },
     skills: {
       backend: 'Backend',
@@ -91,9 +83,6 @@ const FALLBACK: Record<Language, Translations> = {
       name: '若月 洸 / Hikaru Wakatsuki',
       title: 'Backend Engineer / Python',
       bio: '約4年間、通信基盤でLinux・Azure・データベースの設計・構築・移行を経験。現在はPythonを用いた業務アプリケーションの設計・実装・評価・リリースを担当しています。インフラで培った運用視点と、LLM連携・構造化データ・並行処理・アルゴリズムの知識を、信頼性の高いバックエンド開発に活かします。',
-    },
-    cli: {
-      welcome: "Hikaru OS Booting...\nSystem ready. Type 'help' to see available commands.",
     },
     skills: {
       backend: 'Backend',
@@ -170,7 +159,6 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
   const [theme, setThemeState] = useState<Theme>(getInitialTheme);
   const [language, setLanguageState] = useState<Language>(getInitialLanguage);
   const [translations, setTranslations] = useState<Translations>(FALLBACK[getInitialLanguage()]);
-  const [activeHoverId, setActiveHoverId] = useState<string | null>(null);
 
   // Track previous language to avoid refetching the same locale
   const prevLangRef = useRef<Language | null>(null);
@@ -212,15 +200,6 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
   // ── Localization ─────────────────────────────────────────────────────────
   const t = useCallback((key: string) => lookup(translations, key), [translations]);
 
-  // ── Event Bridge ─────────────────────────────────────────────────────────
-  const triggerHoverLog = useCallback((elementId: string) => {
-    setActiveHoverId(elementId);
-  }, []);
-
-  const clearHoverLog = useCallback(() => {
-    setActiveHoverId(null);
-  }, []);
-
   return (
     <AppStateContext.Provider
       value={{
@@ -230,9 +209,6 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
         language,
         setLanguage,
         t,
-        activeHoverId,
-        triggerHoverLog,
-        clearHoverLog,
       }}
     >
       {children}

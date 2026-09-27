@@ -35,14 +35,12 @@ export default function SkillsContainer({
   onSelectProjectTag,
   onClearProjectTag,
 }: SkillsContainerProps) {
-  const { t, language, triggerHoverLog, clearHoverLog } = useAppState();
+  const { t, language } = useAppState();
 
   return (
     <section
       className="w-full px-6 py-8 scroll-mt-4"
       style={{ color: 'var(--color-text)' }}
-      onMouseEnter={() => triggerHoverLog('skills')}
-      onMouseLeave={() => clearHoverLog()}
     >
       <div className="flex items-center gap-3 mb-6">
         <p className="text-sm leading-7 opacity-65">
