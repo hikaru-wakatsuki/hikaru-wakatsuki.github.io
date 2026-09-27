@@ -120,7 +120,7 @@ export default function CareerContainer() {
   return (
     <div className="p-5 sm:p-8">
       <h3 className="font-bold text-xl sm:text-2xl leading-relaxed mb-8">
-        {ja ? '2022年にNEC入社。通信基盤開発を約4年経験し、2026年4月からPython業務アプリの設計・実装・評価・リリースを担当。' : 'Joined NEC in 2022, worked on telecom infrastructure for around four years, and moved into Python business-application design, implementation, evaluation and release in April 2026.'}
+        {ja ? '2022年にNECへ入社。インフラエンジニアとして約4年、通信事業者向けシステムの基盤設計・構築・移行を担当。2026年4月からPython業務アプリの設計・実装・評価・リリースを担当。' : 'Joined NEC in 2022 and spent around four years as an infrastructure engineer, designing, building and migrating platforms for telecom systems. Since April 2026, responsible for Python business-application design, implementation, evaluation and release.'}
       </h3>
       <ol className="divide-y divide-[var(--color-splitter)]" aria-label={ja ? '学歴・職歴・学習歴' : 'Education, employment and learning history'}>
         {history.map((entry) => (
