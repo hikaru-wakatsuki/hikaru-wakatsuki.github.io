@@ -46,7 +46,6 @@ function processCommand(
         '  help              Show this help message',
         '  clear             Clear terminal output',
         '  info              Display profile information',
-        '  ask "<question>"  Query the AI engine',
       ],
     };
   }
@@ -67,20 +66,6 @@ function processCommand(
         '│          Linux · Azure · C · POSIX       │',
         '│  GitHub:  github.com/hikaru-wakatsuki            │',
         '└──────────────────────────────────────────┘',
-      ],
-    };
-  }
-
-  // ask "question" or ask question — [C-2] response text now goes through t()
-  const askMatch =
-    trimmed.match(/^ask\s+"(.+)"$/i) ?? trimmed.match(/^ask\s+(.+)$/i);
-  if (askMatch) {
-    const question = askMatch[1];
-    return {
-      clear: false,
-      output: [
-        `AI Engine: "${question}" ${t('cli.askSuffix')}`,
-        t('cli.askPending'),
       ],
     };
   }

@@ -24,8 +24,8 @@ const PROJECTS: PortfolioProject[] = [
       "en": "Individual project"
     },
     "resultBadge": {
-      "ja": "Schema validation · 4 / 4 PASSED",
-      "en": "Schema validation · 4 / 4 PASSED"
+      "ja": "Demo · 4 / 4 schema-valid outputs",
+      "en": "Demo · 4 / 4 schema-valid outputs"
     },
     "highlights": {
       "ja": [
@@ -63,8 +63,8 @@ const PROJECTS: PortfolioProject[] = [
       "en": "Individual project"
     },
     "resultBadge": {
-      "ja": "Deadlocks · 0",
-      "en": "Deadlocks · 0"
+      "ja": "デモ · デッドロックなしで完了",
+      "en": "Demo · completed without deadlock"
     },
     "highlights": {
       "ja": [
@@ -102,8 +102,8 @@ const PROJECTS: PortfolioProject[] = [
       "en": "Individual project"
     },
     "resultBadge": {
-      "ja": "Capacity violations · 0",
-      "en": "Capacity violations · 0"
+      "ja": "デモ · 容量制約内で完了",
+      "en": "Demo · completed within capacity constraints"
     },
     "highlights": {
       "ja": [
@@ -147,25 +147,25 @@ const PROJECTS: PortfolioProject[] = [
     "collaboration": {
       "ja": [
         "2名で機能を分担し、Gitで変更を管理",
-        "迷路生成・最短経路・可視化を結合し、動作を確認"
+        "本人はDFS/BFS、最短経路、壁の4ビット表現、パッケージ化を担当"
       ],
       "en": [
         "Split features between two developers and managed changes with Git",
-        "Integrated maze generation, shortest-path search and visualization"
+        "My contribution: DFS/BFS, shortest-path search, four-bit wall encoding and packaging"
       ]
     },
     "highlights": {
       "ja": [
         "2名でPythonの迷路生成・最短経路・可視化を開発。",
         "壁のビット表現と生成条件を満たす迷路が課題。",
-        "DFS・BFS、設定検証、再現可能な乱数シードを実装。",
-        "mazegenを再利用可能なパッケージとして配布できる形に整理。"
+        "担当範囲としてDFS・BFS、最短経路、壁の4ビット表現を実装。",
+        "担当機能をmazegenとして再利用可能なパッケージに整理。"
       ],
       "en": [
         "Two-person Python maze generation and visualization project.",
         "Challenge: bit-encoded walls and generation constraints.",
-        "DFS/BFS, configuration validation and reproducible seeds.",
-        "Packaged mazegen as reusable wheel/source distributions."
+        "My contribution covered DFS/BFS, shortest-path search and four-bit wall encoding.",
+        "Packaged the contributed functionality as the reusable mazegen package."
       ]
     }
   },
@@ -188,8 +188,8 @@ const PROJECTS: PortfolioProject[] = [
       "en": "Individual project · Web"
     },
     "resultBadge": {
-      "ja": "GitHub Pages · CI/CD",
-      "en": "GitHub Pages · CI/CD"
+      "ja": "GitHub Pages · 自動デプロイ",
+      "en": "GitHub Pages · Automated deploy"
     },
     "compact": true,
     "highlights": {
@@ -549,7 +549,7 @@ export default function PortfolioContainer({
         )}
       </div>
 
-      <p className="text-sm opacity-65 mb-6">{language === 'ja' ? 'バックエンドの信頼性、構造化データ、並行処理、アルゴリズムに焦点を当てた技術プロジェクト。' : 'Selected engineering projects focused on backend reliability, structured data, concurrency, and algorithms.'}</p>
+      <p className="text-sm opacity-65 mb-6">{language === 'ja' ? '構造化データ、並行処理、スケジューリング、グラフ探索を扱った技術プロジェクト。' : 'Selected engineering projects covering structured data, concurrency, scheduling and graph search.'}</p>
       {/* Cards grid */}
       {displayed.length === 0 ? (
         <div className="py-12 text-center font-mono text-sm opacity-60">

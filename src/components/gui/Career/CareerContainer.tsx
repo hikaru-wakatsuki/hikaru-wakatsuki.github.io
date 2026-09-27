@@ -22,8 +22,8 @@ const COPY = {
       {
         institution: '日本電気株式会社', period: '2022年4月〜現在',
         points: [
-          'Pythonで業務アプリケーションの処理設計・実装・評価を担当。自動化ツールの登録・検索・推薦機能に、3段階のLLM処理、JSON出力検証、API障害時の検索フォールバックを実装し、約100名向けの環境へリリースしました。',
-          'Pythonを用いた議事録から担当者・期限・アクションを抽出するWebアプリを2名で開発・リリース。JSONと画面表示の連携、不具合調査、Docker環境整備を担当しました。',
+          'Pythonで業務アプリケーションの処理設計・実装・評価を担当。LLMを利用した処理、JSON出力検証、API障害時の検索フォールバックを実装し、利用部門向けの環境へリリースしました。',
+          'Pythonを用いた業務Webアプリをチームで開発・リリース。JSONと画面表示の連携、不具合調査、Docker環境整備を担当しました。',
           'それ以前は約4年、通信基盤のLinux・Azure・DBの設計、構築、移行、障害・性能調査を経験。運用まで考えたアプリ開発に活かしています。',
         ],
         links: [],
@@ -31,7 +31,7 @@ const COPY = {
       {
         institution: '42 Tokyo', period: '2025年10月〜現在',
         points: [
-          'Piscine参加者の上位5%。C・Python、アルゴリズム、並行処理、Git・Peer Reviewを継続的に学習しています。',
+          'Piscineを修了。C・Python、アルゴリズム、並行処理、Git・Peer Reviewを継続的に学習しています。',
           'ローカルLLMのFunction Callingで、関数選択・引数生成、制約付き生成、Pydantic検証・統合テストを実装。2名で迷路生成・可視化を開発し、再利用可能なPythonパッケージとして整理しました。',
           'CとPOSIX threadsで競合・デッドロック・公平性を検討し、mutexの取得順序やFIFO・EDFスケジューリングを実装しました。',
         ],
@@ -56,8 +56,8 @@ const COPY = {
       {
         institution: 'NEC Corporation', period: 'Apr 2022 — Present',
         points: [
-          'Design, implementation and evaluation of Python business-application logic. Built a three-stage LLM pipeline, JSON output validation and fallback search for API failures in an automation-tool registration, search and recommendation application; released it to an environment for approximately 100 users.',
-          'Developed and released a Python web application with one teammate to extract owners, deadlines and actions from meeting notes. Owned JSON-to-display integration, debugging and Docker environment setup.',
+          'Design, implementation and evaluation of Python business-application logic. Implemented LLM-assisted processing, JSON output validation and fallback search for API failures, then released the application to an internal user environment.',
+          'Developed and released a Python business web application with a team. Owned JSON-to-display integration, debugging and Docker environment setup.',
           'Previously spent around four years designing, building and migrating Linux, Azure and database infrastructure for telecom systems, including incident and performance investigations. This experience informs operationally aware application development.',
         ],
         links: [],
@@ -65,7 +65,7 @@ const COPY = {
       {
         institution: '42 Tokyo', period: 'Oct 2025 — Present',
         points: [
-          'Top 5% of Piscine participants. Continuing study of C, Python, algorithms, concurrency, Git and peer review.',
+          'Completed the Piscine. Continuing study of C, Python, algorithms, concurrency, Git and peer review.',
           'Implemented local LLM function calling with separate function selection and argument generation, constrained generation, Pydantic validation and integration tests. Built maze generation and visualization in a two-person team and packaged reusable Python functionality.',
           'Explored contention, deadlocks and fairness using C and POSIX threads; implemented mutex lock ordering and FIFO/EDF scheduling.',
         ],
@@ -105,7 +105,7 @@ export default function CareerContainer() {
     {
       institution: nec.institution,
       period: ja ? '2026年4月〜現在' : 'Apr 2026 — Present',
-      title: ja ? 'バックエンドエンジニア' : 'Backend Engineer',
+      title: ja ? 'Pythonアプリケーション開発' : 'Python application development',
       points: nec.points.slice(0, 2), links: [],
       badge: ja ? '現在の担当' : 'Current role',
     },

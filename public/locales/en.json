@@ -6,8 +6,6 @@
   },
   "cli": {
     "welcome": "Hikaru OS Booting...\nSystem ready. Type 'help' to see available commands.",
-    "askSuffix": "is being analyzed...",
-    "askPending": "(API integration coming soon)",
     "notFound": "command not found — try 'help'",
     "hover": {
       "profile": {
