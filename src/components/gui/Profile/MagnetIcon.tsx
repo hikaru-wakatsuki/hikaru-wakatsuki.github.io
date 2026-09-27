@@ -10,6 +10,7 @@ interface MagnetIconProps {
   isDark: boolean;
   onFocusEnter?: () => void;
   onFocusLeave?: () => void;
+  onClick?: React.MouseEventHandler<HTMLAnchorElement>;
 }
 
 export default function MagnetIcon({
@@ -19,6 +20,7 @@ export default function MagnetIcon({
   isDark,
   onFocusEnter,
   onFocusLeave,
+  onClick,
 }: MagnetIconProps) {
   const anchorRef = useRef<HTMLAnchorElement>(null);
   const [pos, setPos] = useState({ x: 0, y: 0 });
@@ -63,7 +65,8 @@ export default function MagnetIcon({
     return () => window.removeEventListener('mousemove', onMouseMove);
   }, []); // registered once on mount — inRangeRef handles state without re-subscribing
 
-  const isMailto = href.startsWith('mailto:');
+  const isInternal = href.startsWith('#');
+  const opensInCurrentPage = isInternal || href.startsWith('mailto:');
   const baseColor = isDark ? '#00FF66' : '#1A1A1A';
   const hoverBg = isDark ? 'rgba(0,255,102,0.12)' : 'rgba(26,26,26,0.08)';
 
@@ -71,9 +74,10 @@ export default function MagnetIcon({
     <a
       ref={anchorRef}
       href={href}
-      target={isMailto ? undefined : '_blank'}
-      rel={isMailto ? undefined : 'noopener noreferrer'}
+      target={opensInCurrentPage ? undefined : '_blank'}
+      rel={opensInCurrentPage ? undefined : 'noopener noreferrer'}
       aria-label={label}
+      onClick={onClick}
       onMouseEnter={onFocusEnter}
       onMouseLeave={onFocusLeave}
       style={{

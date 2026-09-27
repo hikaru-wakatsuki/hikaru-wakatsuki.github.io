@@ -80,6 +80,7 @@
     "errorRequired": "Required",
     "errorEmail": "Invalid email address",
     "errorMinLength": "At least 10 characters required",
-    "errorNetwork": "Failed to send — please try again."
+    "errorNetwork": "Failed to send — please try again.",
+    "emailFallback": "If the form is unavailable, contact me by email:"
   }
 }

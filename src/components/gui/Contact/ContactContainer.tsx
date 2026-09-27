@@ -26,6 +26,7 @@ const FALLBACK: Record<Language, Record<string, string>> = {
     'contact.errorEmail': 'Invalid email address',
     'contact.errorMinLength': 'At least 10 characters required',
     'contact.errorNetwork': 'Failed to send — please try again.',
+    'contact.emailFallback': 'If the form is unavailable, contact me by email:',
   },
   ja: {
     'contact.heading': 'お問い合わせ',
@@ -43,6 +44,7 @@ const FALLBACK: Record<Language, Record<string, string>> = {
     'contact.errorEmail': '有効なメールアドレスを入力してください',
     'contact.errorMinLength': '10文字以上で入力してください',
     'contact.errorNetwork': '送信に失敗しました。もう一度お試しください。',
+    'contact.emailFallback': 'フォームを利用できない場合は、メールでご連絡ください：',
   },
 };
 
@@ -441,6 +443,25 @@ export default function ContactContainer() {
             {formState.submitting ? ct('contact.submitting') : ct('contact.submit')}
           </button>
         </form>
+
+        <p
+          style={{
+            maxWidth: '36rem',
+            margin: '1rem 0 0',
+            fontSize: '0.75rem',
+            lineHeight: 1.6,
+            color: dimColor,
+            fontFamily: "'Courier New', Courier, monospace",
+          }}
+        >
+          {ct('contact.emailFallback')}{' '}
+          <a
+            href="mailto:waka9648hika46@gmail.com"
+            style={{ color: textColor, textUnderlineOffset: '0.2em' }}
+          >
+            waka9648hika46@gmail.com
+          </a>
+        </p>
       </section>
 
       {/* ── Toast notification (fixed, outside form flow) ── */}

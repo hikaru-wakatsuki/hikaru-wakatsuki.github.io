@@ -80,6 +80,7 @@
     "errorRequired": "必須項目です",
     "errorEmail": "有効なメールアドレスを入力してください",
     "errorMinLength": "10文字以上で入力してください",
-    "errorNetwork": "送信に失敗しました。もう一度お試しください。"
+    "errorNetwork": "送信に失敗しました。もう一度お試しください。",
+    "emailFallback": "フォームを利用できない場合は、メールでご連絡ください："
   }
 }

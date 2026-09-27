@@ -11,14 +11,6 @@ function GitHubIcon() {
   );
 }
 
-function XIcon() {
-  return (
-    <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" aria-hidden>
-      <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-4.714-6.231-5.401 6.231H2.744l7.73-8.835L1.254 2.25H8.08l4.26 5.632zm-1.161 17.52h1.833L7.084 4.126H5.117z" />
-    </svg>
-  );
-}
-
 function LinkedInIcon() {
   return (
     <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" aria-hidden>
@@ -45,22 +37,10 @@ const SOCIAL_LINKS = [
     icon: <GitHubIcon />,
   },
   {
-    id: 'twitter',
-    label: 'X (Twitter)',
-    href: 'https://x.com/',
-    icon: <XIcon />,
-  },
-  {
     id: 'linkedin',
     label: 'LinkedIn',
-    href: 'https://linkedin.com/in/',
+    href: 'https://www.linkedin.com/in/hikaru-wakatsuki/',
     icon: <LinkedInIcon />,
-  },
-  {
-    id: 'email',
-    label: 'Email',
-    href: 'mailto:waka9648hika46@gmail.com',
-    icon: <MailIcon />,
   },
 ] as const;
 
@@ -111,11 +91,31 @@ function Tag({ isDark, children }: { isDark: boolean; children: React.ReactNode 
 // ─── Main component ────────────────────────────────────────────────────────
 
 export default function ProfileContainer() {
-  const { t, theme, triggerHoverLog, clearHoverLog } = useAppState();
+  const { t, theme, language, triggerHoverLog, clearHoverLog } = useAppState();
 
   const isDark = theme === 'dark';
   const textColor = isDark ? '#00FF66' : '#1A1A1A';
   const dimColor = isDark ? 'rgba(0,255,102,0.65)' : 'rgba(26,26,26,0.6)';
+
+  const navigateToContact = (event: React.MouseEvent<HTMLAnchorElement>) => {
+    event.preventDefault();
+    const section = document.getElementById('contact-section');
+    const content = document.getElementById('contact-section-content');
+
+    if (content?.hidden) {
+      section
+        ?.querySelector<HTMLButtonElement>('button[aria-controls="contact-section-content"]')
+        ?.click();
+    }
+
+    requestAnimationFrame(() => {
+      section?.scrollIntoView({
+        behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth',
+        block: 'start',
+      });
+      document.getElementById('contact-section-title')?.focus({ preventScroll: true });
+    });
+  };
 
   return (
     <section
@@ -203,6 +203,16 @@ export default function ProfileContainer() {
                 {icon}
               </MagnetIcon>
             ))}
+            <MagnetIcon
+              href="#contact-section"
+              label={language === 'ja' ? 'お問い合わせへ移動' : 'Go to contact form'}
+              isDark={isDark}
+              onClick={navigateToContact}
+              onFocusEnter={() => triggerHoverLog('profile-link-contact')}
+              onFocusLeave={() => clearHoverLog()}
+            >
+              <MailIcon />
+            </MagnetIcon>
           </div>
         </div>
       </div>
