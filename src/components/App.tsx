@@ -4,7 +4,7 @@ import SplitView from './core/SplitView';
 import ProfileContainer from './gui/Profile/ProfileContainer';
 import CareerContainer from './gui/Career/CareerContainer';
 import SkillsContainer, { SKILLS_SECTION_ID } from './gui/Skills/SkillsContainer';
-import PortfolioContainer from './gui/Portfolio/PortfolioContainer';
+import PortfolioContainer, { PROJECT_TAG_COUNTS } from './gui/Portfolio/PortfolioContainer';
 import ContactContainer from './gui/Contact/ContactContainer';
 import TerminalContainer from './cli/TerminalContainer';
 
@@ -152,6 +152,7 @@ function GuiArea() {
     'contact-section': true,
   });
   const [activeSection, setActiveSection] = useState<SectionId>('career-section');
+  const [selectedTechnology, setSelectedTechnology] = useState<string | null>(null);
 
   useEffect(() => {
     setMenuOpen(window.matchMedia('(min-width: 768px)').matches);
@@ -177,10 +178,36 @@ function GuiArea() {
     });
   };
 
+  const selectTechnologyFromSkills = (tag: string) => {
+    setSelectedTechnology((current) => current === tag ? null : tag);
+    setOpenSections((previous) => ({ ...previous, 'portfolio-section': true }));
+    setActiveSection('portfolio-section');
+    if (window.matchMedia('(max-width: 767px)').matches) setMenuOpen(false);
+
+    requestAnimationFrame(() => {
+      document.getElementById('portfolio-section')?.scrollIntoView({
+        behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth',
+        block: 'start',
+      });
+      requestAnimationFrame(() => {
+        document.getElementById('portfolio-filter-status')?.focus({ preventScroll: true });
+      });
+    });
+  };
+
   const contents = [
     <CareerContainer />,
-    <SkillsContainer />,
-    <PortfolioContainer onNavigateToSkills={() => navigateToSection(SKILLS_SECTION_ID)} />,
+    <SkillsContainer
+      activeTag={selectedTechnology}
+      projectTagCounts={PROJECT_TAG_COUNTS}
+      onSelectProjectTag={selectTechnologyFromSkills}
+      onClearProjectTag={() => setSelectedTechnology(null)}
+    />,
+    <PortfolioContainer
+      activeTag={selectedTechnology}
+      onSelectTag={(tag) => setSelectedTechnology((current) => current === tag ? null : tag)}
+      onClearTag={() => setSelectedTechnology(null)}
+    />,
     <ContactContainer />,
   ];
 

@@ -1,7 +1,5 @@
 import { useRef, useCallback, useEffect, useState } from 'react';
 import type { PortfolioProject } from '../../../types/portfolio';
-import { useTagFilter } from '../Skills/tagFilterStore';
-import { SKILLS_SECTION_ID } from '../Skills/SkillsContainer';
 import { useAppState } from '../../../context/AppStateContext';
 
 const PROJECTS: PortfolioProject[] = [
@@ -14,6 +12,7 @@ const PROJECTS: PortfolioProject[] = [
     },
     "tags": [
       "Python",
+      "JSON",
       "LLM",
       "Pydantic"
     ],
@@ -53,7 +52,8 @@ const PROJECTS: PortfolioProject[] = [
     "tags": [
       "C",
       "POSIX",
-      "Algorithms"
+      "Algorithms",
+      "Git"
     ],
     "githubUrl": "https://github.com/hikaru-wakatsuki/Codexion",
     "imageUrl": "/videos/codexion-demo-poster.png",
@@ -91,7 +91,8 @@ const PROJECTS: PortfolioProject[] = [
     "tags": [
       "Python",
       "Algorithms",
-      "pygame"
+      "pygame",
+      "Git"
     ],
     "githubUrl": "https://github.com/hikaru-wakatsuki/Fly-in",
     "imageUrl": "/videos/fly-in-demo-poster.png",
@@ -129,7 +130,8 @@ const PROJECTS: PortfolioProject[] = [
     "tags": [
       "Python",
       "Pydantic",
-      "Algorithms"
+      "Algorithms",
+      "Git"
     ],
     "githubUrl": "https://github.com/souaoao/A-Maze-ing",
     "imageUrl": "/videos/a-maze-ing-demo-poster.png",
@@ -166,8 +168,55 @@ const PROJECTS: PortfolioProject[] = [
         "Packaged mazegen as reusable wheel/source distributions."
       ]
     }
+  },
+  {
+    "id": "this-portfolio",
+    "title": "This Portfolio",
+    "description": {
+      "ja": "経歴と技術実績を日英で伝えるポートフォリオサイト。",
+      "en": "A bilingual portfolio presenting career history and engineering evidence."
+    },
+    "tags": [
+      "TypeScript",
+      "React",
+      "Astro",
+      "Git"
+    ],
+    "githubUrl": "https://github.com/hikaru-wakatsuki/hikaru-wakatsuki.github.io",
+    "projectType": {
+      "ja": "個人開発 · Web",
+      "en": "Individual project · Web"
+    },
+    "resultBadge": {
+      "ja": "GitHub Pages · CI/CD",
+      "en": "GitHub Pages · CI/CD"
+    },
+    "compact": true,
+    "highlights": {
+      "ja": [
+        "経歴・スキル・開発実績を日英で確認できるレスポンシブなポートフォリオ。",
+        "情報量を保ちながら、採用担当が実績の根拠へ短時間で移動できる構成が課題。",
+        "Astroの静的生成、Reactの操作UI、TypeScript、技術タグ絞り込みを実装。",
+        "GitHub Actionsでビルドし、GitHub Pagesへ継続的に公開。"
+      ],
+      "en": [
+        "A responsive bilingual portfolio for reviewing career history, skills and engineering work.",
+        "Challenge: preserve detail while helping recruiters reach supporting evidence quickly.",
+        "Built with Astro static generation, React interactions, TypeScript and technology filters.",
+        "Continuously built with GitHub Actions and published on GitHub Pages."
+      ]
+    }
   }
 ];
+
+export const PROJECT_TAG_COUNTS: Readonly<Record<string, number>> = Object.freeze(
+  PROJECTS.reduce<Record<string, number>>((counts, project) => {
+    project.tags.forEach((tag) => {
+      counts[tag] = (counts[tag] ?? 0) + 1;
+    });
+    return counts;
+  }, {}),
+);
 
 // ── PortfolioCard ─────────────────────────────────────────────────────────────
 
@@ -213,6 +262,7 @@ function PortfolioCard({
       className={[
         'rounded-lg overflow-hidden border transition-all duration-200',
         'hover:shadow-lg hover:-translate-y-0.5',
+        project.compact ? 'max-w-4xl' : '',
       ].join(' ')}
       style={{
         borderColor: 'var(--color-splitter)',
@@ -320,6 +370,7 @@ function PortfolioCard({
               return (
                 <button
                   key={tag}
+                  type="button"
                   onClick={() => onTagClick(tag)}
                   className={[
                     'px-2 py-0.5 rounded text-xs font-mono border transition-all duration-150',
@@ -339,6 +390,8 @@ function PortfolioCard({
                           borderColor: 'var(--color-splitter)',
                         }
                   }
+                  aria-pressed={isActive}
+                  aria-label={language === 'ja' ? `${tag}でプロジェクトを絞り込む` : `Filter projects by ${tag}`}
                 >
                   {tag}
                 </button>
@@ -414,11 +467,20 @@ function VideoModal({ project, language, onClose }: {
 
 // ── PortfolioContainer ────────────────────────────────────────────────────────
 
-export default function PortfolioContainer({ onNavigateToSkills }: { onNavigateToSkills?: () => void }) {
+interface PortfolioContainerProps {
+  activeTag: string | null;
+  onSelectTag: (tag: string) => void;
+  onClearTag: () => void;
+}
+
+export default function PortfolioContainer({
+  activeTag,
+  onSelectTag,
+  onClearTag,
+}: PortfolioContainerProps) {
   // [C-3] Use language from AppStateContext so EN/JP toggle updates card descriptions
   const { language, triggerHoverLog, clearHoverLog } = useAppState();
 
-  const { activeTag, toggleTag } = useTagFilter();
   const [expandedProject, setExpandedProject] = useState<PortfolioProject | null>(null);
 
   useEffect(() => {
@@ -440,15 +502,14 @@ export default function PortfolioContainer({ onNavigateToSkills }: { onNavigateT
     ? PROJECTS.filter((p) => p.tags.includes(activeTag))
     : PROJECTS;
 
-  // ── Tag click from card: set filter + scroll to Skills ───────────────────
+  // Keep card-tag filtering in the Projects section so the result remains in view.
   const handleCardTagClick = useCallback((tag: string) => {
-    toggleTag(tag);
-    if (onNavigateToSkills) {
-      onNavigateToSkills();
-    } else {
-      document.getElementById(SKILLS_SECTION_ID)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
-    }
-  }, [toggleTag, onNavigateToSkills]);
+    onSelectTag(tag);
+  }, [onSelectTag]);
+
+  const projectCountLabel = language === 'ja'
+    ? `${displayed.length}件のプロジェクト`
+    : `${displayed.length} ${displayed.length === 1 ? 'project' : 'projects'}`;
 
   // ── Render ────────────────────────────────────────────────────────────────
   return (
@@ -459,7 +520,12 @@ export default function PortfolioContainer({ onNavigateToSkills }: { onNavigateT
       onMouseLeave={() => clearHoverLog()}
     >
       {/* Header */}
-      <div className="flex flex-wrap items-center gap-3 mb-6">
+      <div
+        id="portfolio-filter-status"
+        tabIndex={-1}
+        aria-live="polite"
+        className="flex flex-wrap items-center gap-3 mb-6 focus:outline-none"
+      >
         {activeTag && (
           <span
             className="text-xs px-2 py-0.5 rounded-full border font-mono"
@@ -468,15 +534,17 @@ export default function PortfolioContainer({ onNavigateToSkills }: { onNavigateT
               color: 'var(--color-cli-text)',
             }}
           >
-            filtered: {activeTag}
+            {language === 'ja' ? '選択中の技術' : 'Technology'}: {activeTag}
           </span>
         )}
+        <span className="font-mono text-xs opacity-60">{projectCountLabel}</span>
         {activeTag && (
           <button
-            onClick={() => toggleTag(activeTag)}
+            type="button"
+            onClick={onClearTag}
             className="text-xs underline opacity-50 hover:opacity-100 transition-opacity ml-auto"
           >
-            Clear ✕
+            {language === 'ja' ? '絞り込みを解除' : 'Clear filter'} ✕
           </button>
         )}
       </div>
@@ -484,9 +552,16 @@ export default function PortfolioContainer({ onNavigateToSkills }: { onNavigateT
       <p className="text-sm opacity-65 mb-6">{language === 'ja' ? 'バックエンドの信頼性、構造化データ、並行処理、アルゴリズムに焦点を当てた技術プロジェクト。' : 'Selected engineering projects focused on backend reliability, structured data, concurrency, and algorithms.'}</p>
       {/* Cards grid */}
       {displayed.length === 0 ? (
-        <p className="text-sm opacity-50 font-mono py-12 text-center">
-          No projects match &ldquo;{activeTag}&rdquo;.
-        </p>
+        <div className="py-12 text-center font-mono text-sm opacity-60">
+          <p>
+            {language === 'ja'
+              ? `「${activeTag}」に対応するプロジェクトが見つかりません。`
+              : `No projects match “${activeTag}”.`}
+          </p>
+          <button type="button" onClick={onClearTag} className="mt-3 underline underline-offset-4">
+            {language === 'ja' ? 'すべてのプロジェクトを表示' : 'Show all projects'}
+          </button>
+        </div>
       ) : (
         <div className="grid gap-8">
           {displayed.map((project) => (
@@ -503,12 +578,14 @@ export default function PortfolioContainer({ onNavigateToSkills }: { onNavigateT
           ))}
         </div>
       )}
-      <div className="mt-8 pt-6 border-t border-[var(--color-splitter)]">
-        <h3 className="font-bold mb-3">{language === 'ja' ? 'その他42課題' : 'Other 42 projects'}</h3>
-        <div className="flex flex-wrap gap-4 text-sm">
-          {['Push_swap', 'get_next_line', 'printf', 'Born2beroot', 'NetPractice'].map((name) => <a key={name} href={`https://github.com/hikaru-wakatsuki/${name}`} target="_blank" rel="noopener noreferrer" className="underline underline-offset-4">{name} ↗</a>)}
+      {!activeTag && (
+        <div className="mt-8 pt-6 border-t border-[var(--color-splitter)]">
+          <h3 className="font-bold mb-3">{language === 'ja' ? 'その他42課題' : 'Other 42 projects'}</h3>
+          <div className="flex flex-wrap gap-4 text-sm">
+            {['Push_swap', 'get_next_line', 'printf', 'Born2beroot', 'NetPractice'].map((name) => <a key={name} href={`https://github.com/hikaru-wakatsuki/${name}`} target="_blank" rel="noopener noreferrer" className="underline underline-offset-4">{name} ↗</a>)}
+          </div>
         </div>
-      </div>
+      )}
       {expandedProject && (
         <VideoModal
           project={expandedProject}

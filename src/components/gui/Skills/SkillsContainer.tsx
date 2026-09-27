@@ -1,5 +1,4 @@
 import { useAppState } from '../../../context/AppStateContext';
-import { useTagFilter } from './tagFilterStore';
 
 // ── Data ────────────────────────────────────────────────────────────────────
 
@@ -23,9 +22,20 @@ export const SKILLS_SECTION_ID = 'skills-section';
 
 // ── Component ────────────────────────────────────────────────────────────────
 
-export default function SkillsContainer() {
+interface SkillsContainerProps {
+  activeTag: string | null;
+  projectTagCounts: Readonly<Record<string, number>>;
+  onSelectProjectTag: (tag: string) => void;
+  onClearProjectTag: () => void;
+}
+
+export default function SkillsContainer({
+  activeTag,
+  projectTagCounts,
+  onSelectProjectTag,
+  onClearProjectTag,
+}: SkillsContainerProps) {
   const { t, language, triggerHoverLog, clearHoverLog } = useAppState();
-  const { activeTag, toggleTag } = useTagFilter();
 
   return (
     <section
@@ -37,8 +47,8 @@ export default function SkillsContainer() {
       <div className="flex items-center gap-3 mb-6">
         <p className="text-sm leading-7 opacity-65">
           {language === 'ja'
-            ? '技術名とあわせて、できることを示しています。技術タグを選択すると、その技術を使ったポートフォリオだけを表示できます。'
-            : 'Each category describes what I can build. Select a technology tag to show only the matching portfolio projects.'}
+            ? '技術名とあわせて、できることを示しています。ボタンになっている技術を選ぶと、その技術を確認できるプロジェクトへ移動します。実務経験の技術はラベルで区別しています。'
+            : 'Each category describes what I can build. Select a technology button to see the projects that demonstrate it. Technologies evidenced through professional experience are shown as labels.'}
         </p>
         {activeTag && (
           <span
@@ -72,13 +82,31 @@ export default function SkillsContainer() {
             <div className="flex flex-wrap gap-2">
               {cat.tags.map((tag) => {
                 const isActive = activeTag === tag;
+                const projectCount = projectTagCounts[tag] ?? 0;
+
+                if (projectCount === 0) {
+                  return (
+                    <span
+                      key={`${cat.id}-${tag}`}
+                      className="inline-flex items-center gap-1.5 rounded border border-[var(--color-splitter)] px-3 py-1 font-mono text-sm opacity-65"
+                      title={language === 'ja' ? '実務経験' : 'Professional experience'}
+                    >
+                      {tag}
+                      <span className="text-[0.6rem] uppercase tracking-wider opacity-65">
+                        {language === 'ja' ? '実務' : 'Work'}
+                      </span>
+                    </span>
+                  );
+                }
+
                 return (
                   <button
                     key={`${cat.id}-${tag}`}
-                    onClick={() => toggleTag(tag)}
+                    type="button"
+                    onClick={() => onSelectProjectTag(tag)}
                     className={[
                       'px-3 py-1 rounded text-sm font-mono border transition-all duration-150',
-                      'cursor-pointer select-none',
+                      'cursor-pointer select-none focus-visible:outline-2 focus-visible:outline-offset-2',
                       isActive
                         ? 'font-bold scale-105'
                         : 'opacity-70 hover:opacity-100',
@@ -97,8 +125,11 @@ export default function SkillsContainer() {
                           }
                     }
                     aria-pressed={isActive}
+                    aria-label={language === 'ja'
+                      ? `${tag}を使用した${projectCount}件のプロジェクトを表示`
+                      : `Show ${projectCount} ${projectCount === 1 ? 'project' : 'projects'} using ${tag}`}
                   >
-                    {tag}
+                    {tag} <span className="opacity-60">· {projectCount}</span>
                   </button>
                 );
               })}
@@ -109,10 +140,11 @@ export default function SkillsContainer() {
 
       {activeTag && (
         <button
-          onClick={() => toggleTag(activeTag)}
+          type="button"
+          onClick={onClearProjectTag}
           className="mt-6 text-xs underline opacity-60 hover:opacity-100 transition-opacity"
         >
-          Clear filter ✕
+          {language === 'ja' ? '絞り込みを解除' : 'Clear filter'} ✕
         </button>
       )}
     </section>

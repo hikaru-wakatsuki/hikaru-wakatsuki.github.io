@@ -21,4 +21,5 @@ export interface PortfolioProject {
   githubUrl: string;
   videoUrl?: string;
   imageUrl?: string;
+  compact?: boolean;
 }
