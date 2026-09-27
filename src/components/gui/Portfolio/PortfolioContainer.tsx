@@ -27,6 +27,10 @@ const PROJECTS: PortfolioProject[] = [
       "ja": "Demo · 4 / 4 schema-valid outputs",
       "en": "Demo · 4 / 4 schema-valid outputs"
     },
+    "demoFocus": {
+      "ja": "自然言語の入力から、関数選択、型付きJSON生成、スキーマ検証までの流れ",
+      "en": "Natural-language input through function selection, typed JSON generation and schema validation"
+    },
     "highlights": {
       "ja": [
         "自然言語から呼び出す関数を選び、型付きJSON引数を生成するローカルLLMツール。",
@@ -65,6 +69,10 @@ const PROJECTS: PortfolioProject[] = [
     "resultBadge": {
       "ja": "デモ · デッドロックなしで完了",
       "en": "Demo · completed without deadlock"
+    },
+    "demoFocus": {
+      "ja": "各ワーカーの状態遷移、共有ドングルの排他制御、段階的な完了",
+      "en": "Worker state transitions, exclusive access to shared dongles and progressive completion"
     },
     "highlights": {
       "ja": [
@@ -105,6 +113,10 @@ const PROJECTS: PortfolioProject[] = [
       "ja": "デモ · 容量制約内で完了",
       "en": "Demo · completed within capacity constraints"
     },
+    "demoFocus": {
+      "ja": "区画・接続の容量を守る経路選択と、全ドローンが到着するまでの進行",
+      "en": "Capacity-aware route selection and turn-by-turn progress until every drone arrives"
+    },
     "highlights": {
       "ja": [
         "グラフ上で複数ドローンの移動を計画・可視化。",
@@ -143,6 +155,10 @@ const PROJECTS: PortfolioProject[] = [
     "resultBadge": {
       "ja": "再利用可能なPythonパッケージ",
       "en": "Reusable Python package"
+    },
+    "demoFocus": {
+      "ja": "生成された迷路、探索結果、スタートからゴールまでの最短経路",
+      "en": "The generated maze, search result and shortest path from start to goal"
     },
     "collaboration": {
       "ja": [
@@ -274,6 +290,9 @@ function PortfolioCard({
               {project.projectType[language]}
             </p>
           )}
+          <p className="mt-3 max-w-3xl text-sm leading-6 opacity-75">
+            {project.description[language]}
+          </p>
         </div>
         {project.resultBadge && (
           <span
@@ -289,6 +308,14 @@ function PortfolioCard({
       </div>
 
       {/* ── Media area ── */}
+      {project.demoFocus && (
+        <div className="border-b border-[var(--color-splitter)] px-5 py-3 text-sm leading-6 sm:px-6">
+          <span className="mr-2 font-mono text-xs font-bold uppercase tracking-wide text-[var(--color-cli-text)]">
+            {language === 'ja' ? '動画の見どころ' : 'What to watch'}
+          </span>
+          <span className="opacity-75">{project.demoFocus[language]}</span>
+        </div>
+      )}
       <div
         className="relative w-full overflow-hidden"
         style={project.videoUrl
@@ -494,7 +521,7 @@ export default function PortfolioContainer({
   // ── Filtered view ─────────────────────────────────────────────────────────
   const displayed = activeTag
     ? PROJECTS.filter((p) => p.tags.includes(activeTag))
-    : PROJECTS;
+    : PROJECTS.filter((p) => !p.compact);
 
   // Keep card-tag filtering in the Projects section so the result remains in view.
   const handleCardTagClick = useCallback((tag: string) => {

@@ -101,8 +101,8 @@ function Controls({ menuOpen, onToggleMenu }: { menuOpen: boolean; onToggleMenu:
 
 const SECTIONS = [
   { id: 'career-section', ja: '経歴', en: 'Career' },
-  { id: SKILLS_SECTION_ID, ja: 'スキル', en: 'Skills' },
   { id: 'portfolio-section', ja: 'ポートフォリオ', en: 'Portfolio' },
+  { id: SKILLS_SECTION_ID, ja: 'スキル', en: 'Skills' },
   { id: 'contact-section', ja: 'お問い合わせ', en: 'Contact' },
 ] as const;
 
@@ -142,7 +142,7 @@ function CollapsibleSection({ id, title, open, onToggle, children }: {
 
 function GuiArea() {
   const { language } = useAppState();
-  const [menuOpen, setMenuOpen] = useState(true);
+  const [menuOpen, setMenuOpen] = useState(false);
   const [openSections, setOpenSections] = useState<Record<SectionId, boolean>>({
     'career-section': true,
     [SKILLS_SECTION_ID]: true,
@@ -195,16 +195,16 @@ function GuiArea() {
 
   const contents = [
     <CareerContainer />,
+    <PortfolioContainer
+      activeTag={selectedTechnology}
+      onSelectTag={(tag) => setSelectedTechnology((current) => current === tag ? null : tag)}
+      onClearTag={() => setSelectedTechnology(null)}
+    />,
     <SkillsContainer
       activeTag={selectedTechnology}
       projectTagCounts={PROJECT_TAG_COUNTS}
       onSelectProjectTag={selectTechnologyFromSkills}
       onClearProjectTag={() => setSelectedTechnology(null)}
-    />,
-    <PortfolioContainer
-      activeTag={selectedTechnology}
-      onSelectTag={(tag) => setSelectedTechnology((current) => current === tag ? null : tag)}
-      onClearTag={() => setSelectedTechnology(null)}
     />,
     <ContactContainer />,
   ];

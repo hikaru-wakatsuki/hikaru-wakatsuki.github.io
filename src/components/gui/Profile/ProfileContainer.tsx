@@ -97,14 +97,14 @@ export default function ProfileContainer() {
   const textColor = isDark ? '#00FF66' : '#1A1A1A';
   const dimColor = isDark ? 'rgba(0,255,102,0.65)' : 'rgba(26,26,26,0.6)';
 
-  const navigateToContact = (event: React.MouseEvent<HTMLAnchorElement>) => {
+  const navigateToSection = (id: 'career-section' | 'portfolio-section' | 'contact-section', event: React.MouseEvent<HTMLAnchorElement>) => {
     event.preventDefault();
-    const section = document.getElementById('contact-section');
-    const content = document.getElementById('contact-section-content');
+    const section = document.getElementById(id);
+    const content = document.getElementById(`${id}-content`);
 
     if (content?.hidden) {
       section
-        ?.querySelector<HTMLButtonElement>('button[aria-controls="contact-section-content"]')
+        ?.querySelector<HTMLButtonElement>(`button[aria-controls="${id}-content"]`)
         ?.click();
     }
 
@@ -113,7 +113,7 @@ export default function ProfileContainer() {
         behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth',
         block: 'start',
       });
-      document.getElementById('contact-section-title')?.focus({ preventScroll: true });
+      document.getElementById(`${id}-title`)?.focus({ preventScroll: true });
     });
   };
 
@@ -180,6 +180,23 @@ export default function ProfileContainer() {
             {t('profile.bio')}
           </p>
 
+          <div className="mt-5 flex flex-wrap gap-2">
+            <a
+              href="#portfolio-section"
+              onClick={(event) => navigateToSection('portfolio-section', event)}
+              className="rounded border border-[var(--color-cli-text)] bg-[var(--color-cli-text)] px-4 py-2 font-mono text-xs font-bold text-[var(--color-cli-bg)] hover:opacity-80 focus-visible:outline-2 focus-visible:outline-offset-2"
+            >
+              {language === 'ja' ? '主要プロジェクトを見る' : 'View featured projects'}
+            </a>
+            <a
+              href="#career-section"
+              onClick={(event) => navigateToSection('career-section', event)}
+              className="rounded border border-[var(--color-splitter)] px-4 py-2 font-mono text-xs font-bold hover:opacity-70 focus-visible:outline-2 focus-visible:outline-offset-2"
+            >
+              {language === 'ja' ? '経歴を見る' : 'View career'}
+            </a>
+          </div>
+
           {/* ── Social links with magnet effect ── */}
           <div
             style={{
@@ -203,7 +220,7 @@ export default function ProfileContainer() {
               href="#contact-section"
               label={language === 'ja' ? 'お問い合わせへ移動' : 'Go to contact form'}
               isDark={isDark}
-              onClick={navigateToContact}
+              onClick={(event) => navigateToSection('contact-section', event)}
             >
               <MailIcon />
             </MagnetIcon>

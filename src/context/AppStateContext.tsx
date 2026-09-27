@@ -168,6 +168,10 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
     document.documentElement.setAttribute('data-theme', theme);
   }, [theme]);
 
+  useEffect(() => {
+    document.documentElement.lang = language === 'ja' ? 'ja' : 'en';
+  }, [language]);
+
   // ── Fetch locale file when language changes ─────────────────────────────
   useEffect(() => {
     if (prevLangRef.current === language) return;
