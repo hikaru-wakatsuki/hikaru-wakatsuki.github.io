@@ -38,7 +38,7 @@ const FALLBACK: Record<Language, Translations> = {
     profile: {
       name: 'Hikaru Wakatsuki',
       title: 'Backend Engineer / Python',
-      bio: 'After around four years designing and migrating Linux, Azure and database infrastructure for telecom systems, I now design, implement, evaluate and release Python business applications. I bring an operations-focused infrastructure perspective, plus experience with LLM integration, structured data, concurrency and algorithms, to reliable backend development.',
+      bio: 'I joined NEC in 2022 and spent around four years designing, building and migrating Linux, Azure and database infrastructure for telecom systems, including incident and performance investigations. Since April 2026, I have designed, implemented, evaluated and released Python business applications, including LLM-assisted processing, JSON output validation, API-failure fallback and Docker environment setup.',
     },
     skills: {
       backend: 'Backend',
@@ -82,7 +82,7 @@ const FALLBACK: Record<Language, Translations> = {
     profile: {
       name: '若月 洸 / Hikaru Wakatsuki',
       title: 'Backend Engineer / Python',
-      bio: '約4年間、通信基盤でLinux・Azure・データベースの設計・構築・移行を経験。現在はPythonを用いた業務アプリケーションの設計・実装・評価・リリースを担当しています。インフラで培った運用視点と、LLM連携・構造化データ・並行処理・アルゴリズムの知識を、信頼性の高いバックエンド開発に活かします。',
+      bio: '2022年にNECへ入社し、通信基盤のLinux・Azure・データベースの設計、構築、移行、障害・性能調査を約4年担当しました。2026年4月からはPython業務アプリの処理設計、実装、評価、リリースを担当。LLMを利用する処理、JSON出力の検証、API障害時のフォールバック、Docker環境整備を経験しています。',
     },
     skills: {
       backend: 'Backend',

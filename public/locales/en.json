@@ -2,7 +2,7 @@
   "profile": {
     "name": "Hikaru Wakatsuki",
     "title": "Backend Engineer / Python",
-    "bio": "After around four years designing and migrating Linux, Azure and database infrastructure for telecom systems, I now design, implement, evaluate and release Python business applications. I bring an operations-focused infrastructure perspective, plus experience with LLM integration, structured data, concurrency and algorithms, to reliable backend development."
+    "bio": "I joined NEC in 2022 and spent around four years designing, building and migrating Linux, Azure and database infrastructure for telecom systems, including incident and performance investigations. Since April 2026, I have designed, implemented, evaluated and released Python business applications, including LLM-assisted processing, JSON output validation, API-failure fallback and Docker environment setup."
   },
   "skills": {
     "backend": "Backend",
@@ -43,7 +43,7 @@
   },
   "contact": {
     "heading": "Contact",
-    "subheading": "Let's work together",
+    "subheading": "For recruitment or development inquiries, please use the form below.",
     "nameLabel": "Name",
     "namePlaceholder": "Your name",
     "emailLabel": "Email",

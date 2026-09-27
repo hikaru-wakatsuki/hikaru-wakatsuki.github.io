@@ -46,9 +46,7 @@ const SOCIAL_LINKS = [
 
 // ─── Avatar ────────────────────────────────────────────────────────────────
 
-function Avatar({ isDark }: { isDark: boolean }) {
-  const borderColor = isDark ? '#00FF66' : '#1A1A1A';
-
+function Avatar() {
   return (
     <img
       src="/profile-avatar.jpg"
@@ -59,7 +57,7 @@ function Avatar({ isDark }: { isDark: boolean }) {
         width: '5rem',
         height: '5rem',
         borderRadius: '9999px',
-        border: `2px solid ${borderColor}`,
+        border: '2px solid var(--color-cli-text)',
         objectFit: 'cover',
         flexShrink: 0,
       }}
@@ -70,11 +68,9 @@ function Avatar({ isDark }: { isDark: boolean }) {
 // ─── Main component ────────────────────────────────────────────────────────
 
 export default function ProfileContainer() {
-  const { t, theme, language } = useAppState();
-
-  const isDark = theme === 'dark';
-  const textColor = isDark ? '#00FF66' : '#1A1A1A';
-  const dimColor = isDark ? 'rgba(0,255,102,0.65)' : 'rgba(26,26,26,0.6)';
+  const { t, language } = useAppState();
+  const textColor = 'var(--color-text)';
+  const dimColor = 'var(--color-text-muted)';
 
   const navigateToSection = (id: 'career-section' | 'portfolio-section' | 'contact-section', event: React.MouseEvent<HTMLAnchorElement>) => {
     event.preventDefault();
@@ -98,10 +94,7 @@ export default function ProfileContainer() {
 
   return (
     <section
-      style={{
-        padding: '2rem',
-        fontFamily: "'Courier New', Courier, monospace",
-      }}
+      className="p-5 sm:p-8"
       aria-label="Profile"
     >
       {/* ── Main card ── */}
@@ -113,7 +106,7 @@ export default function ProfileContainer() {
           flexWrap: 'wrap',
         }}
       >
-        <Avatar isDark={isDark} />
+        <Avatar />
 
         <div style={{ flex: 1, minWidth: 0, flexBasis: '14rem' }}>
           {/* Name */}
@@ -123,7 +116,6 @@ export default function ProfileContainer() {
               fontSize: '1.5rem',
               fontWeight: 700,
               color: textColor,
-              letterSpacing: '0.02em',
             }}
           >
             {t('profile.name')}
@@ -149,7 +141,7 @@ export default function ProfileContainer() {
               fontSize: '0.9rem',
               color: dimColor,
               lineHeight: 1.7,
-              maxWidth: '38rem',
+              maxWidth: '48rem',
             }}
           >
             {t('profile.bio')}
@@ -186,7 +178,6 @@ export default function ProfileContainer() {
                 key={id}
                 href={href}
                 label={label}
-                isDark={isDark}
               >
                 {icon}
               </MagnetIcon>
@@ -194,7 +185,6 @@ export default function ProfileContainer() {
             <MagnetIcon
               href="#contact-section"
               label={language === 'ja' ? 'お問い合わせへ移動' : 'Go to contact form'}
-              isDark={isDark}
               onClick={(event) => navigateToSection('contact-section', event)}
             >
               <MailIcon />

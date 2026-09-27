@@ -24,7 +24,6 @@ const COPY = {
         points: [
           'Pythonで業務アプリケーションの処理設計・実装・評価を担当。LLMを利用した処理、JSON出力検証、API障害時の検索フォールバックを実装し、利用部門向けの環境へリリースしました。',
           'Pythonを用いた業務Webアプリをチームで開発・リリース。JSONと画面表示の連携、不具合調査、Docker環境整備を担当しました。',
-          'それ以前は約4年、通信基盤のLinux・Azure・DBの設計、構築、移行、障害・性能調査を経験。運用まで考えたアプリ開発に活かしています。',
         ],
         links: [],
       },
@@ -32,7 +31,7 @@ const COPY = {
         institution: '42 Tokyo', period: '2025年10月〜現在',
         points: [
           'Piscineを修了。C・Python、アルゴリズム、並行処理、Git・Peer Reviewを継続的に学習しています。',
-          'ローカルLLMのFunction Callingで、関数選択・引数生成、制約付き生成、Pydantic検証・統合テストを実装。2名で迷路生成・可視化を開発し、再利用可能なPythonパッケージとして整理しました。',
+          'ローカルLLMのFunction Callingで、関数選択、スキーマに従うJSON引数生成、生成引数の型照合、実モデルを使う統合テストを実装しました。2名の迷路開発では、生成・探索部分を担当し、Pythonパッケージに分離しました。',
           'CとPOSIX threadsで競合・デッドロック・公平性を検討し、mutexの取得順序やFIFO・EDFスケジューリングを実装しました。',
         ],
         links: [],
@@ -58,7 +57,6 @@ const COPY = {
         points: [
           'Design, implementation and evaluation of Python business-application logic. Implemented LLM-assisted processing, JSON output validation and fallback search for API failures, then released the application to an internal user environment.',
           'Developed and released a Python business web application with a team. Owned JSON-to-display integration, debugging and Docker environment setup.',
-          'Previously spent around four years designing, building and migrating Linux, Azure and database infrastructure for telecom systems, including incident and performance investigations. This experience informs operationally aware application development.',
         ],
         links: [],
       },
@@ -66,7 +64,7 @@ const COPY = {
         institution: '42 Tokyo', period: 'Oct 2025 — Present',
         points: [
           'Completed the Piscine. Continuing study of C, Python, algorithms, concurrency, Git and peer review.',
-          'Implemented local LLM function calling with separate function selection and argument generation, constrained generation, Pydantic validation and integration tests. Built maze generation and visualization in a two-person team and packaged reusable Python functionality.',
+          'Implemented local LLM function calling with constrained function selection, schema-guided JSON argument generation, generated-argument type checks and real-model integration tests. In a two-person maze project, owned generation and search, then separated that logic into a reusable Python package.',
           'Explored contention, deadlocks and fairness using C and POSIX threads; implemented mutex lock ordering and FIFO/EDF scheduling.',
         ],
         links: [],
@@ -88,19 +86,19 @@ export default function CareerContainer() {
       institution: ja ? '千葉大学' : 'Chiba University',
       period: bachelor.period,
       title: ja ? '工学部 画像科学科 · 学士' : 'B.Eng., Image Science',
-      points: [], links: [], badge: undefined,
+      points: [], links: [], badge: undefined, badgeTone: undefined,
     },
     {
       institution: graduate.institution, period: graduate.period,
       title: ja ? '融合理工学府 先進理化学専攻 物質科学コース · 修士' : 'Graduate School of Science and Engineering · Master’s',
-      points: graduate.points, links: graduate.links, badge: undefined,
+      points: graduate.points, links: graduate.links, badge: undefined, badgeTone: undefined,
     },
     {
       institution: nec.institution,
       period: ja ? '2022年4月〜2026年3月' : 'Apr 2022 — Mar 2026',
       title: ja ? 'インフラエンジニア' : 'Infrastructure Engineer',
       points: [ja ? '約4年、通信基盤のLinux・Azure・DBの設計、構築、移行、障害・性能調査を担当。Azureクラウドリフト、OS更改、プライベートクラウド移行を経験しました。' : 'Around four years designing, building and migrating Linux, Azure and database infrastructure for telecom systems, including incident/performance investigations, Azure cloud lift, OS refresh and private cloud migration.'],
-      links: [], badge: undefined,
+      links: [], badge: undefined, badgeTone: undefined,
     },
     {
       institution: nec.institution,
@@ -108,26 +106,34 @@ export default function CareerContainer() {
       title: ja ? 'Pythonアプリケーション開発' : 'Python application development',
       points: nec.points.slice(0, 2), links: [],
       badge: ja ? '現在の担当' : 'Current role',
+      badgeTone: 'current',
     },
     {
       institution: tokyo.institution, period: tokyo.period,
-      title: ja ? 'C・Python・チーム開発' : 'C, Python & collaborative development',
-      points: tokyo.points, links: [], badge: undefined,
+      title: ja ? 'C・Python・チーム開発（NEC在籍中に受講）' : 'C, Python & team development alongside NEC',
+      points: tokyo.points, links: [],
+      badge: ja ? 'NEC在籍中の並行学習' : 'Alongside full-time role at NEC',
+      badgeTone: 'parallel',
     },
   ];
 
   return (
     <div className="p-5 sm:p-8">
       <h3 className="font-bold text-xl sm:text-2xl leading-relaxed mb-8">
-        {ja ? 'Pythonで業務アプリを設計・実装・リリース。通信基盤で培った運用視点をバックエンドへ。' : 'Designing, implementing and releasing Python business applications, backed by an infrastructure operations perspective.'}
+        {ja ? '2022年にNEC入社。通信基盤開発を約4年経験し、2026年4月からPython業務アプリの設計・実装・評価・リリースを担当。' : 'Joined NEC in 2022, worked on telecom infrastructure for around four years, and moved into Python business-application design, implementation, evaluation and release in April 2026.'}
       </h3>
       <ol className="divide-y divide-[var(--color-splitter)]" aria-label={ja ? '学歴・職歴・学習歴' : 'Education, employment and learning history'}>
         {history.map((entry) => (
-          <li key={`${entry.institution}-${entry.title}`} className="grid grid-cols-[minmax(5.5rem,30%)_minmax(0,1fr)] sm:grid-cols-[14rem_minmax(0,1fr)] gap-3 sm:gap-6 py-6 first:pt-0 last:pb-0">
-            <p className="font-mono text-xs sm:text-sm font-bold leading-7">{entry.period}</p>
-            <div className="min-w-0 border-l border-[var(--color-splitter)] pl-3 sm:pl-6">
+          <li key={`${entry.institution}-${entry.title}`} className="grid gap-3 py-6 first:pt-0 last:pb-0 sm:grid-cols-[14rem_minmax(0,1fr)] sm:gap-6">
+            <p className="font-mono text-xs font-bold leading-6 sm:whitespace-nowrap sm:text-sm sm:leading-7">{entry.period}</p>
+            <div className="min-w-0 border-l border-[var(--color-splitter)] pl-4 sm:pl-6">
               {entry.badge && (
-                <span className="inline-block mb-2 rounded border border-[var(--color-cli-text)] px-2 py-0.5 text-[0.65rem] font-bold uppercase tracking-wider text-[var(--color-cli-text)]">
+                <span
+                  className="mb-2 inline-block rounded border px-2 py-0.5 text-[0.65rem] font-bold tracking-wide"
+                  style={entry.badgeTone === 'parallel'
+                    ? { borderColor: 'var(--color-accent-secondary)', color: 'var(--color-accent-secondary)', background: 'var(--color-accent-secondary-soft)' }
+                    : { borderColor: 'var(--color-cli-text)', color: 'var(--color-cli-text)', background: 'var(--color-accent-soft)' }}
+                >
                   {entry.badge}
                 </span>
               )}

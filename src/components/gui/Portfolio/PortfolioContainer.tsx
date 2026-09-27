@@ -7,8 +7,8 @@ const PROJECTS: PortfolioProject[] = [
     "id": "Call_Me_Maybe",
     "title": "Call Me Maybe",
     "description": {
-      "ja": "自然言語の依頼を、ローカルLLMで実行可能な関数名と型付きJSON引数へ変換するFunction Calling実装。モデル出力を後から修復するのではなく、生成中に選択できるトークンを関数候補とスキーマに合わせて制約します。",
-      "en": "A local-LLM function-calling implementation that converts natural-language requests into an executable function name and typed JSON arguments. Instead of repairing arbitrary output afterward, it constrains token choices during generation according to function candidates and schemas."
+      "ja": "自然言語の依頼を、ローカルLLMで実行可能な関数名と型付きJSON引数へ変換するFunction Calling実装。関数候補とスキーマから、生成中にLLMが選べる次トークンを制約します。",
+      "en": "A local-LLM function-calling implementation that converts natural-language requests into an executable function name and typed JSON arguments. Function candidates and schemas constrain which next tokens the model can select during generation."
     },
     "tags": [
       "Python",
@@ -51,7 +51,7 @@ const PROJECTS: PortfolioProject[] = [
     },
     "technicalDetails": {
       "ja": {
-        "challenge": "LLMの任意出力を許すと、存在しない関数名、壊れたJSON、スキーマと異なる引数型が生成されます。生成後の修復に依存せず、生成過程そのものを制御することが課題でした。",
+        "challenge": "LLMの任意出力を許すと、存在しない関数名、壊れたJSON、スキーマと異なる引数型が生成されます。関数候補と型の制約を生成時点で適用する必要がありました。",
         "design": [
           "関数選択と引数生成を2段階に分離し、入力読み込み・スキーマ・選択・生成の責務をモジュール化",
           "関数名をトークン列の候補として保持し、候補を継続できる次トークンだけを許可。共通接頭を持つ関数名は改行で終端を判定",
@@ -160,8 +160,8 @@ const PROJECTS: PortfolioProject[] = [
     "id": "Fly-in",
     "title": "Fly-in",
     "description": {
-      "ja": "地図入力を検証済みグラフへ変換し、複数ドローンを目的地までターン単位で配車するルーティングシミュレータ。単なる最短路ではなく、ZoneとConnectionの容量、特殊Zone、現在の混雑を考慮して移動と再探索を決定します。",
-      "en": "A turn-based routing simulator that parses map input into a validated graph and schedules multiple drones to a destination. Route selection and rerouting account for zone and connection capacity, special zone behavior, and current congestion rather than distance alone."
+      "ja": "地図入力を検証済みグラフへ変換し、複数ドローンを目的地までターン単位で配車するルーティングシミュレータ。ZoneとConnectionの容量、特殊Zone、現在の混雑をコストと移動可否に反映し、経路選択と再探索を行います。",
+      "en": "A turn-based routing simulator that parses map input into a validated graph and schedules multiple drones to a destination. Zone and connection capacity, special zone behavior, and current congestion feed into movement checks, route selection and rerouting."
     },
     "tags": [
       "Python",
@@ -749,7 +749,7 @@ export default function PortfolioContainer({
         )}
       </div>
 
-      <p className="text-sm opacity-65 mb-6">{language === 'ja' ? '構造化データ、並行処理、スケジューリング、グラフ探索を扱った技術プロジェクト。' : 'Selected engineering projects covering structured data, concurrency, scheduling and graph search.'}</p>
+      <p className="mb-6 max-w-4xl text-sm leading-7 opacity-65">{language === 'ja' ? 'PythonとCで実装した4作品です。入力検証、LLMの制約付き生成、スレッド間の排他制御、容量制約付き経路探索、DFS/BFSを扱っています。' : 'Four projects implemented in Python and C, covering input validation, constrained LLM generation, thread synchronization, capacity-aware routing and DFS/BFS.'}</p>
       {/* Cards grid */}
       {displayed.length === 0 ? (
         <div className="py-12 text-center font-mono text-sm opacity-60">

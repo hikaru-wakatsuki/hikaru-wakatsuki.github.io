@@ -12,7 +12,7 @@ const FORM_ID = 'maqgankk';
 const FALLBACK: Record<Language, Record<string, string>> = {
   en: {
     'contact.heading': 'Contact',
-    'contact.subheading': "Let's work together",
+    'contact.subheading': 'For recruitment or development inquiries, please use the form below.',
     'contact.nameLabel': 'Name',
     'contact.namePlaceholder': 'Your name',
     'contact.emailLabel': 'Email',
@@ -30,7 +30,7 @@ const FALLBACK: Record<Language, Record<string, string>> = {
   },
   ja: {
     'contact.heading': 'お問い合わせ',
-    'contact.subheading': 'お気軽にご連絡ください',
+    'contact.subheading': '採用・開発に関するご連絡は、以下のフォームからお願いします。',
     'contact.nameLabel': 'お名前',
     'contact.namePlaceholder': 'お名前を入力',
     'contact.emailLabel': 'メールアドレス',
@@ -186,7 +186,7 @@ export default function ContactContainer() {
 
   // ── onSubmit: validate all → Formspree ───────────────────────────────────
   const handleSubmit = useCallback(
-    async (e: React.FormEvent<HTMLFormElement>) => {
+    async (e: React.SubmitEvent<HTMLFormElement>) => {
       e.preventDefault();
 
       // 1. Client-side validation
@@ -211,21 +211,21 @@ export default function ContactContainer() {
   );
 
   // ─── Derived colors ───────────────────────────────────────────────────────
-  const textColor  = isDark ? '#00FF66' : '#1A1A1A';
-  const dimColor   = isDark ? 'rgba(0,255,102,0.65)' : 'rgba(26,26,26,0.55)';
-  const sectionBorder = isDark ? 'rgba(0,255,102,0.15)' : 'rgba(26,26,26,0.12)';
+  const textColor  = 'var(--color-cli-text)';
+  const dimColor   = 'var(--color-text-muted)';
+  const sectionBorder = 'var(--color-splitter)';
 
   const fieldBorderColor = (f: Field) => {
-    if (!f.touched) return isDark ? 'rgba(0,255,102,0.25)' : 'rgba(26,26,26,0.22)';
+    if (!f.touched) return 'var(--color-accent-border)';
     if (f.error)   return isDark ? '#FF4444' : '#ef4444';
-    return isDark ? '#00FF66' : '#22c55e';
+    return 'var(--color-cli-text)';
   };
 
   const fieldShadow = (f: Field) => {
     if (!f.touched) return 'none';
     if (f.error)
       return isDark ? '0 0 0 2px rgba(255,68,68,0.15)' : '0 0 0 2px rgba(239,68,68,0.12)';
-    return isDark ? '0 0 0 2px rgba(0,255,102,0.12)' : '0 0 0 2px rgba(34,197,94,0.12)';
+    return '0 0 0 2px var(--color-accent-soft)';
   };
 
   const inputStyle = (f: Field): React.CSSProperties => ({
@@ -235,7 +235,7 @@ export default function ContactContainer() {
     border: `1px solid ${fieldBorderColor(f)}`,
     borderRadius: '6px',
     color: textColor,
-    fontFamily: "'Courier New', Courier, monospace",
+    fontFamily: 'inherit',
     fontSize: '0.875rem',
     outline: 'none',
     boxSizing: 'border-box',
@@ -251,14 +251,14 @@ export default function ContactContainer() {
     textTransform: 'uppercase',
     color: dimColor,
     marginBottom: '0.375rem',
-    fontFamily: "'Courier New', Courier, monospace",
+    fontFamily: 'inherit',
   };
 
   const errorMsgStyle: React.CSSProperties = {
     margin: '0.3rem 0 0',
     fontSize: '0.7rem',
     color: isDark ? '#FF4444' : '#ef4444',
-    fontFamily: "'Courier New', Courier, monospace",
+    fontFamily: 'inherit',
     minHeight: '1rem',
     lineHeight: 1.3,
   };
@@ -282,8 +282,8 @@ export default function ContactContainer() {
         @keyframes contact-spin { to { transform: rotate(360deg); } }
         [data-contact-form] input::placeholder,
         [data-contact-form] textarea::placeholder {
-          color: ${isDark ? 'rgba(0,255,102,0.3)' : 'rgba(26,26,26,0.3)'};
-          font-family: 'Courier New', Courier, monospace;
+          color: var(--color-text-muted);
+          font-family: inherit;
         }
         [data-contact-form] input:disabled,
         [data-contact-form] textarea:disabled { cursor: not-allowed; }
@@ -292,7 +292,8 @@ export default function ContactContainer() {
 
       <section
         data-contact-form
-        style={{ padding: '2rem', borderBottom: `1px solid ${sectionBorder}` }}
+        className="p-5 sm:p-8"
+        style={{ borderBottom: `1px solid ${sectionBorder}` }}
         aria-label="Contact"
       >
         <p
@@ -300,7 +301,7 @@ export default function ContactContainer() {
             margin: '0 0 1.75rem',
             fontSize: '0.875rem',
             color: dimColor,
-            fontFamily: "'Courier New', Courier, monospace",
+            fontFamily: 'inherit',
           }}
         >
           {ct('contact.subheading')}
@@ -409,11 +410,11 @@ export default function ContactContainer() {
               alignItems: 'center',
               gap: '0.5rem',
               padding: '0.625rem 1.5rem',
-              background: isDark ? '#00FF66' : '#1A1A1A',
-              color: isDark ? '#000' : '#fff',
+              background: 'var(--color-cli-text)',
+              color: isDark ? '#0b1713' : '#fff',
               border: 'none',
               borderRadius: '6px',
-              fontFamily: "'Courier New', Courier, monospace",
+              fontFamily: 'inherit',
               fontSize: '0.875rem',
               fontWeight: 700,
               letterSpacing: '0.04em',
@@ -422,7 +423,7 @@ export default function ContactContainer() {
               transition: 'opacity 0.2s ease',
             }}
           >
-            {formState.submitting && <Spinner color={isDark ? '#000' : '#fff'} />}
+            {formState.submitting && <Spinner color={isDark ? '#0b1713' : '#fff'} />}
             {formState.submitting ? ct('contact.submitting') : ct('contact.submit')}
           </button>
         </form>
@@ -434,7 +435,7 @@ export default function ContactContainer() {
             fontSize: '0.75rem',
             lineHeight: 1.6,
             color: dimColor,
-            fontFamily: "'Courier New', Courier, monospace",
+            fontFamily: 'inherit',
           }}
         >
           {ct('contact.emailFallback')}{' '}

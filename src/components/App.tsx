@@ -18,16 +18,16 @@ function Controls({ menuOpen, onToggleMenu }: { menuOpen: boolean; onToggleMenu:
     letterSpacing: '0.1em',
     cursor: 'pointer',
     background: 'transparent',
-    border: `1px solid ${isDark ? 'rgba(0,255,102,0.25)' : 'rgba(26,26,26,0.2)'}`,
+    border: '1px solid var(--color-accent-border)',
     borderRadius: '3px',
     padding: '2px 8px',
-    color: isDark ? '#00FF66' : '#1A1A1A',
+    color: 'var(--color-cli-text)',
     transition: 'opacity 0.15s',
   };
 
   const activeBtn: React.CSSProperties = {
     ...btnBase,
-    background: isDark ? 'rgba(0,255,102,0.12)' : 'rgba(26,26,26,0.08)',
+    background: 'var(--color-accent-soft)',
   };
 
   return (
@@ -35,7 +35,7 @@ function Controls({ menuOpen, onToggleMenu }: { menuOpen: boolean; onToggleMenu:
       className="sticky top-0 z-50 flex items-center gap-2 px-4 h-14 shrink-0"
       style={{
         backdropFilter: 'blur(8px)',
-        borderBottom: `1px solid ${isDark ? 'rgba(0,255,102,0.1)' : 'rgba(26,26,26,0.08)'}`,
+        borderBottom: '1px solid var(--color-accent-border)',
         background: isDark ? 'rgba(18,18,18,0.85)' : 'rgba(250,250,250,0.85)',
       }}
     >

@@ -2,7 +2,7 @@
   "profile": {
     "name": "若月 洸 / Hikaru Wakatsuki",
     "title": "Backend Engineer / Python",
-    "bio": "約4年間、通信基盤でLinux・Azure・データベースの設計・構築・移行を経験。現在はPythonを用いた業務アプリケーションの設計・実装・評価・リリースを担当しています。インフラで培った運用視点と、LLM連携・構造化データ・並行処理・アルゴリズムの知識を、信頼性の高いバックエンド開発に活かします。"
+    "bio": "2022年にNECへ入社し、通信基盤のLinux・Azure・データベースの設計、構築、移行、障害・性能調査を約4年担当しました。2026年4月からはPython業務アプリの処理設計、実装、評価、リリースを担当。LLMを利用する処理、JSON出力の検証、API障害時のフォールバック、Docker環境整備を経験しています。"
   },
   "skills": {
     "backend": "Backend",
@@ -43,7 +43,7 @@
   },
   "contact": {
     "heading": "お問い合わせ",
-    "subheading": "お気軽にご連絡ください",
+    "subheading": "採用・開発に関するご連絡は、以下のフォームからお願いします。",
     "nameLabel": "お名前",
     "namePlaceholder": "お名前を入力",
     "emailLabel": "メールアドレス",

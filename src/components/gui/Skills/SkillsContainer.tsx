@@ -87,7 +87,7 @@ const SKILL_AREAS: SkillArea[] = [
     experience: {
       ja: [
         '入出力契約を先に合意し、生成エンジンと可視化を分担。Gitの小さなブランチを継続的に統合',
-        '実装行をなぞるテストではなく、外部挙動、異常系、構造的な不変条件をUnit/Integration Testで検証',
+        '外部から観測できる挙動、異常系、構造的な不変条件をUnit/Integration Testで検証',
         'コアロジックのPythonパッケージ化、静的ビルド、GitHub ActionsからGitHub Pagesへの自動デプロイを経験',
       ],
       en: [
@@ -117,8 +117,8 @@ export default function SkillsContainer({ activeTag, projectTagCounts, onSelectP
     <section className="w-full px-5 py-8 sm:px-8" style={{ color: 'var(--color-text)' }}>
       <p className="mb-6 max-w-4xl text-sm leading-7 opacity-65">
         {language === 'ja'
-          ? '技術名の羅列ではなく、業務と公開コードで説明できる設計・実装・検証の経験を整理しています。件数付きの技術を選ぶと、根拠となるプロジェクトを確認できます。'
-          : 'This section connects engineering experience to evidence from professional work and public code. Select a technology with a project count to inspect the supporting projects.'}
+          ? '業務と公開コードで扱った技術を、設計・実装・検証の経験と、その根拠となる仕事・プロジェクトに分けて記載しています。件数付きの技術を選ぶと、対応するプロジェクトを表示します。'
+          : 'Technologies used in professional work and public code are grouped by engineering experience and supporting projects. Select a technology with a project count to display the matching projects.'}
       </p>
 
       <div className="overflow-hidden rounded border border-[var(--color-splitter)]">

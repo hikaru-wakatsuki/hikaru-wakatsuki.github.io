@@ -33,17 +33,17 @@ export default function Toast({ message, visible, isDark }: ToastProps) {
         display: 'flex',
         alignItems: 'center',
         gap: '0.5rem',
-        backgroundColor: isDark ? '#00FF66' : '#16a34a',
-        color: '#000',
+        backgroundColor: 'var(--color-cli-text)',
+        color: isDark ? '#0b1713' : '#fff',
         padding: '0.75rem 1.25rem',
         borderRadius: '6px',
-        fontFamily: "'Courier New', Courier, monospace",
+        fontFamily: 'inherit',
         fontSize: '0.875rem',
         fontWeight: 700,
         letterSpacing: '0.02em',
         whiteSpace: 'nowrap',
         boxShadow: isDark
-          ? '0 4px 28px rgba(0,255,102,0.4), 0 2px 8px rgba(0,0,0,0.5)'
+          ? '0 4px 28px rgba(112,199,167,0.24), 0 2px 8px rgba(0,0,0,0.5)'
           : '0 4px 20px rgba(0,0,0,0.18)',
         // Fade + slide animation driven purely by visible prop
         opacity: visible ? 1 : 0,

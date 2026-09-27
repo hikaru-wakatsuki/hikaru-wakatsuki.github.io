@@ -7,7 +7,6 @@ interface MagnetIconProps {
   href: string;
   label: string;
   children: React.ReactNode;
-  isDark: boolean;
   onClick?: React.MouseEventHandler<HTMLAnchorElement>;
 }
 
@@ -15,7 +14,6 @@ export default function MagnetIcon({
   href,
   label,
   children,
-  isDark,
   onClick,
 }: MagnetIconProps) {
   const anchorRef = useRef<HTMLAnchorElement>(null);
@@ -63,8 +61,8 @@ export default function MagnetIcon({
 
   const isInternal = href.startsWith('#');
   const opensInCurrentPage = isInternal || href.startsWith('mailto:');
-  const baseColor = isDark ? '#00FF66' : '#1A1A1A';
-  const hoverBg = isDark ? 'rgba(0,255,102,0.12)' : 'rgba(26,26,26,0.08)';
+  const baseColor = 'var(--color-cli-text)';
+  const hoverBg = 'var(--color-accent-soft)';
 
   return (
     <a
@@ -82,7 +80,7 @@ export default function MagnetIcon({
         height: '2.5rem',
         borderRadius: '9999px',
         color: baseColor,
-        border: `1px solid ${isDark ? 'rgba(0,255,102,0.25)' : 'rgba(26,26,26,0.2)'}`,
+        border: '1px solid var(--color-accent-border)',
         backgroundColor: inRange ? hoverBg : 'transparent',
         transform: `translate(${pos.x}px, ${pos.y}px)`,
         transition: inRange
