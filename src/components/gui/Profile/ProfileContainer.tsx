@@ -67,27 +67,6 @@ function Avatar({ isDark }: { isDark: boolean }) {
   );
 }
 
-// ─── Profile section header tag ────────────────────────────────────────────
-
-function Tag({ isDark, children }: { isDark: boolean; children: React.ReactNode }) {
-  return (
-    <span
-      style={{
-        fontFamily: "'Courier New', Courier, monospace",
-        fontSize: '0.65rem',
-        letterSpacing: '0.12em',
-        textTransform: 'uppercase',
-        color: isDark ? 'rgba(0,255,102,0.5)' : 'rgba(26,26,26,0.45)',
-        border: `1px solid ${isDark ? 'rgba(0,255,102,0.2)' : 'rgba(26,26,26,0.18)'}`,
-        borderRadius: '3px',
-        padding: '1px 6px',
-      }}
-    >
-      {children}
-    </span>
-  );
-}
-
 // ─── Main component ────────────────────────────────────────────────────────
 
 export default function ProfileContainer() {
@@ -125,16 +104,12 @@ export default function ProfileContainer() {
       }}
       aria-label="Profile"
     >
-      {/* ── Section label ── */}
-      <Tag isDark={isDark}>$ cat profile.json</Tag>
-
       {/* ── Main card ── */}
       <div
         style={{
           display: 'flex',
           alignItems: 'flex-start',
           gap: '1.5rem',
-          marginTop: '1.25rem',
           flexWrap: 'wrap',
         }}
       >

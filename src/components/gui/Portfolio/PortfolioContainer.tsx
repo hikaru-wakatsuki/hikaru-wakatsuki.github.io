@@ -31,19 +31,27 @@ const PROJECTS: PortfolioProject[] = [
       "ja": "自然言語の入力から、関数選択、型付きJSON生成、スキーマ検証までの流れ",
       "en": "Natural-language input through function selection, typed JSON generation and schema validation"
     },
-    "highlights": {
-      "ja": [
-        "自然言語から呼び出す関数を選び、型付きJSON引数を生成するローカルLLMツール。",
-        "JSON構文と引数型の制約を守る生成が課題。",
-        "関数選択と引数生成を分離し、制約付き生成・Pydantic検証を実装。",
-        "4種類の関数で関数選択・JSON生成・型整合性をIntegration Testにより検証。"
-      ],
-      "en": [
-        "A local LLM tool that selects a function and generates typed JSON arguments from natural language.",
-        "Challenge: enforce JSON syntax and argument types.",
-        "Separate selection and argument generation with constrained decoding and Pydantic.",
-        "Integration tests verify function selection, JSON generation and type safety across four functions."
-      ]
+    "technicalDetails": {
+      "ja": {
+        "challenge": "生成後の検証だけでは、不正なJSONや関数スキーマに合わない引数型を生成段階で防げないこと。",
+        "design": [
+          "関数選択と引数生成を分離し、それぞれの責務を明確化",
+          "スキーマに基づく制約付きデコードで、生成可能なトークンを制御",
+          "生成結果をPydanticで検証し、型付きFunctionCallとして返却"
+        ],
+        "verification": "4種類の関数について、関数選択・JSON生成・引数型の整合性をIntegration Testで確認。",
+        "limitations": "事前定義した関数スキーマを対象とし、任意の外部API実行は扱いません。"
+      },
+      "en": {
+        "challenge": "Post-generation validation alone cannot prevent malformed JSON or schema-incompatible argument types during generation.",
+        "design": [
+          "Separated function selection from argument generation to keep responsibilities explicit",
+          "Constrained token generation according to the selected function schema",
+          "Validated generated data with Pydantic and returned a typed FunctionCall"
+        ],
+        "verification": "Integration tests check function selection, JSON generation and argument types across four functions.",
+        "limitations": "The implementation targets predefined function schemas and does not execute arbitrary external APIs."
+      }
     }
   },
   {
@@ -74,19 +82,27 @@ const PROJECTS: PortfolioProject[] = [
       "ja": "各ワーカーの状態遷移、共有ドングルの排他制御、段階的な完了",
       "en": "Worker state transitions, exclusive access to shared dongles and progressive completion"
     },
-    "highlights": {
-      "ja": [
-        "複数スレッドが共有資源を取り合う並行処理シミュレーション。",
-        "デッドロック・飢餓・資源配分の公平性が課題。",
-        "mutexの取得順序とmin-heapによるFIFO・EDFを実装。",
-        "待機・コンパイル・回復の状態を管理し、各ワーカーの完了までを可視化。"
-      ],
-      "en": [
-        "POSIX-thread simulation of shared resource contention.",
-        "Challenge: deadlocks, starvation and fair arbitration.",
-        "Ordered mutex acquisition and min-heap FIFO/EDF scheduling.",
-        "Managed waiting, compiling and recovery states, with visualization through worker completion."
-      ]
+    "technicalDetails": {
+      "ja": {
+        "challenge": "各ワーカーがコンパイルに2つの共有ドングルを必要とする状況で、デッドロックと飢餓を避けながら公平に割り当てること。",
+        "design": [
+          "mutexの取得順序を統一し、循環待ちを防止",
+          "min-heapを用いてFIFO・EDFの待ち順を管理",
+          "WAITING・COMPILING・DEBUGGING・REFACTORING・COMPLETEを明示的に管理"
+        ],
+        "verification": "収録したシミュレーションで、5ワーカーがデッドロックせず目標回数まで完了する状態遷移を確認。",
+        "limitations": "POSIX threadsを使ったシミュレーションであり、汎用OSスケジューラの実装や性能比較ではありません。"
+      },
+      "en": {
+        "challenge": "Allocate two shared dongles per compile fairly while avoiding deadlock and starvation across concurrent workers.",
+        "design": [
+          "Used a consistent mutex acquisition order to prevent circular wait",
+          "Managed FIFO/EDF waiting order with a min-heap",
+          "Modelled WAITING, COMPILING, DEBUGGING, REFACTORING and COMPLETE explicitly"
+        ],
+        "verification": "The recorded simulation shows five workers reaching their target count without deadlock.",
+        "limitations": "This is a POSIX-thread simulation, not a general-purpose OS scheduler or performance benchmark."
+      }
     }
   },
   {
@@ -117,19 +133,27 @@ const PROJECTS: PortfolioProject[] = [
       "ja": "区画・接続の容量を守る経路選択と、全ドローンが到着するまでの進行",
       "en": "Capacity-aware route selection and turn-by-turn progress until every drone arrives"
     },
-    "highlights": {
-      "ja": [
-        "グラフ上で複数ドローンの移動を計画・可視化。",
-        "経路だけでなく、区画・接続の容量と混雑を考慮。",
-        "重み付き経路探索とターン単位の移動制御を分離。",
-        "入力検証と容量違反チェックを行い、全ドローンの到着までをpygameで可視化。"
-      ],
-      "en": [
-        "Plan and visualize drone movements across a graph.",
-        "Challenge: zone/link capacities and congestion.",
-        "Separate weighted pathfinding from turn-based scheduling.",
-        "Validated inputs and capacity constraints, then visualized every drone through arrival in pygame."
-      ]
+    "technicalDetails": {
+      "ja": {
+        "challenge": "最短経路だけでなく、区画と接続の容量、混雑、複数ドローンの同時移動を考慮すること。",
+        "design": [
+          "重み付きグラフ探索とターン単位の移動制御を分離",
+          "区画・接続ごとの容量を確認してから移動を確定",
+          "現在位置、移動中、待機中、到着済みの状態を可視化"
+        ],
+        "verification": "入力と容量制約を検証し、収録した実行で全ドローンが制約内で到着することを確認。",
+        "limitations": "離散ターンのグラフシミュレーションであり、実機の飛行制御や通信遅延は扱いません。"
+      },
+      "en": {
+        "challenge": "Account for zone and link capacity, congestion and simultaneous drone movement in addition to path length.",
+        "design": [
+          "Separated weighted graph search from turn-based movement scheduling",
+          "Checked zone and connection capacity before committing movement",
+          "Visualized current, moving, waiting and arrived states"
+        ],
+        "verification": "Validated inputs and capacity constraints; the recorded run shows every drone arriving within those constraints.",
+        "limitations": "This is a discrete-turn graph simulation and does not model physical flight control or network latency."
+      }
     }
   },
   {
@@ -170,19 +194,27 @@ const PROJECTS: PortfolioProject[] = [
         "My contribution: DFS/BFS, shortest-path search, four-bit wall encoding and packaging"
       ]
     },
-    "highlights": {
-      "ja": [
-        "2名でPythonの迷路生成・最短経路・可視化を開発。",
-        "壁のビット表現と生成条件を満たす迷路が課題。",
-        "担当範囲としてDFS・BFS、最短経路、壁の4ビット表現を実装。",
-        "担当機能をmazegenとして再利用可能なパッケージに整理。"
-      ],
-      "en": [
-        "Two-person Python maze generation and visualization project.",
-        "Challenge: bit-encoded walls and generation constraints.",
-        "My contribution covered DFS/BFS, shortest-path search and four-bit wall encoding.",
-        "Packaged the contributed functionality as the reusable mazegen package."
-      ]
+    "technicalDetails": {
+      "ja": {
+        "challenge": "上下左右の壁を4ビットで表現し、生成条件を満たす迷路と最短経路探索を一貫して扱うこと。",
+        "design": [
+          "本人担当としてDFSによる迷路生成とBFSによる最短経路探索を実装",
+          "壁情報を4ビットで表現し、隣接セル間の整合性を管理",
+          "担当機能をmazegenパッケージとして再利用可能な形に整理"
+        ],
+        "verification": "小さい迷路、42パターン、外周壁などの条件と、パッケージ生成をテストで確認。",
+        "limitations": "生成・探索・可視化を目的とした課題であり、大規模迷路の性能測定は行っていません。"
+      },
+      "en": {
+        "challenge": "Represent four directional walls in four bits while keeping maze-generation constraints and shortest-path search consistent.",
+        "design": [
+          "My contribution implemented DFS maze generation and BFS shortest-path search",
+          "Encoded walls in four bits and maintained consistency between adjacent cells",
+          "Packaged the contributed functionality as reusable mazegen functionality"
+        ],
+        "verification": "Tests cover small mazes, the 42 pattern, outer-wall constraints and package generation.",
+        "limitations": "The project focuses on generation, search and visualization; it does not benchmark very large mazes."
+      }
     }
   },
   {
@@ -208,19 +240,25 @@ const PROJECTS: PortfolioProject[] = [
       "en": "GitHub Pages · Automated deploy"
     },
     "compact": true,
-    "highlights": {
-      "ja": [
-        "経歴・スキル・開発実績を日英で確認できるレスポンシブなポートフォリオ。",
-        "情報量を保ちながら、採用担当が実績の根拠へ短時間で移動できる構成が課題。",
-        "Astroの静的生成、Reactの操作UI、TypeScript、技術タグ絞り込みを実装。",
-        "GitHub Actionsでビルドし、GitHub Pagesへ継続的に公開。"
-      ],
-      "en": [
-        "A responsive bilingual portfolio for reviewing career history, skills and engineering work.",
-        "Challenge: preserve detail while helping recruiters reach supporting evidence quickly.",
-        "Built with Astro static generation, React interactions, TypeScript and technology filters.",
-        "Continuously built with GitHub Actions and published on GitHub Pages."
-      ]
+    "technicalDetails": {
+      "ja": {
+        "challenge": "経歴と技術情報を保ちながら、採用担当が短時間で主要実績へ移動できる構成にすること。",
+        "design": [
+          "Astroで静的生成し、操作が必要な部分をReact・TypeScriptで実装",
+          "日英切り替え、テーマ変更、技術タグによる作品絞り込みを実装"
+        ],
+        "verification": "Astroのビルドと型チェックを行い、GitHub ActionsからGitHub Pagesへ自動公開。",
+        "limitations": "静的ポートフォリオであり、問い合わせ送信以外のサーバー機能は持ちません。"
+      },
+      "en": {
+        "challenge": "Preserve career and technical detail while helping recruiters reach the strongest evidence quickly.",
+        "design": [
+          "Used Astro for static generation and React with TypeScript for interactive behavior",
+          "Implemented language and theme switching plus technology-based project filtering"
+        ],
+        "verification": "Runs Astro build and type checks, then deploys to GitHub Pages through GitHub Actions.",
+        "limitations": "This is a static portfolio and has no server-side features beyond contact-form submission."
+      }
     }
   }
 ];
@@ -363,19 +401,47 @@ function PortfolioCard({
 
       {/* ── Content ── */}
       <div className="flex flex-col gap-5 p-5 sm:p-6">
-        <dl className="grid gap-4 text-sm leading-relaxed sm:grid-cols-2">
-          {project.highlights?.[language].map((value, index) => (
-            <div key={index} className="border-l-2 border-[var(--color-splitter)] pl-3">
-              <dt className="mb-1 text-xs font-bold uppercase tracking-wide">{(language === 'ja' ? ['作ったもの', '技術的課題', '実装', '結果'] : ['Built', 'Technical challenge', 'Implementation', 'Result'])[index]}</dt>
-              <dd className="opacity-75">{value}</dd>
+        {project.technicalDetails && (() => {
+          const details = project.technicalDetails[language];
+          return (
+            <div className="grid gap-4 text-sm leading-relaxed sm:grid-cols-2">
+              <section className="border-l-2 border-[var(--color-splitter)] pl-3">
+                <h4 className="mb-1 text-xs font-bold uppercase tracking-wide">
+                  {language === 'ja' ? '技術的課題' : 'Technical challenge'}
+                </h4>
+                <p className="opacity-75">{details.challenge}</p>
+              </section>
+
+              <section className="border-l-2 border-[var(--color-splitter)] pl-3">
+                <h4 className="mb-1 text-xs font-bold uppercase tracking-wide">
+                  {language === 'ja' ? '設計・実装' : 'Design & implementation'}
+                </h4>
+                <ul className="list-disc space-y-1 pl-4 opacity-75">
+                  {details.design.map((item) => <li key={item}>{item}</li>)}
+                </ul>
+              </section>
+
+              <section className="border-l-2 border-[var(--color-splitter)] pl-3">
+                <h4 className="mb-1 text-xs font-bold uppercase tracking-wide">
+                  {language === 'ja' ? '検証' : 'Verification'}
+                </h4>
+                <p className="opacity-75">{details.verification}</p>
+              </section>
+
+              <section className="border-l-2 border-[var(--color-splitter)] pl-3">
+                <h4 className="mb-1 text-xs font-bold uppercase tracking-wide">
+                  {language === 'ja' ? '制約・前提' : 'Limitations & scope'}
+                </h4>
+                <p className="opacity-75">{details.limitations}</p>
+              </section>
             </div>
-          ))}
-        </dl>
+          );
+        })()}
 
         {project.collaboration && (
           <div className="rounded border border-[var(--color-splitter)] bg-[var(--color-bg)] p-4">
             <p className="mb-2 text-xs font-bold uppercase tracking-wider">
-              {language === 'ja' ? '共同開発' : 'Collaboration'}
+              {language === 'ja' ? '共同開発・本人担当' : 'Team & my contribution'}
             </p>
             <ul className="list-disc space-y-1 pl-5 text-sm leading-7 opacity-75">
               {project.collaboration[language].map((item) => <li key={item}>{item}</li>)}

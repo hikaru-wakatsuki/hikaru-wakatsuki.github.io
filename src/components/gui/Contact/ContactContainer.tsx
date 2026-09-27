@@ -263,18 +263,6 @@ export default function ContactContainer() {
     lineHeight: 1.3,
   };
 
-  const sectionTagStyle: React.CSSProperties = {
-    display: 'inline-block',
-    fontFamily: "'Courier New', Courier, monospace",
-    fontSize: '0.65rem',
-    letterSpacing: '0.12em',
-    textTransform: 'uppercase',
-    color: isDark ? 'rgba(0,255,102,0.5)' : 'rgba(26,26,26,0.45)',
-    border: `1px solid ${isDark ? 'rgba(0,255,102,0.2)' : 'rgba(26,26,26,0.18)'}`,
-    borderRadius: '3px',
-    padding: '1px 6px',
-  };
-
   // Formspree server-side error (null when no error or already succeeded)
   const serverError: string | null = (!formState.succeeded && formState.errors)
     ? ct('contact.errorNetwork')
@@ -307,9 +295,6 @@ export default function ContactContainer() {
         style={{ padding: '2rem', borderBottom: `1px solid ${sectionBorder}` }}
         aria-label="Contact"
       >
-        {/* ── Section label ── */}
-        <span style={sectionTagStyle}>$ vim contact.form</span>
-
         <p
           style={{
             margin: '0 0 1.75rem',

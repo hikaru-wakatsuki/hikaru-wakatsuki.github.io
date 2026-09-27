@@ -8,12 +8,19 @@ export interface ProjectTag {
   name: string;
 }
 
+export interface ProjectTechnicalDetails {
+  challenge: string;
+  design: string[];
+  verification: string;
+  limitations: string;
+}
+
 // ポートフォリオカードのデータ構造
 export interface PortfolioProject {
   id: string;
   title: string;
   description: { ja: string; en: string };
-  highlights?: { ja: string[]; en: string[] };
+  technicalDetails?: { ja: ProjectTechnicalDetails; en: ProjectTechnicalDetails };
   projectType?: { ja: string; en: string };
   resultBadge?: { ja: string; en: string };
   demoFocus?: { ja: string; en: string };
