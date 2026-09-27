@@ -32,7 +32,7 @@ function Controls({ menuOpen, onToggleMenu }: { menuOpen: boolean; onToggleMenu:
 
   return (
     <div
-      className="sticky top-0 z-50 flex items-center gap-2 px-4 h-14 shrink-0"
+      className="sticky top-0 z-50 flex h-14 shrink-0 items-center gap-1 px-3 sm:gap-2 sm:px-4"
       style={{
         backdropFilter: 'blur(8px)',
         borderBottom: '1px solid var(--color-accent-border)',
@@ -63,9 +63,10 @@ function Controls({ menuOpen, onToggleMenu }: { menuOpen: boolean; onToggleMenu:
           });
         }}
         aria-label={language === 'ja' ? 'ページの先頭へ戻る' : 'Back to top'}
-        className="mr-auto font-mono text-xs sm:text-sm hover:opacity-60 focus-visible:outline-2 focus-visible:outline-offset-4"
+        className="mr-auto min-w-0 truncate font-mono text-xs hover:opacity-60 focus-visible:outline-2 focus-visible:outline-offset-4 sm:text-sm"
       >
-        Hikaru Wakatsuki
+        <span className="sm:hidden">H. Wakatsuki</span>
+        <span className="hidden sm:inline">Hikaru Wakatsuki</span>
       </a>
       {/* Language */}
       <button
@@ -93,7 +94,8 @@ function Controls({ menuOpen, onToggleMenu }: { menuOpen: boolean; onToggleMenu:
         aria-label={isDark ? 'Switch to light mode' : 'Switch to dark mode'}
         title={isDark ? 'Light mode' : 'Dark mode'}
       >
-        {isDark ? '☀ LIGHT' : '● DARK'}
+        <span className="sm:hidden" aria-hidden="true">{isDark ? '☀' : '●'}</span>
+        <span className="hidden sm:inline">{isDark ? '☀ LIGHT' : '● DARK'}</span>
       </button>
     </div>
   );

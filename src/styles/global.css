@@ -45,13 +45,34 @@ h1,
 h2,
 h3,
 h4 {
-  overflow-wrap: break-word;
+  overflow-wrap: normal;
+  word-break: normal;
   text-wrap: balance;
 }
 
 p,
 li,
 dd {
-  overflow-wrap: break-word;
+  overflow-wrap: normal;
+  word-break: normal;
   text-wrap: pretty;
+}
+
+html[lang="ja"] h1,
+html[lang="ja"] h2,
+html[lang="ja"] h3,
+html[lang="ja"] h4,
+html[lang="ja"] p,
+html[lang="ja"] li,
+html[lang="ja"] dd {
+  line-break: strict;
+  word-break: normal;
+  word-break: auto-phrase;
+}
+
+button,
+a,
+span,
+.font-mono {
+  word-break: normal;
 }

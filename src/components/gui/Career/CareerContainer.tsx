@@ -124,8 +124,8 @@ export default function CareerContainer() {
       </h3>
       <ol className="divide-y divide-[var(--color-splitter)]" aria-label={ja ? '学歴・職歴・学習歴' : 'Education, employment and learning history'}>
         {history.map((entry) => (
-          <li key={`${entry.institution}-${entry.title}`} className="grid gap-3 py-6 first:pt-0 last:pb-0 sm:grid-cols-[14rem_minmax(0,1fr)] sm:gap-6">
-            <p className="font-mono text-xs font-bold leading-6 sm:whitespace-nowrap sm:text-sm sm:leading-7">{entry.period}</p>
+          <li key={`${entry.institution}-${entry.title}`} className="grid gap-3 py-6 first:pt-0 last:pb-0 lg:grid-cols-[14rem_minmax(0,1fr)] lg:gap-6">
+            <p className="font-mono text-xs font-bold leading-6 lg:whitespace-nowrap lg:text-sm lg:leading-7">{entry.period}</p>
             <div className="min-w-0 border-l border-[var(--color-splitter)] pl-4 sm:pl-6">
               {entry.badge && (
                 <span

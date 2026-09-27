@@ -122,14 +122,14 @@ export default function SkillsContainer({ activeTag, projectTagCounts, onSelectP
       </p>
 
       <div className="overflow-hidden rounded border border-[var(--color-splitter)]">
-        <div className="hidden grid-cols-[minmax(0,1.6fr)_minmax(12rem,0.9fr)_minmax(14rem,1fr)] gap-6 border-b border-[var(--color-splitter)] bg-[var(--color-cli-bg)] px-5 py-3 text-xs font-bold uppercase tracking-wider opacity-65 lg:grid">
+        <div className="hidden grid-cols-[minmax(0,1.6fr)_minmax(12rem,0.9fr)_minmax(14rem,1fr)] gap-6 border-b border-[var(--color-splitter)] bg-[var(--color-cli-bg)] px-5 py-3 text-xs font-bold uppercase tracking-wider opacity-65 xl:grid">
           <span>{language === 'ja' ? '設計・実装・検証の経験' : 'Engineering experience'}</span>
           <span>{language === 'ja' ? '実績・根拠' : 'Evidence'}</span>
           <span>{language === 'ja' ? '技術' : 'Technologies'}</span>
         </div>
 
         {SKILL_AREAS.map((area) => (
-          <article key={area.id} className="grid gap-5 border-b border-[var(--color-splitter)] px-5 py-5 last:border-b-0 lg:grid-cols-[minmax(0,1.6fr)_minmax(12rem,0.9fr)_minmax(14rem,1fr)] lg:gap-6">
+          <article key={area.id} className="grid gap-5 border-b border-[var(--color-splitter)] px-5 py-5 last:border-b-0 xl:grid-cols-[minmax(0,1.6fr)_minmax(12rem,0.9fr)_minmax(14rem,1fr)] xl:gap-6">
             <div>
               <h3 className="font-bold">{area.title[language]}</h3>
               <ul className="mt-2 list-disc space-y-1.5 pl-5 text-sm leading-6 opacity-75">
@@ -138,14 +138,14 @@ export default function SkillsContainer({ activeTag, projectTagCounts, onSelectP
             </div>
 
             <div>
-              <p className="mb-1 text-[0.65rem] font-bold uppercase tracking-wider opacity-50 lg:hidden">{language === 'ja' ? '実績・根拠' : 'Evidence'}</p>
+              <p className="mb-1 text-[0.65rem] font-bold uppercase tracking-wider opacity-50 xl:hidden">{language === 'ja' ? '実績・根拠' : 'Evidence'}</p>
               <ul className="space-y-2 text-sm leading-6 opacity-75">
                 {area.evidence[language].map((item) => <li key={item}>{item}</li>)}
               </ul>
             </div>
 
             <div>
-              <p className="mb-2 text-[0.65rem] font-bold uppercase tracking-wider opacity-50 lg:hidden">{language === 'ja' ? '技術' : 'Technologies'}</p>
+              <p className="mb-2 text-[0.65rem] font-bold uppercase tracking-wider opacity-50 xl:hidden">{language === 'ja' ? '技術' : 'Technologies'}</p>
               <div className="flex flex-wrap gap-2">
                 {area.tags.map((tag) => {
                   const projectCount = projectTagCounts[tag] ?? 0;

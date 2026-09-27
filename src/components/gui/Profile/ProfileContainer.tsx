@@ -98,14 +98,7 @@ export default function ProfileContainer() {
       aria-label="Profile"
     >
       {/* ── Main card ── */}
-      <div
-        style={{
-          display: 'flex',
-          alignItems: 'flex-start',
-          gap: '1.5rem',
-          flexWrap: 'wrap',
-        }}
-      >
+      <div className="flex flex-col items-start gap-5 sm:flex-row sm:gap-6">
         <Avatar />
 
         <div style={{ flex: 1, minWidth: 0, flexBasis: '14rem' }}>

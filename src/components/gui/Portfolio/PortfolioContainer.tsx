@@ -423,8 +423,8 @@ function PortfolioCard({
       onMouseEnter={handleMouseEnter}
       onMouseLeave={handleMouseLeave}
     >
-      <div className="flex flex-wrap items-start justify-between gap-3 border-b border-[var(--color-splitter)] p-5">
-        <div>
+      <div className="grid items-start gap-4 border-b border-[var(--color-splitter)] p-5 sm:grid-cols-[minmax(0,1fr)_auto] sm:p-6">
+        <div className="min-w-0">
           <h3 className="text-xl font-bold leading-snug sm:text-2xl">{project.title}</h3>
           {project.projectType && (
             <p className="mt-2 font-mono text-xs uppercase tracking-wider opacity-60">
@@ -437,7 +437,7 @@ function PortfolioCard({
         </div>
         {project.resultBadge && (
           <span
-            className="rounded-full border px-3 py-1 font-mono text-xs font-bold"
+            className="w-fit rounded-full border px-3 py-1 font-mono text-xs font-bold sm:whitespace-nowrap"
             style={{
               borderColor: 'var(--color-cli-text)',
               color: 'var(--color-cli-text)',
@@ -455,7 +455,7 @@ function PortfolioCard({
             {language === 'ja' ? 'デモ画面ガイド' : 'Demo screen guide'}
           </h4>
           <p className="mt-2 text-sm leading-6 opacity-80">{project.demoGuide[language].overview}</p>
-          <ul className="mt-3 grid gap-x-8 gap-y-1.5 text-xs leading-5 opacity-70 lg:grid-cols-2">
+          <ul className="mt-3 grid gap-x-8 gap-y-1.5 text-xs leading-5 opacity-70 xl:grid-cols-2">
             {project.demoGuide[language].cues.map((cue) => (
               <li key={cue} className="flex gap-2">
                 <span aria-hidden="true" className="text-[var(--color-cli-text)]">•</span>
@@ -515,7 +515,7 @@ function PortfolioCard({
         {project.technicalDetails && (() => {
           const details = project.technicalDetails[language];
           return (
-            <div className="grid gap-5 text-sm leading-relaxed lg:grid-cols-2">
+            <div className="space-y-5 text-sm leading-relaxed">
               <section className="border-l-2 border-[var(--color-splitter)] pl-3">
                 <h4 className="mb-1 text-xs font-bold uppercase tracking-wide">
                   {language === 'ja' ? '解決した技術課題' : 'Engineering problem'}
@@ -532,23 +532,25 @@ function PortfolioCard({
                 </ul>
               </section>
 
-              <section className="border-l-2 border-[var(--color-splitter)] pl-3">
-                <h4 className="mb-1 text-xs font-bold uppercase tracking-wide">
-                  {language === 'ja' ? '検証内容' : 'Validation'}
-                </h4>
-                <ul className="list-disc space-y-1 pl-4 opacity-75">
-                  {details.verification.map((item) => <li key={item}>{item}</li>)}
-                </ul>
-              </section>
+              <div className="grid gap-5 xl:grid-cols-2">
+                <section className="border-l-2 border-[var(--color-splitter)] pl-3">
+                  <h4 className="mb-1 text-xs font-bold uppercase tracking-wide">
+                    {language === 'ja' ? '検証内容' : 'Validation'}
+                  </h4>
+                  <ul className="list-disc space-y-1 pl-4 opacity-75">
+                    {details.verification.map((item) => <li key={item}>{item}</li>)}
+                  </ul>
+                </section>
 
-              <section className="border-l-2 border-[var(--color-splitter)] pl-3">
-                <h4 className="mb-1 text-xs font-bold uppercase tracking-wide">
-                  {language === 'ja' ? '設計上の制約' : 'Design boundaries'}
-                </h4>
-                <ul className="list-disc space-y-1 pl-4 opacity-75">
-                  {details.limitations.map((item) => <li key={item}>{item}</li>)}
-                </ul>
-              </section>
+                <section className="border-l-2 border-[var(--color-splitter)] pl-3">
+                  <h4 className="mb-1 text-xs font-bold uppercase tracking-wide">
+                    {language === 'ja' ? '設計上の制約' : 'Design boundaries'}
+                  </h4>
+                  <ul className="list-disc space-y-1 pl-4 opacity-75">
+                    {details.limitations.map((item) => <li key={item}>{item}</li>)}
+                  </ul>
+                </section>
+              </div>
             </div>
           );
         })()}
@@ -716,7 +718,7 @@ export default function PortfolioContainer({
   // ── Render ────────────────────────────────────────────────────────────────
   return (
     <section
-      className="w-full px-6 py-8"
+      className="w-full px-5 py-8 sm:px-8"
       style={{ color: 'var(--color-text)' }}
     >
       {/* Header */}
