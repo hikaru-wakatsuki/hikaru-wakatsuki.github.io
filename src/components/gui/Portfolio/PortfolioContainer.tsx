@@ -517,83 +517,63 @@ function PortfolioCard({
           return (
             <div className="grid gap-4 text-sm leading-relaxed">
               <section
-                className="rounded-lg border p-4 sm:p-5"
+                className="overflow-hidden rounded-lg border"
                 style={{
                   borderColor: 'var(--color-accent-border)',
-                  background: 'var(--color-accent-soft)',
                 }}
               >
-                <h4 className="flex items-center gap-2 text-xs font-bold uppercase tracking-wide">
-                  <span
-                    aria-hidden="true"
-                    className="h-2 w-2 shrink-0 rounded-full bg-[var(--color-cli-text)]"
-                  />
+                <h4 className="border-b border-[var(--color-accent-border)] bg-[var(--color-accent-soft)] px-4 py-3 text-sm font-bold sm:px-5">
                   {language === 'ja' ? '解決した技術課題' : 'Engineering problem'}
                 </h4>
-                <p className="mt-3 border-t border-[var(--color-accent-border)] pt-3 leading-7 text-[var(--color-text-muted)]">
+                <p className="px-4 py-4 leading-7 text-[var(--color-text-muted)] sm:px-5">
                   {details.challenge}
                 </p>
               </section>
 
-              <section className="rounded-lg border border-[var(--color-splitter)] bg-[var(--color-bg)] p-4 sm:p-5">
-                <h4 className="flex items-center gap-2 text-xs font-bold uppercase tracking-wide">
-                  <span
-                    aria-hidden="true"
-                    className="h-2 w-2 shrink-0 rounded-full bg-[var(--color-accent-secondary)]"
-                  />
+              <section className="overflow-hidden rounded-lg border border-[var(--color-splitter)] bg-[var(--color-bg)]">
+                <h4 className="border-b border-[var(--color-splitter)] bg-[var(--color-accent-secondary-soft)] px-4 py-3 text-sm font-bold sm:px-5">
                   {language === 'ja' ? '設計判断と実装' : 'Design decisions & implementation'}
                 </h4>
-                <ul className="mt-3 border-t border-[var(--color-splitter)] text-[var(--color-text-muted)]">
+                <ul className="px-4 py-2 text-[var(--color-text-muted)] sm:px-5">
                   {details.design.map((item) => (
                     <li
                       key={item}
-                      className="grid grid-cols-[0.45rem_minmax(0,1fr)] gap-3 border-b border-[var(--color-splitter)] py-3 last:border-b-0 last:pb-0"
+                      className="border-b border-[var(--color-splitter)] py-3 last:border-b-0"
                     >
-                      <span aria-hidden="true" className="mt-[0.6rem] h-1.5 w-1.5 rounded-full bg-[var(--color-accent-secondary)]" />
-                      <span className="leading-7">{item}</span>
+                      <span className="block border-l-2 border-[var(--color-accent-secondary)] pl-3 leading-7">{item}</span>
                     </li>
                   ))}
                 </ul>
               </section>
 
               <div className="grid gap-4 xl:grid-cols-2">
-                <section className="rounded-lg border border-[var(--color-splitter)] bg-[var(--color-bg)] p-4 sm:p-5">
-                  <h4 className="flex items-center gap-2 text-xs font-bold uppercase tracking-wide">
-                    <span
-                      aria-hidden="true"
-                      className="h-2 w-2 shrink-0 rounded-full bg-[var(--color-cli-text)]"
-                    />
+                <section className="overflow-hidden rounded-lg border border-[var(--color-splitter)] bg-[var(--color-bg)]">
+                  <h4 className="border-b border-[var(--color-splitter)] bg-[var(--color-accent-soft)] px-4 py-3 text-sm font-bold sm:px-5">
                     {language === 'ja' ? '検証内容' : 'Validation'}
                   </h4>
-                  <ul className="mt-3 border-t border-[var(--color-splitter)] text-[var(--color-text-muted)]">
+                  <ul className="px-4 py-2 text-[var(--color-text-muted)] sm:px-5">
                     {details.verification.map((item) => (
                       <li
                         key={item}
-                        className="grid grid-cols-[0.45rem_minmax(0,1fr)] gap-3 border-b border-[var(--color-splitter)] py-3 last:border-b-0 last:pb-0"
+                        className="border-b border-[var(--color-splitter)] py-3 last:border-b-0"
                       >
-                        <span aria-hidden="true" className="mt-[0.6rem] h-1.5 w-1.5 rounded-full bg-[var(--color-cli-text)]" />
-                        <span className="leading-7">{item}</span>
+                        <span className="block border-l-2 border-[var(--color-cli-text)] pl-3 leading-7">{item}</span>
                       </li>
                     ))}
                   </ul>
                 </section>
 
-                <section className="rounded-lg border border-[var(--color-splitter)] bg-[var(--color-bg)] p-4 sm:p-5">
-                  <h4 className="flex items-center gap-2 text-xs font-bold uppercase tracking-wide">
-                    <span
-                      aria-hidden="true"
-                      className="h-2 w-2 shrink-0 rounded-full bg-[var(--color-accent-secondary)]"
-                    />
+                <section className="overflow-hidden rounded-lg border border-[var(--color-splitter)] bg-[var(--color-bg)]">
+                  <h4 className="border-b border-[var(--color-splitter)] bg-[var(--color-accent-secondary-soft)] px-4 py-3 text-sm font-bold sm:px-5">
                     {language === 'ja' ? '設計上の制約' : 'Design boundaries'}
                   </h4>
-                  <ul className="mt-3 border-t border-[var(--color-splitter)] text-[var(--color-text-muted)]">
+                  <ul className="px-4 py-2 text-[var(--color-text-muted)] sm:px-5">
                     {details.limitations.map((item) => (
                       <li
                         key={item}
-                        className="grid grid-cols-[0.45rem_minmax(0,1fr)] gap-3 border-b border-[var(--color-splitter)] py-3 last:border-b-0 last:pb-0"
+                        className="border-b border-[var(--color-splitter)] py-3 last:border-b-0"
                       >
-                        <span aria-hidden="true" className="mt-[0.6rem] h-1.5 w-1.5 rounded-full bg-[var(--color-accent-secondary)]" />
-                        <span className="leading-7">{item}</span>
+                        <span className="block border-l-2 border-[var(--color-accent-secondary)] pl-3 leading-7">{item}</span>
                       </li>
                     ))}
                   </ul>
