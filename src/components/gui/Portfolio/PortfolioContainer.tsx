@@ -7,8 +7,8 @@ const PROJECTS: PortfolioProject[] = [
     "id": "Call_Me_Maybe",
     "title": "Call Me Maybe",
     "description": {
-      "ja": "自然言語をローカルLLMでFunction Call JSONへ変換。",
-      "en": "Local LLM converts natural language into function-call JSON."
+      "ja": "自然言語の依頼を、ローカルLLMで実行可能な関数名と型付きJSON引数へ変換するFunction Calling実装。モデル出力を後から修復するのではなく、生成中に選択できるトークンを関数候補とスキーマに合わせて制約します。",
+      "en": "A local-LLM function-calling implementation that converts natural-language requests into an executable function name and typed JSON arguments. Instead of repairing arbitrary output afterward, it constrains token choices during generation according to function candidates and schemas."
     },
     "tags": [
       "Python",
@@ -27,30 +27,55 @@ const PROJECTS: PortfolioProject[] = [
       "ja": "Demo · 4 / 4 schema-valid outputs",
       "en": "Demo · 4 / 4 schema-valid outputs"
     },
-    "demoFocus": {
-      "ja": "自然言語の入力から、関数選択、型付きJSON生成、スキーマ検証までの流れ",
-      "en": "Natural-language input through function selection, typed JSON generation and schema validation"
+    "demoGuide": {
+      "ja": {
+        "overview": "英語UIに表示される、入力から検証までのFunction Callingパイプラインを順に追えます。",
+        "cues": [
+          "AVAILABLE FUNCTIONS：LLMが選択できる関数名と引数型",
+          "INPUT → FUNCTION → ARGUMENTS → VALIDATION：現在の処理段階",
+          "FUNCTION SELECTED：自然言語から選ばれた関数",
+          "GENERATED ARGUMENTS：スキーマに従って逐次生成されるJSON",
+          "SCHEMA VALIDATION / Overall progress：型検証の結果と4件全体の進捗"
+        ]
+      },
+      "en": {
+        "overview": "Follow the complete function-calling pipeline from a natural-language request to validated output.",
+        "cues": [
+          "AVAILABLE FUNCTIONS: candidate names and typed signatures",
+          "INPUT → FUNCTION → ARGUMENTS → VALIDATION: the active pipeline stage",
+          "FUNCTION SELECTED: the function chosen from the request",
+          "GENERATED ARGUMENTS: JSON streamed under schema constraints",
+          "SCHEMA VALIDATION / Overall progress: type checks and progress across four requests"
+        ]
+      }
     },
     "technicalDetails": {
       "ja": {
-        "challenge": "生成後の検証だけでは、不正なJSONや関数スキーマに合わない引数型を生成段階で防げないこと。",
+        "challenge": "LLMの任意出力を許すと、存在しない関数名、壊れたJSON、スキーマと異なる引数型が生成されます。生成後の修復に依存せず、生成過程そのものを制御することが課題でした。",
         "design": [
-          "関数選択と引数生成を分離し、それぞれの責務を明確化",
-          "スキーマに基づく制約付きデコードで、生成可能なトークンを制御",
-          "生成結果をPydanticで検証し、型付きFunctionCallとして返却"
+          "関数選択と引数生成を2段階に分離し、入力読み込み・スキーマ・選択・生成の責務をモジュール化",
+          "関数名をトークン列の候補として保持し、候補を継続できる次トークンだけを許可。共通接頭を持つ関数名は改行で終端を判定",
+          "オブジェクト・配列・文字列・数値・真偽値の再帰スキーマからJSONを組み立て、キーと区切り記号はプログラム側で確定",
+          "カスタムトークナイザとlru_cache付きエンコーダを実装。Promptと関数定義はPydanticで入力検証し、生成JSONはjson.loadsと選択済みスキーマに対する型照合後にFunctionCallとして返却"
         ],
-        "verification": "4種類の関数について、関数選択・JSON生成・引数型の整合性をIntegration Testで確認。",
-        "limitations": "事前定義した関数スキーマを対象とし、任意の外部API実行は扱いません。"
+        "verification": [
+          "Qwen3-0.6Bの実モデルを使い、数値・文字列・真偽値・ネストオブジェクト・配列の関数選択と引数生成をIntegration Test",
+          "共通接頭の関数名、数値トークンフィルタ、再帰スキーマ、トークナイザ、不正入力を決定的なUnit Testで検証"
+        ],
+        "limitations": [
+          "数値制約はJSON数値文法全体の状態機械ではなく、最終的なjson.loadsも構文確認に使用",
+          "文字列の任意なエスケープやバッチ生成、任意の外部API実行は対象外"
+        ]
       },
       "en": {
         "challenge": "Post-generation validation alone cannot prevent malformed JSON or schema-incompatible argument types during generation.",
         "design": [
           "Separated function selection from argument generation to keep responsibilities explicit",
           "Constrained token generation according to the selected function schema",
-          "Validated generated data with Pydantic and returned a typed FunctionCall"
+          "Validated prompt and function definitions with Pydantic, parsed generated JSON, and checked parameter names and types against the selected schema"
         ],
-        "verification": "Integration tests check function selection, JSON generation and argument types across four functions.",
-        "limitations": "The implementation targets predefined function schemas and does not execute arbitrary external APIs."
+        "verification": ["Real-model integration tests cover strings, numbers, booleans, nested objects and arrays.", "Deterministic unit tests cover shared prefixes, numeric filtering, recursive schemas, tokenization and input errors."],
+        "limitations": ["Numeric filtering is not a complete JSON-number state machine; json.loads performs the final syntax check.", "Arbitrary string escaping, batched generation and execution of external APIs are outside the scope."]
       }
     }
   },
@@ -58,8 +83,8 @@ const PROJECTS: PortfolioProject[] = [
     "id": "Codexion",
     "title": "Codexion",
     "description": {
-      "ja": "複数スレッドが共有資源を取り合う並行処理シミュレーション。",
-      "en": "POSIX-thread simulation of shared resource contention."
+      "ja": "複数のコーダーをPOSIXスレッドで動かし、2台のUSBドングルが必要なコンパイルを共有資源の競合下で制御するシミュレータ。デッドロッ回避、FIFO/EDFの優先度制御、完了・タイムアウト監視をCで実装しています。",
+      "en": "A C/POSIX-thread simulator in which multiple coders compete for two USB dongles required for each compile. It implements deadlock prevention, FIFO/EDF priority control, and completion or burnout monitoring under shared-resource contention."
     },
     "tags": [
       "C",
@@ -78,20 +103,46 @@ const PROJECTS: PortfolioProject[] = [
       "ja": "デモ · デッドロックなしで完了",
       "en": "Demo · completed without deadlock"
     },
-    "demoFocus": {
-      "ja": "各ワーカーの状態遷移、共有ドングルの排他制御、段階的な完了",
-      "en": "Worker state transitions, exclusive access to shared dongles and progressive completion"
+    "demoGuide": {
+      "ja": {
+        "overview": "表の各1行が1人のCoderです。状態、保有中のドングル、現在のコンパイル数/目標数を見ると排他制御を追えます。",
+        "cues": [
+          "WAITING（白）：コンパイル可能で、ドングルを待つ状態",
+          "COMPILING（緑）：2台のドングルを同時保有して処理中",
+          "DEBUGGING（青）/ REFACTORING（シアン）：ドングルを解放し、次の実行に向けて処理中",
+          "COMPLETE（マゼンタ）：目標コンパイル数へ到達。各Coderが別々のタイミングで完了",
+          "Simulation欄：Coder数、ドングル数、1回に必要な2台、目標回数、EDFスケジューラ"
+        ]
+      },
+      "en": {
+        "overview": "Each row represents one coder. Follow the state, held dongles, and current/target compile count to see synchronization in action.",
+        "cues": [
+          "WAITING (white): ready to compile and waiting for dongles",
+          "COMPILING (green): holds two dongles while compiling",
+          "DEBUGGING (blue) / REFACTORING (cyan): dongles released; temporarily unable to compile",
+          "COMPLETE (magenta): the coder reached the required compile count",
+          "Simulation: coder and dongle counts, two dongles per compile, target count and EDF scheduler"
+        ]
+      }
     },
     "technicalDetails": {
       "ja": {
-        "challenge": "各ワーカーがコンパイルに2つの共有ドングルを必要とする状況で、デッドロックと飢餓を避けながら公平に割り当てること。",
+        "challenge": "各Coderは隣接する2台のドングルを同時に獲得できたときだけコンパイルできます。複数スレッドが個別に資源を待つと、循環待ち、飢餓、状態更新の競合が起きうるため、取得順序と優先度を一貫させる必要がありました。",
         "design": [
-          "mutexの取得順序を統一し、循環待ちを防止",
-          "min-heapを用いてFIFO・EDFの待ち順を管理",
-          "WAITING・COMPILING・DEBUGGING・REFACTORING・COMPLETEを明示的に管理"
+          "2つのドングルをindex順に並べ、必ず小さい側からmutexを取得するグローバルなロック順序で循環待ちを除去",
+          "両方のmutexを保持した状態で、所有者・クールダウン・優先待ちを確認し、2台をペアでアトミックに割り当て",
+          "各ドングルにバイナリmin-heapを持たせ、FIFOは到着順、EDFはバーンアウト期限→到着順→Coder IDで優先度を決定",
+          "Coderの状態、停止フラグ、完了数、ログを別々のmutexで保護し、監視スレッドが全員完了とバーンアウトを判定"
         ],
-        "verification": "収録したシミュレーションで、5ワーカーがデッドロックせず目標回数まで完了する状態遷移を確認。",
-        "limitations": "POSIX threadsを使ったシミュレーションであり、汎用OSスケジューラの実装や性能比較ではありません。"
+        "verification": [
+          "ブラックボックステストで、不正引数、1人時のバーンアウト、FIFO/EDFの完了数、1回のコンパイルごと2回の取得ログを検証",
+          "ログのタイムスタンプが単調非減少であることと出力形式を確認。収録デモでは5人全員が目標4回へ段階的に到達",
+          "-Wall -Wextra -Werror -pthreadでビルド"
+        ],
+        "limitations": [
+          "FIFO/EDFは各ドングル内の優先度であり、あらゆるタイミング条件で飢餓を防ぐ形式的保証ではない",
+          "待機と監視に短いpolling sleepを用い、時刻はgettimeofdayに依存するためOSスケジューリングの影響を受ける"
+        ]
       },
       "en": {
         "challenge": "Allocate two shared dongles per compile fairly while avoiding deadlock and starvation across concurrent workers.",
@@ -100,8 +151,8 @@ const PROJECTS: PortfolioProject[] = [
           "Managed FIFO/EDF waiting order with a min-heap",
           "Modelled WAITING, COMPILING, DEBUGGING, REFACTORING and COMPLETE explicitly"
         ],
-        "verification": "The recorded simulation shows five workers reaching their target count without deadlock.",
-        "limitations": "This is a POSIX-thread simulation, not a general-purpose OS scheduler or performance benchmark."
+        "verification": ["Black-box tests cover invalid arguments, burnout, FIFO/EDF completion, two acquisitions per compile, and monotonic log timestamps.", "The recorded simulation shows five workers progressively reaching the target without deadlock."],
+        "limitations": ["Per-dongle FIFO/EDF priority is not a formal starvation-freedom proof for every timing configuration.", "Polling and gettimeofday make timing dependent on the OS scheduler and timer resolution."]
       }
     }
   },
@@ -109,8 +160,8 @@ const PROJECTS: PortfolioProject[] = [
     "id": "Fly-in",
     "title": "Fly-in",
     "description": {
-      "ja": "グラフ上で複数ドローンの移動を計画・可視化。",
-      "en": "Plan and visualize drone movements across a graph."
+      "ja": "地図入力を検証済みグラフへ変換し、複数ドローンを目的地までターン単位で配車するルーティングシミュレータ。単なる最短路ではなく、ZoneとConnectionの容量、特殊Zone、現在の混雑を考慮して移動と再探索を決定します。",
+      "en": "A turn-based routing simulator that parses map input into a validated graph and schedules multiple drones to a destination. Route selection and rerouting account for zone and connection capacity, special zone behavior, and current congestion rather than distance alone."
     },
     "tags": [
       "Python",
@@ -129,20 +180,46 @@ const PROJECTS: PortfolioProject[] = [
       "ja": "デモ · 容量制約内で完了",
       "en": "Demo · completed within capacity constraints"
     },
-    "demoFocus": {
-      "ja": "区画・接続の容量を守る経路選択と、全ドローンが到着するまでの進行",
-      "en": "Capacity-aware route selection and turn-by-turn progress until every drone arrives"
+    "demoGuide": {
+      "ja": {
+        "overview": "上部の進捗、Zoneの色と数値、Connectionの明るさを見ると、ドローンが容量制約を守って移動する過程を追えます。",
+        "cues": [
+          "Turn / Arrived / Moving / Waiting：ターン数と全ドローンの進捗",
+          "Zoneの「現在数 / 容量」とConnectionの「使用数 / 容量」：同時利用の上限",
+          "明るいConnection：現在移動に使用中。暗いConnection：空き状態",
+          "Priority（黄）：同コスト時に優先 / Restricted（薄赤）：進入に2ターン / Blocked（赤×）：通行不可",
+          "Simulation Complete：到着数、完了ターン、容量違反数の最終結果"
+        ]
+      },
+      "en": {
+        "overview": "Use the progress header, zone counts and link brightness to follow capacity-safe movement through the network.",
+        "cues": [
+          "Turn / Arrived / Moving / Waiting: overall progress",
+          "Zone and connection badges: current occupancy or usage / capacity",
+          "Bright links are active; dark links are currently idle",
+          "Priority (yellow): tie-break preference; Restricted (light red): two-turn entry; Blocked (red with X): unavailable",
+          "Simulation Complete: arrivals, elapsed turns and capacity-violation count"
+        ]
+      }
     },
     "technicalDetails": {
       "ja": {
-        "challenge": "最短経路だけでなく、区画と接続の容量、混雑、複数ドローンの同時移動を考慮すること。",
+        "challenge": "初期最短路が同じでも、複数ドローンが同時に動くとZoneとConnectionの容量が競合します。さらにRestrictedは進入に2ターン、Blockedは通行不可というドメインルールがあるため、経路探索と移動スケジューリングの分離が必要でした。",
         "design": [
-          "重み付きグラフ探索とターン単位の移動制御を分離",
-          "区画・接続ごとの容量を確認してから移動を確定",
-          "現在位置、移動中、待機中、到着済みの状態を可視化"
+          "PydanticモデルでZone・Connection・Networkを構造化し、重複名/座標、未知の接続先、不正容量、到達不可能なグラフを実行前に排除",
+          "隣接リストとDijkstra型探索を使い、Restricted・容量の小さいZoneにコストを加算。同コスト時はPriority Zoneを優先",
+          "ターンごとにZone占有数、Connection使用数、次ターンの予約を管理し、判定後に移動を確定。Restrictedへの移動はConnection占有とZone進入の2段階で表現",
+          "予定した次の移動が塞がった場合、現在のConnection使用数とZone占有数をペナルティに反映し、現在位置から1度再探索"
         ],
-        "verification": "入力と容量制約を検証し、収録した実行で全ドローンが制約内で到着することを確認。",
-        "limitations": "離散ターンのグラフシミュレーションであり、実機の飛行制御や通信遅延は扱いません。"
+        "verification": [
+          "メタデータ解析と不正入力、Blocked除外、到達可能性、Zoneコスト、Priorityのタイブレーク、混雑ペナルティをUnit Test",
+          "Restrictedの2ターン移動、複数ドローン時のZone/Connection容量の直列化を統合的に検証",
+          "デモの完了画面で、全機到着とCapacity violations: 0を確認"
+        ],
+        "limitations": [
+          "混雑回避は現時点の局所情報を使うヒューリスティックで、最小完了ターンやグローバル最適性は保証しない",
+          "進捗不能時の最大ターン制限は未実装。実機の飛行制御、通信遅延、連続空間は対象外"
+        ]
       },
       "en": {
         "challenge": "Account for zone and link capacity, congestion and simultaneous drone movement in addition to path length.",
@@ -151,8 +228,8 @@ const PROJECTS: PortfolioProject[] = [
           "Checked zone and connection capacity before committing movement",
           "Visualized current, moving, waiting and arrived states"
         ],
-        "verification": "Validated inputs and capacity constraints; the recorded run shows every drone arriving within those constraints.",
-        "limitations": "This is a discrete-turn graph simulation and does not model physical flight control or network latency."
+        "verification": ["Tests cover parsing, blocked and unreachable graphs, weighted costs, tie-breaking, congestion penalties and restricted transit.", "Integration-style tests serialize multiple drones within zone and link capacities; the demo completes with zero violations."],
+        "limitations": ["The congestion response is a local heuristic and does not guarantee globally optimal throughput.", "There is no maximum-turn guard; physical flight control, continuous space and network latency are outside scope."]
       }
     }
   },
@@ -160,8 +237,8 @@ const PROJECTS: PortfolioProject[] = [
     "id": "souaoao/A-Maze-ing",
     "title": "A-Maze-ing",
     "description": {
-      "ja": "2名でPythonの迷路生成・最短経路・可視化を開発。",
-      "en": "Two-person Python maze generation and visualization project."
+      "ja": "設定ファイルからDFS/BFSで迷路を生成し、構造的な制約を保ったまま最短経路と圧縮した16進壁データを出力する2名のPython共同開発。本人は生成・探索アルゴリズム、4ビット壁モデル、構造制約、パッケージ化を担当しました。",
+      "en": "A two-person Python project that generates mazes with DFS or BFS, preserves structural constraints, finds a shortest route, and writes compact hexadecimal wall data. My contribution covered generation and search algorithms, the four-bit wall model, structural constraints, and reusable packaging."
     },
     "tags": [
       "Python",
@@ -180,9 +257,27 @@ const PROJECTS: PortfolioProject[] = [
       "ja": "再利用可能なPythonパッケージ",
       "en": "Reusable Python package"
     },
-    "demoFocus": {
-      "ja": "生成された迷路、探索結果、スタートからゴールまでの最短経路",
-      "en": "The generated maze, search result and shortest path from start to goal"
+    "demoGuide": {
+      "ja": {
+        "overview": "上部の実行条件と凡例を確認してから、生成された迷路と最短経路をご覧ください。",
+        "cues": [
+          "Algorithm / Size / Seed / Perfect Maze：生成条件。同じSeedで同じ結果を再現",
+          "Start（緑の円）/ Goal（赤の円）：探索の開始点と終点",
+          "Shortest path（青の線）：BFSが求めた最短経路 / Visited（シアンの点）：探索済みセル",
+          "中央の「42」：全4方向の壁を閉じた18セルの保護領域",
+          "Shortest path / Visited cells / Generation time：経路長、探索量、生成時間。青い経路はStartからGoalへ順に表示"
+        ]
+      },
+      "en": {
+        "overview": "Read the generation settings and legend first, then follow the generated structure and shortest route.",
+        "cues": [
+          "Algorithm / Size / Seed / Perfect Maze: generation conditions and reproducibility",
+          "Start (green circle) / Goal (red circle): search endpoints",
+          "Shortest path (blue line) / Visited (cyan dot): BFS result and explored cells",
+          "Central 42: an 18-cell protected region whose four walls remain closed",
+          "Shortest path / Visited cells / Generation time: route length, search effort and generation time"
+        ]
+      }
     },
     "collaboration": {
       "ja": [
@@ -196,14 +291,22 @@ const PROJECTS: PortfolioProject[] = [
     },
     "technicalDetails": {
       "ja": {
-        "challenge": "上下左右の壁を4ビットで表現し、生成条件を満たす迷路と最短経路探索を一貫して扱うこと。",
+        "challenge": "各セルの上下左右の壁をコンパクトに表現しつつ、隣接セルとの壁の整合性、閉じた外周、保護領域、3×3の完全開放禁止を守る必要がありました。さらに生成アルゴリズムと解法を分け、どの生成方式でも最短経路を求められる設計が必要でした。",
         "design": [
-          "本人担当としてDFSによる迷路生成とBFSによる最短経路探索を実装",
-          "壁情報を4ビットで表現し、隣接セル間の整合性を管理",
-          "担当機能をmazegenパッケージとして再利用可能な形に整理"
+          "北・東・南・西の壁を1/2/4/8の4ビットで保持。通路を開く際は対象セルと隣接セルの反対側の壁を同時に更新",
+          "シード付きの方向シャッフルを共通化し、再帰DFSとキューを使うBFSの2種類の生成を実装。Perfect時は木構造、Imperfect時は制約内で追加の通路を生成",
+          "生成と解法を分離し、解法側はBFSで先行セルを記録。Goalから逆順に復元してN/E/S/Wの最短経路を出力",
+          "コア生成処理を可視化と分離し、MazeGeneratorを再利用可能なmazegenパッケージとしてwheel/source distributionにビルド"
         ],
-        "verification": "小さい迷路、42パターン、外周壁などの条件と、パッケージ生成をテストで確認。",
-        "limitations": "生成・探索・可視化を目的とした課題であり、大規模迷路の性能測定は行っていません。"
+        "verification": [
+          "同一Seedの再現性、DFS/BFSの有効な経路、隣接壁の一致、閉じた外周、Perfect Mazeの木構造をテスト",
+          "Imperfect時の追加辺と3×3完全開放の防止、18セルの「42」保護、16進出力形式、復元経路がExitへ到達することを検証",
+          "設定パース、範囲外座標、重複キー、不正アルゴリズム、読み込み後のグリッド/経路データも検証"
+        ],
+        "limitations": [
+          "DFSは再帰実装のため、非常に大きな迷路ではPythonの再帰上限の影響を受ける",
+          "Imperfect Mazeの追加通路はヒューリスティックで、全迷路からの一様サンプリングではない。MLX可視化は互換環境が必要"
+        ]
       },
       "en": {
         "challenge": "Represent four directional walls in four bits while keeping maze-generation constraints and shortest-path search consistent.",
@@ -212,8 +315,8 @@ const PROJECTS: PortfolioProject[] = [
           "Encoded walls in four bits and maintained consistency between adjacent cells",
           "Packaged the contributed functionality as reusable mazegen functionality"
         ],
-        "verification": "Tests cover small mazes, the 42 pattern, outer-wall constraints and package generation.",
-        "limitations": "The project focuses on generation, search and visualization; it does not benchmark very large mazes."
+        "verification": ["Tests cover deterministic seeds, DFS/BFS routes, wall symmetry, closed boundaries and the perfect-maze tree invariant.", "They also cover imperfect connections, 3x3 prevention, all 18 protected cells, hexadecimal output and loaded route validation."],
+        "limitations": ["Recursive DFS can reach Python's recursion limit on very large mazes.", "Imperfect-mode passages are heuristic rather than uniformly sampled; MLX visualization requires a compatible environment."]
       }
     }
   },
@@ -247,8 +350,8 @@ const PROJECTS: PortfolioProject[] = [
           "Astroで静的生成し、操作が必要な部分をReact・TypeScriptで実装",
           "日英切り替え、テーマ変更、技術タグによる作品絞り込みを実装"
         ],
-        "verification": "Astroのビルドと型チェックを行い、GitHub ActionsからGitHub Pagesへ自動公開。",
-        "limitations": "静的ポートフォリオであり、問い合わせ送信以外のサーバー機能は持ちません。"
+        "verification": ["Astroのビルドと型チェックを行い、GitHub ActionsからGitHub Pagesへ自動公開。"],
+        "limitations": ["静的ポートフォリオであり、問い合わせ送信以外のサーバー機能は持ちません。"]
       },
       "en": {
         "challenge": "Preserve career and technical detail while helping recruiters reach the strongest evidence quickly.",
@@ -256,8 +359,8 @@ const PROJECTS: PortfolioProject[] = [
           "Used Astro for static generation and React with TypeScript for interactive behavior",
           "Implemented language and theme switching plus technology-based project filtering"
         ],
-        "verification": "Runs Astro build and type checks, then deploys to GitHub Pages through GitHub Actions.",
-        "limitations": "This is a static portfolio and has no server-side features beyond contact-form submission."
+        "verification": ["Runs Astro build and type checks, then deploys to GitHub Pages through GitHub Actions."],
+        "limitations": ["This is a static portfolio and has no server-side features beyond contact-form submission."]
       }
     }
   }
@@ -346,13 +449,21 @@ function PortfolioCard({
       </div>
 
       {/* ── Media area ── */}
-      {project.demoFocus && (
-        <div className="border-b border-[var(--color-splitter)] px-5 py-3 text-sm leading-6 sm:px-6">
-          <span className="mr-2 font-mono text-xs font-bold uppercase tracking-wide text-[var(--color-cli-text)]">
-            {language === 'ja' ? '動画の見どころ' : 'What to watch'}
-          </span>
-          <span className="opacity-75">{project.demoFocus[language]}</span>
-        </div>
+      {project.demoGuide && (
+        <section className="border-b border-[var(--color-splitter)] px-5 py-4 sm:px-6">
+          <h4 className="font-mono text-xs font-bold uppercase tracking-wide text-[var(--color-cli-text)]">
+            {language === 'ja' ? 'デモ画面ガイド' : 'Demo screen guide'}
+          </h4>
+          <p className="mt-2 text-sm leading-6 opacity-80">{project.demoGuide[language].overview}</p>
+          <ul className="mt-3 grid gap-x-8 gap-y-1.5 text-xs leading-5 opacity-70 lg:grid-cols-2">
+            {project.demoGuide[language].cues.map((cue) => (
+              <li key={cue} className="flex gap-2">
+                <span aria-hidden="true" className="text-[var(--color-cli-text)]">•</span>
+                <span>{cue}</span>
+              </li>
+            ))}
+          </ul>
+        </section>
       )}
       <div
         className="relative w-full overflow-hidden"
@@ -404,17 +515,17 @@ function PortfolioCard({
         {project.technicalDetails && (() => {
           const details = project.technicalDetails[language];
           return (
-            <div className="grid gap-4 text-sm leading-relaxed sm:grid-cols-2">
+            <div className="grid gap-5 text-sm leading-relaxed lg:grid-cols-2">
               <section className="border-l-2 border-[var(--color-splitter)] pl-3">
                 <h4 className="mb-1 text-xs font-bold uppercase tracking-wide">
-                  {language === 'ja' ? '技術的課題' : 'Technical challenge'}
+                  {language === 'ja' ? '解決した技術課題' : 'Engineering problem'}
                 </h4>
                 <p className="opacity-75">{details.challenge}</p>
               </section>
 
               <section className="border-l-2 border-[var(--color-splitter)] pl-3">
                 <h4 className="mb-1 text-xs font-bold uppercase tracking-wide">
-                  {language === 'ja' ? '設計・実装' : 'Design & implementation'}
+                  {language === 'ja' ? '設計判断と実装' : 'Design decisions & implementation'}
                 </h4>
                 <ul className="list-disc space-y-1 pl-4 opacity-75">
                   {details.design.map((item) => <li key={item}>{item}</li>)}
@@ -423,16 +534,20 @@ function PortfolioCard({
 
               <section className="border-l-2 border-[var(--color-splitter)] pl-3">
                 <h4 className="mb-1 text-xs font-bold uppercase tracking-wide">
-                  {language === 'ja' ? '検証' : 'Verification'}
+                  {language === 'ja' ? '検証内容' : 'Validation'}
                 </h4>
-                <p className="opacity-75">{details.verification}</p>
+                <ul className="list-disc space-y-1 pl-4 opacity-75">
+                  {details.verification.map((item) => <li key={item}>{item}</li>)}
+                </ul>
               </section>
 
               <section className="border-l-2 border-[var(--color-splitter)] pl-3">
                 <h4 className="mb-1 text-xs font-bold uppercase tracking-wide">
-                  {language === 'ja' ? '制約・前提' : 'Limitations & scope'}
+                  {language === 'ja' ? '設計上の制約' : 'Design boundaries'}
                 </h4>
-                <p className="opacity-75">{details.limitations}</p>
+                <ul className="list-disc space-y-1 pl-4 opacity-75">
+                  {details.limitations.map((item) => <li key={item}>{item}</li>)}
+                </ul>
               </section>
             </div>
           );

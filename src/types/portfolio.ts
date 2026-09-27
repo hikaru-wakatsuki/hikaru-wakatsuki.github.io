@@ -11,8 +11,13 @@ export interface ProjectTag {
 export interface ProjectTechnicalDetails {
   challenge: string;
   design: string[];
-  verification: string;
-  limitations: string;
+  verification: string[];
+  limitations: string[];
+}
+
+export interface ProjectDemoGuide {
+  overview: string;
+  cues: string[];
 }
 
 // ポートフォリオカードのデータ構造
@@ -23,7 +28,7 @@ export interface PortfolioProject {
   technicalDetails?: { ja: ProjectTechnicalDetails; en: ProjectTechnicalDetails };
   projectType?: { ja: string; en: string };
   resultBadge?: { ja: string; en: string };
-  demoFocus?: { ja: string; en: string };
+  demoGuide?: { ja: ProjectDemoGuide; en: ProjectDemoGuide };
   collaboration?: { ja: string[]; en: string[] };
   tags: string[]; // ['React', 'Docker' など]
   githubUrl: string;
