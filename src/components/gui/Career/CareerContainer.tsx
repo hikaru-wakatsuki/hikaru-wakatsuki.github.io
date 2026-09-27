@@ -30,7 +30,7 @@ const COPY = {
       {
         institution: '42 Tokyo', period: '2025年10月〜現在',
         points: [
-          'Piscineを修了。C・Python、アルゴリズム、並行処理、Git・Peer Reviewを継続的に学習しています。',
+          '入学選考Piscineでは、合格者の中で上位成績を収めました。入学後もC・Python、アルゴリズム、並行処理、Gitの各課題で必須要件とBonus要件をすべて実装し、Peer Reviewを減点なく通過しています。',
           'ローカルLLMのFunction Callingで、関数選択、スキーマに従うJSON引数生成、生成引数の型照合、実モデルを使う統合テストを実装しました。2名の迷路開発では、生成・探索部分を担当し、Pythonパッケージに分離しました。',
           'CとPOSIX threadsで競合・デッドロック・公平性を検討し、mutexの取得順序やFIFO・EDFスケジューリングを実装しました。',
         ],
@@ -63,7 +63,7 @@ const COPY = {
       {
         institution: '42 Tokyo', period: 'Oct 2025 — Present',
         points: [
-          'Completed the Piscine. Continuing study of C, Python, algorithms, concurrency, Git and peer review.',
+          'Placed among the top successful candidates in the admissions Piscine. Since admission, implemented every required and Bonus requirement across coursework in C, Python, algorithms, concurrency and Git, passing peer reviews without deductions.',
           'Implemented local LLM function calling with constrained function selection, schema-guided JSON argument generation, generated-argument type checks and real-model integration tests. In a two-person maze project, owned generation and search, then separated that logic into a reusable Python package.',
           'Explored contention, deadlocks and fairness using C and POSIX threads; implemented mutex lock ordering and FIFO/EDF scheduling.',
         ],
