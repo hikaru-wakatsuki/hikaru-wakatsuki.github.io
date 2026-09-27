@@ -515,39 +515,87 @@ function PortfolioCard({
         {project.technicalDetails && (() => {
           const details = project.technicalDetails[language];
           return (
-            <div className="space-y-5 text-sm leading-relaxed">
-              <section className="border-l-2 border-[var(--color-splitter)] pl-3">
-                <h4 className="mb-1 text-xs font-bold uppercase tracking-wide">
+            <div className="grid gap-4 text-sm leading-relaxed">
+              <section
+                className="rounded-lg border p-4 sm:p-5"
+                style={{
+                  borderColor: 'var(--color-accent-border)',
+                  background: 'var(--color-accent-soft)',
+                }}
+              >
+                <h4 className="flex items-center gap-2 text-xs font-bold uppercase tracking-wide">
+                  <span
+                    aria-hidden="true"
+                    className="h-2 w-2 shrink-0 rounded-full bg-[var(--color-cli-text)]"
+                  />
                   {language === 'ja' ? '解決した技術課題' : 'Engineering problem'}
                 </h4>
-                <p className="opacity-75">{details.challenge}</p>
+                <p className="mt-3 border-t border-[var(--color-accent-border)] pt-3 leading-7 text-[var(--color-text-muted)]">
+                  {details.challenge}
+                </p>
               </section>
 
-              <section className="border-l-2 border-[var(--color-splitter)] pl-3">
-                <h4 className="mb-1 text-xs font-bold uppercase tracking-wide">
+              <section className="rounded-lg border border-[var(--color-splitter)] bg-[var(--color-bg)] p-4 sm:p-5">
+                <h4 className="flex items-center gap-2 text-xs font-bold uppercase tracking-wide">
+                  <span
+                    aria-hidden="true"
+                    className="h-2 w-2 shrink-0 rounded-full bg-[var(--color-accent-secondary)]"
+                  />
                   {language === 'ja' ? '設計判断と実装' : 'Design decisions & implementation'}
                 </h4>
-                <ul className="list-disc space-y-1 pl-4 opacity-75">
-                  {details.design.map((item) => <li key={item}>{item}</li>)}
+                <ul className="mt-3 border-t border-[var(--color-splitter)] text-[var(--color-text-muted)]">
+                  {details.design.map((item) => (
+                    <li
+                      key={item}
+                      className="grid grid-cols-[0.45rem_minmax(0,1fr)] gap-3 border-b border-[var(--color-splitter)] py-3 last:border-b-0 last:pb-0"
+                    >
+                      <span aria-hidden="true" className="mt-[0.6rem] h-1.5 w-1.5 rounded-full bg-[var(--color-accent-secondary)]" />
+                      <span className="leading-7">{item}</span>
+                    </li>
+                  ))}
                 </ul>
               </section>
 
-              <div className="grid gap-5 xl:grid-cols-2">
-                <section className="border-l-2 border-[var(--color-splitter)] pl-3">
-                  <h4 className="mb-1 text-xs font-bold uppercase tracking-wide">
+              <div className="grid gap-4 xl:grid-cols-2">
+                <section className="rounded-lg border border-[var(--color-splitter)] bg-[var(--color-bg)] p-4 sm:p-5">
+                  <h4 className="flex items-center gap-2 text-xs font-bold uppercase tracking-wide">
+                    <span
+                      aria-hidden="true"
+                      className="h-2 w-2 shrink-0 rounded-full bg-[var(--color-cli-text)]"
+                    />
                     {language === 'ja' ? '検証内容' : 'Validation'}
                   </h4>
-                  <ul className="list-disc space-y-1 pl-4 opacity-75">
-                    {details.verification.map((item) => <li key={item}>{item}</li>)}
+                  <ul className="mt-3 border-t border-[var(--color-splitter)] text-[var(--color-text-muted)]">
+                    {details.verification.map((item) => (
+                      <li
+                        key={item}
+                        className="grid grid-cols-[0.45rem_minmax(0,1fr)] gap-3 border-b border-[var(--color-splitter)] py-3 last:border-b-0 last:pb-0"
+                      >
+                        <span aria-hidden="true" className="mt-[0.6rem] h-1.5 w-1.5 rounded-full bg-[var(--color-cli-text)]" />
+                        <span className="leading-7">{item}</span>
+                      </li>
+                    ))}
                   </ul>
                 </section>
 
-                <section className="border-l-2 border-[var(--color-splitter)] pl-3">
-                  <h4 className="mb-1 text-xs font-bold uppercase tracking-wide">
+                <section className="rounded-lg border border-[var(--color-splitter)] bg-[var(--color-bg)] p-4 sm:p-5">
+                  <h4 className="flex items-center gap-2 text-xs font-bold uppercase tracking-wide">
+                    <span
+                      aria-hidden="true"
+                      className="h-2 w-2 shrink-0 rounded-full bg-[var(--color-accent-secondary)]"
+                    />
                     {language === 'ja' ? '設計上の制約' : 'Design boundaries'}
                   </h4>
-                  <ul className="list-disc space-y-1 pl-4 opacity-75">
-                    {details.limitations.map((item) => <li key={item}>{item}</li>)}
+                  <ul className="mt-3 border-t border-[var(--color-splitter)] text-[var(--color-text-muted)]">
+                    {details.limitations.map((item) => (
+                      <li
+                        key={item}
+                        className="grid grid-cols-[0.45rem_minmax(0,1fr)] gap-3 border-b border-[var(--color-splitter)] py-3 last:border-b-0 last:pb-0"
+                      >
+                        <span aria-hidden="true" className="mt-[0.6rem] h-1.5 w-1.5 rounded-full bg-[var(--color-accent-secondary)]" />
+                        <span className="leading-7">{item}</span>
+                      </li>
+                    ))}
                   </ul>
                 </section>
               </div>
