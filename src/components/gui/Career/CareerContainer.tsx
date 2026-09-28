@@ -103,7 +103,7 @@ export default function CareerContainer() {
     {
       institution: nec.institution,
       period: ja ? '2026年4月〜現在' : 'Apr 2026 — Present',
-      title: ja ? 'Pythonアプリケーション開発' : 'Python application development',
+      title: ja ? 'Python・生成AIを用いた業務アプリケーション開発' : 'Business application development with Python and generative AI',
       points: nec.points.slice(0, 2), links: [],
       badge: ja ? '現在の担当' : 'Current role',
       badgeTone: 'current',
