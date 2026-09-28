@@ -23,10 +23,6 @@ const PROJECTS: PortfolioProject[] = [
       "ja": "個人開発",
       "en": "Individual project"
     },
-    "resultBadge": {
-      "ja": "Demo · 4 / 4 schema-valid outputs",
-      "en": "Demo · 4 / 4 schema-valid outputs"
-    },
     "demoGuide": {
       "ja": {
         "overview": "英語UIに表示される、入力から検証までのFunction Callingパイプラインを順に追えます。",
@@ -99,10 +95,6 @@ const PROJECTS: PortfolioProject[] = [
       "ja": "個人開発",
       "en": "Individual project"
     },
-    "resultBadge": {
-      "ja": "デモ · デッドロックなしで完了",
-      "en": "Demo · completed without deadlock"
-    },
     "demoGuide": {
       "ja": {
         "overview": "表の各1行が1人のCoderです。状態、保有中のドングル、現在のコンパイル数/目標数を見ると排他制御を追えます。",
@@ -136,7 +128,7 @@ const PROJECTS: PortfolioProject[] = [
         ],
         "verification": [
           "ブラックボックステストで、不正引数、1人時のバーンアウト、FIFO/EDFの完了数、1回のコンパイルごと2回の取得ログを検証",
-          "ログのタイムスタンプが単調非減少であることと出力形式を確認。収録デモでは5人全員が目標4回へ段階的に到達",
+          "ログのタイムスタンプが単調非減少であることと出力形式を確認。収録動画では5人全員が目標4回へ段階的に到達",
           "-Wall -Wextra -Werror -pthreadでビルド"
         ],
         "limitations": [
@@ -176,10 +168,6 @@ const PROJECTS: PortfolioProject[] = [
       "ja": "個人開発",
       "en": "Individual project"
     },
-    "resultBadge": {
-      "ja": "デモ · 容量制約内で完了",
-      "en": "Demo · completed within capacity constraints"
-    },
     "demoGuide": {
       "ja": {
         "overview": "上部の進捗、Zoneの色と数値、Connectionの明るさを見ると、ドローンが容量制約を守って移動する過程を追えます。",
@@ -214,7 +202,7 @@ const PROJECTS: PortfolioProject[] = [
         "verification": [
           "メタデータ解析と不正入力、Blocked除外、到達可能性、Zoneコスト、Priorityのタイブレーク、混雑ペナルティをUnit Test",
           "Restrictedの2ターン移動、複数ドローン時のZone/Connection容量の直列化を統合的に検証",
-          "デモの完了画面で、全機到着とCapacity violations: 0を確認"
+          "動画の完了画面で、全機到着とCapacity violations: 0を確認"
         ],
         "limitations": [
           "混雑回避は現時点の局所情報を使うヒューリスティックで、最小完了ターンやグローバル最適性は保証しない",
@@ -228,7 +216,7 @@ const PROJECTS: PortfolioProject[] = [
           "Checked zone and connection capacity before committing movement",
           "Visualized current, moving, waiting and arrived states"
         ],
-        "verification": ["Tests cover parsing, blocked and unreachable graphs, weighted costs, tie-breaking, congestion penalties and restricted transit.", "Integration-style tests serialize multiple drones within zone and link capacities; the demo completes with zero violations."],
+        "verification": ["Tests cover parsing, blocked and unreachable graphs, weighted costs, tie-breaking, congestion penalties and restricted transit.", "Integration-style tests serialize multiple drones within zone and link capacities; the recorded run completes with zero violations."],
         "limitations": ["The congestion response is a local heuristic and does not guarantee globally optimal throughput.", "There is no maximum-turn guard; physical flight control, continuous space and network latency are outside scope."]
       }
     }
@@ -237,8 +225,8 @@ const PROJECTS: PortfolioProject[] = [
     "id": "souaoao/A-Maze-ing",
     "title": "A-Maze-ing",
     "description": {
-      "ja": "設定ファイルからDFS/BFSで迷路を生成し、構造的な制約を保ったまま最短経路と圧縮した16進壁データを出力する2名のPython共同開発。本人は生成・探索アルゴリズム、4ビット壁モデル、構造制約、パッケージ化を担当しました。",
-      "en": "A two-person Python project that generates mazes with DFS or BFS, preserves structural constraints, finds a shortest route, and writes compact hexadecimal wall data. My contribution covered generation and search algorithms, the four-bit wall model, structural constraints, and reusable packaging."
+      "ja": "設定ファイルからDFS/BFSで迷路を生成し、構造的な制約を保ったまま最短経路と圧縮した16進壁データを出力する2名のPython共同開発。",
+      "en": "A two-person Python project that generates mazes with DFS or BFS, preserves structural constraints, finds a shortest route, and writes compact hexadecimal wall data."
     },
     "tags": [
       "Python",
@@ -252,10 +240,6 @@ const PROJECTS: PortfolioProject[] = [
     "projectType": {
       "ja": "共同開発 · 2名",
       "en": "Team project · 2 developers"
-    },
-    "resultBadge": {
-      "ja": "再利用可能なPythonパッケージ",
-      "en": "Reusable Python package"
     },
     "demoGuide": {
       "ja": {
@@ -279,20 +263,11 @@ const PROJECTS: PortfolioProject[] = [
         ]
       }
     },
-    "collaboration": {
-      "ja": [
-        "2名で機能を分担し、Gitで変更を管理",
-        "本人はDFS/BFS、最短経路、壁の4ビット表現、パッケージ化を担当"
-      ],
-      "en": [
-        "Split features between two developers and managed changes with Git",
-        "My contribution: DFS/BFS, shortest-path search, four-bit wall encoding and packaging"
-      ]
-    },
     "technicalDetails": {
       "ja": {
         "challenge": "各セルの上下左右の壁をコンパクトに表現しつつ、隣接セルとの壁の整合性、閉じた外周、保護領域、3×3の完全開放禁止を守る必要がありました。さらに生成アルゴリズムと解法を分け、どの生成方式でも最短経路を求められる設計が必要でした。",
         "design": [
+          "2名で機能を分担し、Gitで変更を管理。本人は生成・探索アルゴリズム、壁の4ビット表現、構造制約、パッケージ化を担当",
           "北・東・南・西の壁を1/2/4/8の4ビットで保持。通路を開く際は対象セルと隣接セルの反対側の壁を同時に更新",
           "シード付きの方向シャッフルを共通化し、再帰DFSとキューを使うBFSの2種類の生成を実装。Perfect時は木構造、Imperfect時は制約内で追加の通路を生成",
           "生成と解法を分離し、解法側はBFSで先行セルを記録。Goalから逆順に復元してN/E/S/Wの最短経路を出力",
@@ -311,7 +286,7 @@ const PROJECTS: PortfolioProject[] = [
       "en": {
         "challenge": "Represent four directional walls in four bits while keeping maze-generation constraints and shortest-path search consistent.",
         "design": [
-          "My contribution implemented DFS maze generation and BFS shortest-path search",
+          "Split features between two developers and managed changes with Git. My contribution covered generation and search algorithms, four-bit wall encoding, structural constraints and packaging",
           "Encoded walls in four bits and maintained consistency between adjacent cells",
           "Packaged the contributed functionality as reusable mazegen functionality"
         ],
@@ -337,10 +312,6 @@ const PROJECTS: PortfolioProject[] = [
     "projectType": {
       "ja": "個人開発 · Web",
       "en": "Individual project · Web"
-    },
-    "resultBadge": {
-      "ja": "GitHub Pages · 自動デプロイ",
-      "en": "GitHub Pages · Automated deploy"
     },
     "compact": true,
     "technicalDetails": {
@@ -423,7 +394,7 @@ function PortfolioCard({
       onMouseEnter={handleMouseEnter}
       onMouseLeave={handleMouseLeave}
     >
-      <div className="grid items-start gap-4 border-b border-[var(--color-splitter)] p-5 sm:grid-cols-[minmax(0,1fr)_auto] sm:p-6">
+      <div className="border-b border-[var(--color-splitter)] p-5 sm:p-6">
         <div className="min-w-0">
           <h3 className="text-xl font-bold leading-snug sm:text-2xl">{project.title}</h3>
           {project.projectType && (
@@ -435,24 +406,13 @@ function PortfolioCard({
             {project.description[language]}
           </p>
         </div>
-        {project.resultBadge && (
-          <span
-            className="w-fit rounded-full border px-3 py-1 font-mono text-xs font-bold sm:whitespace-nowrap"
-            style={{
-              borderColor: 'var(--color-cli-text)',
-              color: 'var(--color-cli-text)',
-            }}
-          >
-            {project.resultBadge[language]}
-          </span>
-        )}
       </div>
 
       {/* ── Media area ── */}
       {project.demoGuide && (
         <section className="border-b border-[var(--color-splitter)] px-5 py-4 sm:px-6">
           <h4 className="font-mono text-xs font-bold uppercase tracking-wide text-[var(--color-cli-text)]">
-            {language === 'ja' ? 'デモ画面ガイド' : 'Demo screen guide'}
+            {language === 'ja' ? '動画の見方' : 'Video guide'}
           </h4>
           <p className="mt-2 text-sm leading-6 opacity-80">{project.demoGuide[language].overview}</p>
           <ul className="mt-3 grid gap-x-8 gap-y-1.5 text-xs leading-5 opacity-70 xl:grid-cols-2">
@@ -495,16 +455,16 @@ function PortfolioCard({
               playsInline
               controls
               preload="metadata"
-              aria-label={`${project.title} demo`}
+              aria-label={`${project.title} video`}
               className="absolute inset-0 h-full w-full object-contain"
             />
             <button
               type="button"
               onClick={() => onOpenVideo(project)}
-              aria-label={language === 'ja' ? `${project.title}のデモを拡大` : `Expand ${project.title} demo`}
+              aria-label={language === 'ja' ? `${project.title}の動画を拡大` : `Expand ${project.title} video`}
               className="absolute right-3 top-3 z-10 rounded border border-white/50 bg-black/80 px-3 py-2 font-mono text-xs font-bold text-white shadow-lg hover:bg-black focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white"
             >
-              {language === 'ja' ? 'デモを拡大 ↗' : 'Expand demo ↗'}
+              {language === 'ja' ? '動画を拡大 ↗' : 'Expand video ↗'}
             </button>
           </>
         )}
@@ -583,17 +543,6 @@ function PortfolioCard({
           );
         })()}
 
-        {project.collaboration && (
-          <div className="rounded border border-[var(--color-splitter)] bg-[var(--color-bg)] p-4">
-            <p className="mb-2 text-xs font-bold uppercase tracking-wider">
-              {language === 'ja' ? '共同開発・本人担当' : 'Team & my contribution'}
-            </p>
-            <ul className="list-disc space-y-1 pl-5 text-sm leading-7 opacity-75">
-              {project.collaboration[language].map((item) => <li key={item}>{item}</li>)}
-            </ul>
-          </div>
-        )}
-
         <div className="flex flex-wrap items-center justify-between gap-4">
           {/* Tags */}
           <div className="flex flex-wrap gap-1.5">
@@ -657,7 +606,7 @@ function VideoModal({ project, language, onClose }: {
       className="fixed inset-0 z-[100] flex items-center justify-center bg-black/90 p-3 sm:p-8"
       role="dialog"
       aria-modal="true"
-      aria-label={`${project.title} demo`}
+      aria-label={`${project.title} video`}
       onClick={onClose}
     >
       <div
@@ -667,9 +616,6 @@ function VideoModal({ project, language, onClose }: {
         <div className="mb-3 flex items-center justify-between gap-4 text-white">
           <div>
             <p className="text-lg font-bold sm:text-2xl">{project.title}</p>
-            {project.resultBadge && (
-              <p className="mt-1 font-mono text-xs opacity-70">{project.resultBadge[language]}</p>
-            )}
           </div>
           <button
             type="button"
@@ -749,14 +695,14 @@ export default function PortfolioContainer({
       className="w-full px-5 py-8 sm:px-8"
       style={{ color: 'var(--color-text)' }}
     >
-      {/* Header */}
-      <div
-        id="portfolio-filter-status"
-        tabIndex={-1}
-        aria-live="polite"
-        className="flex flex-wrap items-center gap-3 mb-6 focus:outline-none"
-      >
-        {activeTag && (
+      {/* Filter status */}
+      {activeTag && (
+        <div
+          id="portfolio-filter-status"
+          tabIndex={-1}
+          aria-live="polite"
+          className="mb-6 flex flex-wrap items-center gap-3 focus:outline-none"
+        >
           <span
             className="text-xs px-2 py-0.5 rounded-full border font-mono"
             style={{
@@ -766,9 +712,7 @@ export default function PortfolioContainer({
           >
             {language === 'ja' ? '選択中の技術' : 'Technology'}: {activeTag}
           </span>
-        )}
-        <span className="font-mono text-xs opacity-60">{projectCountLabel}</span>
-        {activeTag && (
+          <span className="font-mono text-xs opacity-60">{projectCountLabel}</span>
           <button
             type="button"
             onClick={onClearTag}
@@ -776,10 +720,9 @@ export default function PortfolioContainer({
           >
             {language === 'ja' ? '絞り込みを解除' : 'Clear filter'} ✕
           </button>
-        )}
-      </div>
+        </div>
+      )}
 
-      <p className="mb-6 max-w-4xl text-sm leading-7 opacity-65">{language === 'ja' ? 'PythonとCで実装した4作品です。入力検証、LLMの制約付き生成、スレッド間の排他制御、容量制約付き経路探索、DFS/BFSを扱っています。' : 'Four projects implemented in Python and C, covering input validation, constrained LLM generation, thread synchronization, capacity-aware routing and DFS/BFS.'}</p>
       {/* Cards grid */}
       {displayed.length === 0 ? (
         <div className="py-12 text-center font-mono text-sm opacity-60">
