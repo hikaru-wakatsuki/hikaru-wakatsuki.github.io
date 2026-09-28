@@ -438,7 +438,6 @@ interface CardProps {
   language: 'ja' | 'en';
   activeTag: string | null;
   onTagClick: (tag: string) => void;
-  onOpenVideo: (project: PortfolioProject) => void;
   onOpenDetails: (project: PortfolioProject) => void;
 }
 
@@ -447,7 +446,6 @@ function PortfolioCard({
   language,
   activeTag,
   onTagClick,
-  onOpenVideo,
   onOpenDetails,
 }: CardProps) {
   const videoRef = useRef<HTMLVideoElement>(null);
@@ -524,19 +522,10 @@ function PortfolioCard({
               muted
               loop
               playsInline
-              controls
               preload="metadata"
               aria-label={`${project.title} video`}
-              className="absolute inset-0 h-full w-full object-contain"
+              className="pointer-events-none absolute inset-0 h-full w-full object-contain"
             />
-            <button
-              type="button"
-              onClick={() => onOpenVideo(project)}
-              aria-label={language === 'ja' ? `${project.title}の動画を拡大` : `Expand ${project.title} video`}
-              className="absolute right-3 top-3 z-10 rounded border border-white/50 bg-black/80 px-3 py-2 font-mono text-xs font-bold text-white shadow-lg hover:bg-black focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white"
-            >
-              {language === 'ja' ? '動画を拡大 ↗' : 'Expand video ↗'}
-            </button>
           </>
         )}
       </div>
@@ -601,53 +590,6 @@ function PortfolioCard({
         </div>
       </div>
     </article>
-  );
-}
-
-function VideoModal({ project, language, onClose }: {
-  project: PortfolioProject;
-  language: 'ja' | 'en';
-  onClose: () => void;
-}) {
-  return (
-    <div
-      className="fixed inset-0 z-[100] flex items-center justify-center bg-black/90 p-3 sm:p-8"
-      role="dialog"
-      aria-modal="true"
-      aria-label={`${project.title} video`}
-      onClick={onClose}
-    >
-      <div
-        className="flex max-h-[calc(100vh-1.5rem)] w-full max-w-7xl flex-col sm:max-h-[calc(100vh-4rem)]"
-        onClick={(event) => event.stopPropagation()}
-      >
-        <div className="mb-3 flex items-center justify-between gap-4 text-white">
-          <div>
-            <p className="text-lg font-bold sm:text-2xl">{project.title}</p>
-          </div>
-          <button
-            type="button"
-            onClick={onClose}
-            autoFocus
-            className="rounded border border-white/50 px-3 py-2 font-mono text-xs font-bold hover:bg-white/10 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white"
-            aria-label={language === 'ja' ? '拡大動画を閉じる' : 'Close expanded video'}
-          >
-            {language === 'ja' ? '閉じる ✕' : 'Close ✕'}
-          </button>
-        </div>
-        <div className="flex min-h-0 flex-1 items-center justify-center overflow-hidden rounded border border-white/20 bg-black">
-          <video
-            src={project.videoUrl}
-            poster={project.imageUrl}
-            controls
-            autoPlay
-            muted
-            playsInline
-            className="max-h-[calc(100vh-6.5rem)] w-full object-contain sm:max-h-[calc(100vh-9rem)]"
-          />
-        </div>
-      </div>
-    </div>
   );
 }
 
@@ -754,16 +696,14 @@ export default function PortfolioContainer({
   // [C-3] Use language from AppStateContext so EN/JP toggle updates card descriptions
   const { language } = useAppState();
 
-  const [expandedProject, setExpandedProject] = useState<PortfolioProject | null>(null);
   const [detailProject, setDetailProject] = useState<PortfolioProject | null>(null);
 
   useEffect(() => {
-    if (!expandedProject && !detailProject) return;
+    if (!detailProject) return;
     const previousOverflow = document.body.style.overflow;
     document.body.style.overflow = 'hidden';
     const closeOnEscape = (event: KeyboardEvent) => {
       if (event.key === 'Escape') {
-        setExpandedProject(null);
         setDetailProject(null);
       }
     };
@@ -772,7 +712,7 @@ export default function PortfolioContainer({
       document.body.style.overflow = previousOverflow;
       window.removeEventListener('keydown', closeOnEscape);
     };
-  }, [expandedProject, detailProject]);
+  }, [detailProject]);
 
   // ── Filtered view ─────────────────────────────────────────────────────────
   const displayed = activeTag
@@ -843,7 +783,6 @@ export default function PortfolioContainer({
               language={language}
               activeTag={activeTag}
               onTagClick={handleCardTagClick}
-              onOpenVideo={setExpandedProject}
               onOpenDetails={setDetailProject}
             />
           ))}
@@ -856,13 +795,6 @@ export default function PortfolioContainer({
             {['Push_swap', 'get_next_line', 'printf', 'Born2beroot', 'NetPractice'].map((name) => <a key={name} href={`https://github.com/hikaru-wakatsuki/${name}`} target="_blank" rel="noopener noreferrer" className="underline underline-offset-4">{name} ↗</a>)}
           </div>
         </div>
-      )}
-      {expandedProject && (
-        <VideoModal
-          project={expandedProject}
-          language={language}
-          onClose={() => setExpandedProject(null)}
-        />
       )}
       {detailProject && (
         <ProjectDetailModal
