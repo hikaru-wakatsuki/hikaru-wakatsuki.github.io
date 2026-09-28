@@ -38,7 +38,7 @@ const FALLBACK: Record<Language, Translations> = {
     profile: {
       name: 'Hikaru Wakatsuki',
       title: 'Backend Engineer / Python',
-      bio: 'Currently developing business applications with Python and generative AI. Responsible for process design, implementation, evaluation and release, translating high-level functional requirements into processing flows and data models.\nAround four years of experience as an infrastructure engineer, designing, building and migrating Linux and Azure platforms. Experience includes comparing technical approaches, PoCs, production deployment and incident response.\nAt 42 Tokyo, implemented concurrency, scheduling and graph search in C and Python, as well as local-LLM function calling.',
+      bio: 'Currently developing business applications with Python and generative AI. Responsible for process design, implementation, evaluation and release, translating high-level functional requirements into processing flows and data models.\nAround four years of experience as an infrastructure engineer, designing, building and migrating Linux and Azure platforms. Experience includes comparing technical approaches, PoCs, production deployment and incident response.\nAt 42 Tokyo, implemented concurrency, scheduling and graph search in C and Python, as well as local-LLM function calling. Implementation details and videos are available under Projects.',
     },
     skills: {
       backend: 'Backend',
@@ -82,7 +82,7 @@ const FALLBACK: Record<Language, Translations> = {
     profile: {
       name: '若月 洸 / Hikaru Wakatsuki',
       title: 'Backend Engineer / Python',
-      bio: '現在はPythonと生成AIを用いた業務アプリケーション開発に従事。大枠の機能要件から処理フローとデータ項目を設計し、実装、評価、リリースまで担当。\nインフラエンジニアとして約4年、Linux・Azure基盤の設計、構築、移行に従事。方式比較からPoC、本番導入、障害対応まで経験。\n42 TokyoではC・Pythonを用いて、並行処理、スケジューリング、グラフ探索、ローカルLLMのFunction Callingを実装。',
+      bio: '現在はPythonと生成AIを用いた業務アプリケーション開発に従事。大枠の機能要件から処理フローとデータ項目を設計し、実装、評価、リリースまで担当。\nインフラエンジニアとして約4年、Linux・Azure基盤の設計、構築、移行に従事。方式比較からPoC、本番導入、障害対応まで経験。\n42 TokyoではC・Pythonを用いて、並行処理、スケジューリング、グラフ探索、ローカルLLMのFunction Callingを実装。実装内容と動作動画は「プロジェクト」に掲載。',
     },
     skills: {
       backend: 'Backend',

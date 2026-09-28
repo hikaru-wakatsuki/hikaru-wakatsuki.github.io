@@ -192,7 +192,7 @@ function GuiArea() {
   };
 
   const contents = [
-    <CareerContainer onOpenProjects={() => navigateToSection('portfolio-section')} />,
+    <CareerContainer />,
     <PortfolioContainer
       activeTag={selectedTechnology}
       onSelectTag={(tag) => setSelectedTechnology((current) => current === tag ? null : tag)}

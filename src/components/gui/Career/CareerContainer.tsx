@@ -77,7 +77,7 @@ const COPY = {
   },
 };
 
-export default function CareerContainer({ onOpenProjects }: { onOpenProjects: () => void }) {
+export default function CareerContainer() {
   const { language } = useAppState();
   const copy = COPY[language];
   const ja = language === 'ja';
@@ -88,12 +88,12 @@ export default function CareerContainer({ onOpenProjects }: { onOpenProjects: ()
       institution: ja ? '千葉大学' : 'Chiba University',
       period: bachelor.period,
       title: ja ? '工学部 画像科学科 · 学士' : 'B.Eng., Image Science',
-      points: [], links: [], badge: undefined, badgeTone: undefined, projectCta: false,
+      points: [], links: [], badge: undefined, badgeTone: undefined,
     },
     {
       institution: graduate.institution, period: graduate.period,
       title: ja ? '融合理工学府 先進理化学専攻 物質科学コース · 修士' : 'Graduate School of Science and Engineering · Master’s',
-      points: graduate.points, links: graduate.links, badge: undefined, badgeTone: undefined, projectCta: false,
+      points: graduate.points, links: graduate.links, badge: undefined, badgeTone: undefined,
     },
     {
       institution: nec.institution,
@@ -108,7 +108,7 @@ export default function CareerContainer({ onOpenProjects }: { onOpenProjects: ()
         'For an Azure outbound-connectivity change, compared multiple approaches and proposed NAT Gateway. Built RHEL 6 and 8 test environments and led the work from PoC through production deployment.',
         'For a private-cloud migration, preserved the existing RHEL 6 environment on KVM. Validated the PostgreSQL migration method and created scripts and procedures to complete the work within a limited migration window.',
       ],
-      links: [], badge: undefined, badgeTone: undefined, projectCta: false,
+      links: [], badge: undefined, badgeTone: undefined,
     },
     {
       institution: nec.institution,
@@ -117,7 +117,6 @@ export default function CareerContainer({ onOpenProjects }: { onOpenProjects: ()
       points: nec.points, links: [],
       badge: ja ? '現在の担当' : 'Current role',
       badgeTone: 'current',
-      projectCta: false,
     },
     {
       institution: tokyo.institution, period: tokyo.period,
@@ -125,7 +124,6 @@ export default function CareerContainer({ onOpenProjects }: { onOpenProjects: ()
       points: tokyo.points, links: [],
       badge: ja ? 'NEC在籍中の並行学習' : 'Alongside full-time role at NEC',
       badgeTone: 'parallel',
-      projectCta: true,
     },
   ];
 
@@ -161,20 +159,6 @@ export default function CareerContainer({ onOpenProjects }: { onOpenProjects: ()
                       <span className="block mt-1 font-mono text-xs break-all opacity-65">{link.url}</span>
                     </a>
                   ))}
-                </div>
-              )}
-              {entry.projectCta && (
-                <div className="mt-4 flex flex-wrap items-center gap-3 text-sm">
-                  <p className="leading-6 opacity-80">
-                    {ja ? '実装内容と動作動画は「プロジェクト」に掲載。' : 'Implementation details and videos are available under Projects.'}
-                  </p>
-                  <button
-                    type="button"
-                    onClick={onOpenProjects}
-                    className="rounded border border-[var(--color-cli-text)] px-3 py-1.5 font-mono text-xs font-bold hover:opacity-70 focus-visible:outline-2 focus-visible:outline-offset-2"
-                  >
-                    {ja ? 'プロジェクトを見る' : 'View projects'}
-                  </button>
                 </div>
               )}
             </div>
