@@ -38,7 +38,7 @@ const FALLBACK: Record<Language, Translations> = {
     profile: {
       name: 'Hikaru Wakatsuki',
       title: 'Backend Engineer / Python',
-      bio: 'I joined NEC in 2022 and spent around four years designing, building and migrating Linux, Azure and database infrastructure for telecom systems, including incident and performance investigations. Since April 2026, I have designed, implemented, evaluated and released Python business applications, including LLM-assisted processing, JSON output validation, API-failure fallback and Docker environment setup.',
+      bio: 'Currently developing business applications with Python and generative AI. Responsible for process design, implementation, evaluation and release, translating high-level functional requirements into processing flows and data models.\n\nPreviously spent around four years as an infrastructure engineer, designing, building and migrating Linux and Azure platforms. Experience includes comparing technical approaches, PoCs, production deployment and incident response.\n\nAt 42 Tokyo, implemented concurrency, scheduling and graph search in C and Python, as well as local-LLM function calling.',
     },
     skills: {
       backend: 'Backend',
@@ -82,7 +82,7 @@ const FALLBACK: Record<Language, Translations> = {
     profile: {
       name: '若月 洸 / Hikaru Wakatsuki',
       title: 'Backend Engineer / Python',
-      bio: '2022年にNECへ入社し、通信基盤のLinux・Azure・データベースの設計、構築、移行、障害・性能調査を約4年担当しました。2026年4月からはPython業務アプリの処理設計、実装、評価、リリースを担当。LLMを利用する処理、JSON出力の検証、API障害時のフォールバック、Docker環境整備を経験しています。',
+      bio: '現在はPythonと生成AIを用いた業務アプリケーション開発に従事。大枠の機能要件から処理フローとデータ項目を設計し、実装、評価、リリースまで担当。\n\nその前は約4年、インフラエンジニアとしてLinux・Azure基盤の設計、構築、移行に従事。方式比較からPoC、本番導入、障害対応まで経験。\n\n42 TokyoではC・Pythonを用いて、並行処理、スケジューリング、グラフ探索、ローカルLLMのFunction Callingを実装。',
     },
     skills: {
       backend: 'Backend',
