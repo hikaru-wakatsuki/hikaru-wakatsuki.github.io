@@ -31,9 +31,9 @@ const COPY = {
       {
         institution: '42 Tokyo', period: '2025年10月〜現在',
         points: [
-          '入学選考Piscineでは、合格者の中で上位成績を収めました。入学後もC・Python、アルゴリズム、並行処理、Gitの各課題で必須要件とBonus要件をすべて実装し、Peer Reviewを減点なく通過しています。',
-          'ローカルLLMのFunction Callingで、関数選択、スキーマに従うJSON引数生成、生成引数の型照合、実モデルを使う統合テストを実装しました。2名の迷路開発では、生成・探索部分を担当し、Pythonパッケージに分離しました。',
-          'CとPOSIX threadsで競合・デッドロック・公平性を検討し、mutexの取得順序やFIFO・EDFスケジューリングを実装しました。',
+          '入学選考Piscineでは、合格者の中で上位成績。',
+          '入学後の各課題では、必須要件と発展的なBonus要件をすべて実装。Peer Reviewも減点なく通過し、設計意図と実装内容を自分の言葉で説明できる状態で課題を完了。',
+          'C・Pythonを用いた課題を通じて、アルゴリズム、並行処理、グラフ探索、ローカルLLM、Git・GitHubによる共同開発を継続して実践。',
         ],
         links: [],
       },
@@ -65,9 +65,9 @@ const COPY = {
       {
         institution: '42 Tokyo', period: 'Oct 2025 — Present',
         points: [
-          'Placed among the top successful candidates in the admissions Piscine. Since admission, implemented every required and Bonus requirement across coursework in C, Python, algorithms, concurrency and Git, passing peer reviews without deductions.',
-          'Implemented local LLM function calling with constrained function selection, schema-guided JSON argument generation, generated-argument type checks and real-model integration tests. In a two-person maze project, owned generation and search, then separated that logic into a reusable Python package.',
-          'Explored contention, deadlocks and fairness using C and POSIX threads; implemented mutex lock ordering and FIFO/EDF scheduling.',
+          'Placed among the top successful candidates in the admissions Piscine.',
+          'Since admission, implemented every required and advanced Bonus requirement. Passed peer reviews without deductions and completed each project able to explain its design decisions and implementation in my own words.',
+          'Continued hands-on practice in algorithms, concurrency, graph search, local LLMs and collaborative development with Git and GitHub through projects in C and Python.',
         ],
         links: [],
       },
