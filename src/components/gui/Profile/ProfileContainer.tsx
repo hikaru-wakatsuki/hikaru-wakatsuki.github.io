@@ -147,7 +147,7 @@ export default function ProfileContainer() {
               onClick={(event) => navigateToSection('portfolio-section', event)}
               className="rounded border border-[var(--color-cli-text)] bg-[var(--color-cli-text)] px-4 py-2 font-mono text-xs font-bold text-[var(--color-cli-bg)] hover:opacity-80 focus-visible:outline-2 focus-visible:outline-offset-2"
             >
-              {language === 'ja' ? '主要プロジェクトを見る' : 'View featured projects'}
+              {language === 'ja' ? 'プロジェクトを見る' : 'View projects'}
             </a>
             <a
               href="#career-section"

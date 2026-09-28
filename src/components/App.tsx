@@ -103,7 +103,7 @@ function Controls({ menuOpen, onToggleMenu }: { menuOpen: boolean; onToggleMenu:
 
 const SECTIONS = [
   { id: 'career-section', ja: '経歴', en: 'Career' },
-  { id: 'portfolio-section', ja: 'ポートフォリオ', en: 'Portfolio' },
+  { id: 'portfolio-section', ja: 'プロジェクト', en: 'Projects' },
   { id: SKILLS_SECTION_ID, ja: 'スキル', en: 'Skills' },
   { id: 'contact-section', ja: 'お問い合わせ', en: 'Contact' },
 ] as const;
