@@ -155,10 +155,6 @@ function GuiArea() {
   const [selectedTechnology, setSelectedTechnology] = useState<string | null>(null);
 
   useEffect(() => {
-    setMenuOpen(window.matchMedia('(min-width: 768px)').matches);
-  }, []);
-
-  useEffect(() => {
     if (!menuOpen) return;
     const closeOnEscape = (event: KeyboardEvent) => {
       if (event.key === 'Escape') setMenuOpen(false);
