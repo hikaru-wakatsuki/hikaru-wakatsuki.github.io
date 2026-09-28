@@ -51,11 +51,11 @@ function Avatar() {
     <img
       src="/profile-avatar.jpg"
       alt="Hikaru Wakatsuki"
-      width={80}
-      height={80}
+      width={96}
+      height={96}
       style={{
-        width: '5rem',
-        height: '5rem',
+        width: '6rem',
+        height: '6rem',
         borderRadius: '9999px',
         border: '2px solid var(--color-cli-text)',
         objectFit: 'cover',
