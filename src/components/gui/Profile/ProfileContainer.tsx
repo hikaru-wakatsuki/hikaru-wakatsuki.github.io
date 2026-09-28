@@ -135,7 +135,6 @@ export default function ProfileContainer() {
               color: dimColor,
               lineHeight: 1.7,
               maxWidth: '48rem',
-              whiteSpace: 'pre-line',
             }}
           >
             {t('profile.bio')}

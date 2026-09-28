@@ -2,7 +2,7 @@
   "profile": {
     "name": "Hikaru Wakatsuki",
     "title": "Backend Engineer / Python",
-    "bio": "Currently developing business applications with Python and generative AI. Responsible for process design, implementation, evaluation and release, translating high-level functional requirements into processing flows and data models.\n\nPreviously spent around four years as an infrastructure engineer, designing, building and migrating Linux and Azure platforms. Experience includes comparing technical approaches, PoCs, production deployment and incident response.\n\nAt 42 Tokyo, implemented concurrency, scheduling and graph search in C and Python, as well as local-LLM function calling."
+    "bio": "Currently developing business applications with Python and generative AI. Responsible for process design, implementation, evaluation and release, translating high-level functional requirements into processing flows and data models. Previously spent around four years as an infrastructure engineer, designing, building and migrating Linux and Azure platforms. Experience includes comparing technical approaches, PoCs, production deployment and incident response. At 42 Tokyo, implemented concurrency, scheduling and graph search in C and Python, as well as local-LLM function calling."
   },
   "skills": {
     "backend": "Backend",
