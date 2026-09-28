@@ -146,10 +146,10 @@ function GuiArea() {
   const { language } = useAppState();
   const [menuOpen, setMenuOpen] = useState(false);
   const [openSections, setOpenSections] = useState<Record<SectionId, boolean>>({
-    'career-section': true,
-    [SKILLS_SECTION_ID]: true,
-    'portfolio-section': true,
-    'contact-section': true,
+    'career-section': false,
+    [SKILLS_SECTION_ID]: false,
+    'portfolio-section': false,
+    'contact-section': false,
   });
   const [activeSection, setActiveSection] = useState<SectionId>('career-section');
   const [selectedTechnology, setSelectedTechnology] = useState<string | null>(null);
