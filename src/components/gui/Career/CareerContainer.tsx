@@ -22,8 +22,9 @@ const COPY = {
       {
         institution: '日本電気株式会社', period: '2022年4月〜現在',
         points: [
-          'Pythonで業務アプリケーションの処理設計・実装・評価を担当。LLMを利用した処理、JSON出力検証、API障害時の検索フォールバックを実装し、利用部門向けの環境へリリースしました。',
-          'Pythonを用いた業務Webアプリをチームで開発・リリース。JSONと画面表示の連携、不具合調査、Docker環境整備を担当しました。',
+          'RPA・自動化ツールの登録・検索・推薦アプリを担当。大枠の機能要件と画面案から、処理フロー、JSONデータ項目、LLM処理を設計し、実装、評価、リリースまでを主担当として実施。',
+          '検索・推薦処理を、利用者の要求整理、候補抽出、順位付けの3段階に分割。LLM通信の共通化、生成AI API障害時のフォールバック、想定外のJSON出力に対する例外処理を実装。',
+          '会議記録からAction情報を抽出するWebアプリを2名で開発。データ構造とJSONインターフェースの検討、Pythonクラスと画面表示の連携、JavaScriptの不具合修正、Docker環境整備を担当。',
         ],
         links: [],
       },
@@ -55,8 +56,9 @@ const COPY = {
       {
         institution: 'NEC Corporation', period: 'Apr 2022 — Present',
         points: [
-          'Design, implementation and evaluation of Python business-application logic. Implemented LLM-assisted processing, JSON output validation and fallback search for API failures, then released the application to an internal user environment.',
-          'Developed and released a Python business web application with a team. Owned JSON-to-display integration, debugging and Docker environment setup.',
+          'Owned an RPA and automation-tool registration, search and recommendation application. Starting from high-level functional requirements and screen designs, defined the processing flow, JSON data fields and LLM processing, then led implementation, evaluation and release.',
+          'Split search and recommendation into three stages: user-requirement structuring, candidate extraction and ranking. Implemented shared LLM communication, fallback behavior for generative-AI API failures and exception handling for unexpected JSON output.',
+          'Co-developed a web application that extracts action items from meeting records. Owned data-structure and JSON-interface design, Python-to-UI integration, JavaScript bug fixes and Docker environment setup.',
         ],
         links: [],
       },
@@ -97,14 +99,22 @@ export default function CareerContainer() {
       institution: nec.institution,
       period: ja ? '2022年4月〜2026年3月' : 'Apr 2022 — Mar 2026',
       title: ja ? 'インフラエンジニア' : 'Infrastructure Engineer',
-      points: [ja ? '約4年、通信基盤のLinux・Azure・DBの設計、構築、移行、障害・性能調査を担当。Azureクラウドリフト、OS更改、プライベートクラウド移行を経験しました。' : 'Around four years designing, building and migrating Linux, Azure and database infrastructure for telecom systems, including incident/performance investigations, Azure cloud lift, OS refresh and private cloud migration.'],
+      points: ja ? [
+        'Azureクラウドリフト、RHEL 6から8へのOS・ミドルウェア更改、プライベートクラウド移行を担当。基本・詳細設計、構築、試験、移行、障害・性能調査を経験。',
+        'Azureの外向き通信方式変更では、複数案を比較してNAT Gatewayを提案。RHEL 6・8の検証環境を構築し、PoCから本番導入まで主担当として実施。',
+        'プライベートクラウド移行では、KVM上に既存のRHEL 6環境を維持。PostgreSQLの移行方法を検証し、限られた作業時間に収めるためのスクリプトと移行手順を作成。',
+      ] : [
+        'Owned an Azure cloud lift, a RHEL 6-to-8 OS and middleware upgrade, and a private-cloud migration. Worked across basic and detailed design, build, testing, migration, and incident and performance investigation.',
+        'For an Azure outbound-connectivity change, compared multiple approaches and proposed NAT Gateway. Built RHEL 6 and 8 test environments and led the work from PoC through production deployment.',
+        'For a private-cloud migration, preserved the existing RHEL 6 environment on KVM. Validated the PostgreSQL migration method and created scripts and procedures to complete the work within a limited migration window.',
+      ],
       links: [], badge: undefined, badgeTone: undefined,
     },
     {
       institution: nec.institution,
       period: ja ? '2026年4月〜現在' : 'Apr 2026 — Present',
       title: ja ? 'Python・生成AIを用いた業務アプリケーション開発' : 'Business application development with Python and generative AI',
-      points: nec.points.slice(0, 2), links: [],
+      points: nec.points, links: [],
       badge: ja ? '現在の担当' : 'Current role',
       badgeTone: 'current',
     },
