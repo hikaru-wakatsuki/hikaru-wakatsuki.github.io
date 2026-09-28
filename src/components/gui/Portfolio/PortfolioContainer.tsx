@@ -348,12 +348,98 @@ export const PROJECT_TAG_COUNTS: Readonly<Record<string, number>> = Object.freez
 
 // ── PortfolioCard ─────────────────────────────────────────────────────────────
 
+function ProjectVideoGuide({ project, language }: {
+  project: PortfolioProject;
+  language: 'ja' | 'en';
+}) {
+  if (!project.demoGuide) return null;
+  const guide = project.demoGuide[language];
+
+  return (
+    <section className="rounded-lg border border-[var(--color-splitter)] bg-[var(--color-bg)] px-5 py-4 sm:px-6">
+      <h3 className="font-mono text-xs font-bold uppercase tracking-wide text-[var(--color-cli-text)]">
+        {language === 'ja' ? '動画の見方' : 'Video guide'}
+      </h3>
+      <p className="mt-2 text-sm leading-6 opacity-80">{guide.overview}</p>
+      <ul className="mt-3 grid gap-x-8 gap-y-1.5 text-xs leading-5 opacity-70 xl:grid-cols-2">
+        {guide.cues.map((cue) => (
+          <li key={cue} className="flex gap-2">
+            <span aria-hidden="true" className="text-[var(--color-cli-text)]">•</span>
+            <span>{cue}</span>
+          </li>
+        ))}
+      </ul>
+    </section>
+  );
+}
+
+function ProjectTechnicalDetailsPanel({ project, language }: {
+  project: PortfolioProject;
+  language: 'ja' | 'en';
+}) {
+  if (!project.technicalDetails) return null;
+  const details = project.technicalDetails[language];
+
+  return (
+    <div className="grid gap-4 text-sm leading-relaxed">
+      <section className="overflow-hidden rounded-lg border" style={{ borderColor: 'var(--color-accent-border)' }}>
+        <h3 className="border-b border-[var(--color-accent-border)] bg-[var(--color-accent-soft)] px-4 py-3 text-sm font-bold sm:px-5">
+          {language === 'ja' ? '解決した技術課題' : 'Engineering problem'}
+        </h3>
+        <p className="px-4 py-4 leading-7 text-[var(--color-text-muted)] sm:px-5">{details.challenge}</p>
+      </section>
+
+      <section className="overflow-hidden rounded-lg border border-[var(--color-splitter)] bg-[var(--color-bg)]">
+        <h3 className="border-b border-[var(--color-splitter)] bg-[var(--color-accent-secondary-soft)] px-4 py-3 text-sm font-bold sm:px-5">
+          {language === 'ja' ? '設計判断と実装' : 'Design decisions & implementation'}
+        </h3>
+        <ul className="px-4 py-2 text-[var(--color-text-muted)] sm:px-5">
+          {details.design.map((item) => (
+            <li key={item} className="border-b border-[var(--color-splitter)] py-3 last:border-b-0">
+              <span className="block border-l-2 border-[var(--color-accent-secondary)] pl-3 leading-7">{item}</span>
+            </li>
+          ))}
+        </ul>
+      </section>
+
+      <div className="grid gap-4 xl:grid-cols-2">
+        <section className="overflow-hidden rounded-lg border border-[var(--color-splitter)] bg-[var(--color-bg)]">
+          <h3 className="border-b border-[var(--color-splitter)] bg-[var(--color-accent-soft)] px-4 py-3 text-sm font-bold sm:px-5">
+            {language === 'ja' ? '検証内容' : 'Validation'}
+          </h3>
+          <ul className="px-4 py-2 text-[var(--color-text-muted)] sm:px-5">
+            {details.verification.map((item) => (
+              <li key={item} className="border-b border-[var(--color-splitter)] py-3 last:border-b-0">
+                <span className="block border-l-2 border-[var(--color-cli-text)] pl-3 leading-7">{item}</span>
+              </li>
+            ))}
+          </ul>
+        </section>
+
+        <section className="overflow-hidden rounded-lg border border-[var(--color-splitter)] bg-[var(--color-bg)]">
+          <h3 className="border-b border-[var(--color-splitter)] bg-[var(--color-accent-secondary-soft)] px-4 py-3 text-sm font-bold sm:px-5">
+            {language === 'ja' ? '設計上の制約' : 'Design boundaries'}
+          </h3>
+          <ul className="px-4 py-2 text-[var(--color-text-muted)] sm:px-5">
+            {details.limitations.map((item) => (
+              <li key={item} className="border-b border-[var(--color-splitter)] py-3 last:border-b-0">
+                <span className="block border-l-2 border-[var(--color-accent-secondary)] pl-3 leading-7">{item}</span>
+              </li>
+            ))}
+          </ul>
+        </section>
+      </div>
+    </div>
+  );
+}
+
 interface CardProps {
   project: PortfolioProject;
   language: 'ja' | 'en';
   activeTag: string | null;
   onTagClick: (tag: string) => void;
   onOpenVideo: (project: PortfolioProject) => void;
+  onOpenDetails: (project: PortfolioProject) => void;
 }
 
 function PortfolioCard({
@@ -362,6 +448,7 @@ function PortfolioCard({
   activeTag,
   onTagClick,
   onOpenVideo,
+  onOpenDetails,
 }: CardProps) {
   const videoRef = useRef<HTMLVideoElement>(null);
 
@@ -409,22 +496,6 @@ function PortfolioCard({
       </div>
 
       {/* ── Media area ── */}
-      {project.demoGuide && (
-        <section className="border-b border-[var(--color-splitter)] px-5 py-4 sm:px-6">
-          <h4 className="font-mono text-xs font-bold uppercase tracking-wide text-[var(--color-cli-text)]">
-            {language === 'ja' ? '動画の見方' : 'Video guide'}
-          </h4>
-          <p className="mt-2 text-sm leading-6 opacity-80">{project.demoGuide[language].overview}</p>
-          <ul className="mt-3 grid gap-x-8 gap-y-1.5 text-xs leading-5 opacity-70 xl:grid-cols-2">
-            {project.demoGuide[language].cues.map((cue) => (
-              <li key={cue} className="flex gap-2">
-                <span aria-hidden="true" className="text-[var(--color-cli-text)]">•</span>
-                <span>{cue}</span>
-              </li>
-            ))}
-          </ul>
-        </section>
-      )}
       <div
         className="relative w-full overflow-hidden"
         style={project.videoUrl
@@ -472,77 +543,6 @@ function PortfolioCard({
 
       {/* ── Content ── */}
       <div className="flex flex-col gap-5 p-5 sm:p-6">
-        {project.technicalDetails && (() => {
-          const details = project.technicalDetails[language];
-          return (
-            <div className="grid gap-4 text-sm leading-relaxed">
-              <section
-                className="overflow-hidden rounded-lg border"
-                style={{
-                  borderColor: 'var(--color-accent-border)',
-                }}
-              >
-                <h4 className="border-b border-[var(--color-accent-border)] bg-[var(--color-accent-soft)] px-4 py-3 text-sm font-bold sm:px-5">
-                  {language === 'ja' ? '解決した技術課題' : 'Engineering problem'}
-                </h4>
-                <p className="px-4 py-4 leading-7 text-[var(--color-text-muted)] sm:px-5">
-                  {details.challenge}
-                </p>
-              </section>
-
-              <section className="overflow-hidden rounded-lg border border-[var(--color-splitter)] bg-[var(--color-bg)]">
-                <h4 className="border-b border-[var(--color-splitter)] bg-[var(--color-accent-secondary-soft)] px-4 py-3 text-sm font-bold sm:px-5">
-                  {language === 'ja' ? '設計判断と実装' : 'Design decisions & implementation'}
-                </h4>
-                <ul className="px-4 py-2 text-[var(--color-text-muted)] sm:px-5">
-                  {details.design.map((item) => (
-                    <li
-                      key={item}
-                      className="border-b border-[var(--color-splitter)] py-3 last:border-b-0"
-                    >
-                      <span className="block border-l-2 border-[var(--color-accent-secondary)] pl-3 leading-7">{item}</span>
-                    </li>
-                  ))}
-                </ul>
-              </section>
-
-              <div className="grid gap-4 xl:grid-cols-2">
-                <section className="overflow-hidden rounded-lg border border-[var(--color-splitter)] bg-[var(--color-bg)]">
-                  <h4 className="border-b border-[var(--color-splitter)] bg-[var(--color-accent-soft)] px-4 py-3 text-sm font-bold sm:px-5">
-                    {language === 'ja' ? '検証内容' : 'Validation'}
-                  </h4>
-                  <ul className="px-4 py-2 text-[var(--color-text-muted)] sm:px-5">
-                    {details.verification.map((item) => (
-                      <li
-                        key={item}
-                        className="border-b border-[var(--color-splitter)] py-3 last:border-b-0"
-                      >
-                        <span className="block border-l-2 border-[var(--color-cli-text)] pl-3 leading-7">{item}</span>
-                      </li>
-                    ))}
-                  </ul>
-                </section>
-
-                <section className="overflow-hidden rounded-lg border border-[var(--color-splitter)] bg-[var(--color-bg)]">
-                  <h4 className="border-b border-[var(--color-splitter)] bg-[var(--color-accent-secondary-soft)] px-4 py-3 text-sm font-bold sm:px-5">
-                    {language === 'ja' ? '設計上の制約' : 'Design boundaries'}
-                  </h4>
-                  <ul className="px-4 py-2 text-[var(--color-text-muted)] sm:px-5">
-                    {details.limitations.map((item) => (
-                      <li
-                        key={item}
-                        className="border-b border-[var(--color-splitter)] py-3 last:border-b-0"
-                      >
-                        <span className="block border-l-2 border-[var(--color-accent-secondary)] pl-3 leading-7">{item}</span>
-                      </li>
-                    ))}
-                  </ul>
-                </section>
-              </div>
-            </div>
-          );
-        })()}
-
         <div className="flex flex-wrap items-center justify-between gap-4">
           {/* Tags */}
           <div className="flex flex-wrap gap-1.5">
@@ -580,16 +580,24 @@ function PortfolioCard({
             })}
           </div>
 
-          {/* GitHub link */}
-          <a
-            href={project.githubUrl}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="w-fit font-mono text-xs opacity-70 transition-opacity hover:underline hover:opacity-100"
-            style={{ color: 'var(--color-cli-text)' }}
-          >
-            GitHub ↗
-          </a>
+          <div className="flex flex-wrap items-center gap-3">
+            <button
+              type="button"
+              onClick={() => onOpenDetails(project)}
+              className="rounded border border-[var(--color-cli-text)] bg-[var(--color-cli-text)] px-4 py-2 font-mono text-xs font-bold text-[var(--color-cli-bg)] hover:opacity-80 focus-visible:outline-2 focus-visible:outline-offset-2"
+            >
+              {language === 'ja' ? '詳しく見る' : 'View details'}
+            </button>
+            <a
+              href={project.githubUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="w-fit font-mono text-xs opacity-70 transition-opacity hover:underline hover:opacity-100"
+              style={{ color: 'var(--color-cli-text)' }}
+            >
+              GitHub ↗
+            </a>
+          </div>
         </div>
       </div>
     </article>
@@ -645,6 +653,93 @@ function VideoModal({ project, language, onClose }: {
 
 // ── PortfolioContainer ────────────────────────────────────────────────────────
 
+function ProjectDetailModal({ project, language, onClose }: {
+  project: PortfolioProject;
+  language: 'ja' | 'en';
+  onClose: () => void;
+}) {
+  return (
+    <div
+      className="fixed inset-0 z-[100] overflow-y-auto bg-black/85 p-3 sm:p-6"
+      role="dialog"
+      aria-modal="true"
+      aria-label={language === 'ja' ? `${project.title}の詳細` : `${project.title} details`}
+      onClick={onClose}
+    >
+      <article
+        className="mx-auto w-full max-w-7xl overflow-hidden rounded-lg border border-white/20 bg-[var(--color-cli-bg)] text-[var(--color-text)] shadow-2xl"
+        onClick={(event) => event.stopPropagation()}
+      >
+        <header className="sticky top-0 z-20 flex items-start justify-between gap-4 border-b border-[var(--color-splitter)] bg-[var(--color-cli-bg)]/95 p-5 backdrop-blur sm:p-6">
+          <div className="min-w-0">
+            <h2 className="text-xl font-bold leading-snug sm:text-3xl">{project.title}</h2>
+            {project.projectType && (
+              <p className="mt-2 font-mono text-xs uppercase tracking-wider opacity-60">{project.projectType[language]}</p>
+            )}
+          </div>
+          <button
+            type="button"
+            onClick={onClose}
+            autoFocus
+            className="shrink-0 rounded border border-[var(--color-splitter)] px-3 py-2 font-mono text-xs font-bold hover:opacity-70 focus-visible:outline-2 focus-visible:outline-offset-2"
+            aria-label={language === 'ja' ? 'プロジェクトの詳細を閉じる' : 'Close project details'}
+          >
+            {language === 'ja' ? '閉じる ✕' : 'Close ✕'}
+          </button>
+        </header>
+
+        <div className="grid gap-5 p-5 sm:gap-6 sm:p-6 lg:p-8">
+          <p className="max-w-5xl text-sm leading-7 text-[var(--color-text-muted)] sm:text-base">
+            {project.description[language]}
+          </p>
+
+          <ProjectVideoGuide project={project} language={language} />
+
+          {project.videoUrl ? (
+            <div className="overflow-hidden rounded-lg border border-[var(--color-splitter)] bg-black" style={{ aspectRatio: '16 / 9' }}>
+              <video
+                src={project.videoUrl}
+                poster={project.imageUrl}
+                controls
+                playsInline
+                preload="metadata"
+                aria-label={`${project.title} video`}
+                className="h-full w-full object-contain"
+              />
+            </div>
+          ) : project.imageUrl ? (
+            <img
+              src={project.imageUrl}
+              alt={project.title}
+              className="w-full rounded-lg border border-[var(--color-splitter)] object-contain"
+            />
+          ) : null}
+
+          <ProjectTechnicalDetailsPanel project={project} language={language} />
+
+          <footer className="flex flex-wrap items-center justify-between gap-4 border-t border-[var(--color-splitter)] pt-5">
+            <div className="flex flex-wrap gap-1.5">
+              {project.tags.map((tag) => (
+                <span key={tag} className="rounded border border-[var(--color-splitter)] px-2 py-0.5 font-mono text-xs opacity-70">
+                  {tag}
+                </span>
+              ))}
+            </div>
+            <a
+              href={project.githubUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="font-mono text-xs font-bold text-[var(--color-cli-text)] hover:underline"
+            >
+              GitHub ↗
+            </a>
+          </footer>
+        </div>
+      </article>
+    </div>
+  );
+}
+
 interface PortfolioContainerProps {
   activeTag: string | null;
   onSelectTag: (tag: string) => void;
@@ -660,20 +755,24 @@ export default function PortfolioContainer({
   const { language } = useAppState();
 
   const [expandedProject, setExpandedProject] = useState<PortfolioProject | null>(null);
+  const [detailProject, setDetailProject] = useState<PortfolioProject | null>(null);
 
   useEffect(() => {
-    if (!expandedProject) return;
+    if (!expandedProject && !detailProject) return;
     const previousOverflow = document.body.style.overflow;
     document.body.style.overflow = 'hidden';
     const closeOnEscape = (event: KeyboardEvent) => {
-      if (event.key === 'Escape') setExpandedProject(null);
+      if (event.key === 'Escape') {
+        setExpandedProject(null);
+        setDetailProject(null);
+      }
     };
     window.addEventListener('keydown', closeOnEscape);
     return () => {
       document.body.style.overflow = previousOverflow;
       window.removeEventListener('keydown', closeOnEscape);
     };
-  }, [expandedProject]);
+  }, [expandedProject, detailProject]);
 
   // ── Filtered view ─────────────────────────────────────────────────────────
   const displayed = activeTag
@@ -745,6 +844,7 @@ export default function PortfolioContainer({
               activeTag={activeTag}
               onTagClick={handleCardTagClick}
               onOpenVideo={setExpandedProject}
+              onOpenDetails={setDetailProject}
             />
           ))}
         </div>
@@ -762,6 +862,13 @@ export default function PortfolioContainer({
           project={expandedProject}
           language={language}
           onClose={() => setExpandedProject(null)}
+        />
+      )}
+      {detailProject && (
+        <ProjectDetailModal
+          project={detailProject}
+          language={language}
+          onClose={() => setDetailProject(null)}
         />
       )}
     </section>
