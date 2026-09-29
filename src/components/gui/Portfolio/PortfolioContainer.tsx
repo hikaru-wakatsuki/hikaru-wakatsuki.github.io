@@ -188,6 +188,7 @@ const PROJECTS: PortfolioProject[] = [
             "title": "片方だけの占有を防ぎ、不要なタイムアウトを抑制",
             "challenge": "1台だけを確保したまま、もう1台が空くまで待つと、そのDongleを必要とするほかのCoderもコンパイルできない。処理できるはずのCoderまで待たされ、制限時間を超える可能性がある。",
             "solution": "2台のmutexを取得して利用条件を確認し、両方を利用できる場合だけ2台を同じCoderへ割り当て。どちらかを利用できない場合は1台も割り当てず、両mutexを解放して再試行。片方だけを占有する状態を作らず、ほかのCoderが取得を試せる状態に戻す。",
+            "challengeDiagram": "codexion-partial-ownership",
             "solutionDiagram": "codexion-atomic-pair"
           },
           {
@@ -229,6 +230,7 @@ const PROJECTS: PortfolioProject[] = [
             "title": "Avoid partial ownership and unnecessary timeouts",
             "challenge": "If a coder holds one dongle while waiting for the other, coders that need the held resource cannot compile. Even a coder that could otherwise proceed may wait long enough to exceed its time limit.",
             "solution": "The implementation locks both mutexes and checks the pair. It assigns both dongles to the same coder only when both are eligible. If either is unavailable, it assigns neither, unlocks both mutexes and retries so another coder can attempt acquisition.",
+            "challengeDiagram": "codexion-partial-ownership",
             "solutionDiagram": "codexion-atomic-pair"
           },
           {
@@ -927,6 +929,68 @@ function CodexionDeadlockDiagram({
   );
 }
 
+function CodexionPartialOwnershipDiagram({ language }: { language: 'ja' | 'en' }) {
+  return (
+    <div className="mt-4 overflow-hidden rounded-md border border-[#ef6b73] bg-[var(--color-cli-bg)]">
+      <p className="border-b border-[#ef6b73]/50 px-3 py-2 text-center text-[11px] font-bold text-[#ef6b73]">
+        {language === 'ja' ? '片方ずつ所有する実装の場合' : 'If dongles are owned one at a time'}
+      </p>
+      <svg
+        role="img"
+        aria-label={language === 'ja' ? 'C1がD1を保有してD2を待つため、D5を保有するC5がD1を取得できずタイムアウトする例' : 'C1 holds D1 while waiting for D2, preventing C5 from acquiring D1 before its timeout'}
+        viewBox="0 0 360 242"
+        className="h-auto w-full"
+      >
+        <defs>
+          <marker id="arrow-partial-wait" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto">
+            <path d="M0,0 L5,2.5 L0,5 Z" fill="#ef6b73" />
+          </marker>
+        </defs>
+
+        <path d="M45 184 Q78 124 126 91 Q180 51 238 64 Q293 77 326 119" fill="none" stroke="var(--color-splitter)" strokeWidth="2" />
+
+        <line x1="225" y1="61" x2="147" y2="85" stroke="#4f8f67" strokeWidth="4" strokeLinecap="round" />
+        <line x1="225" y1="61" x2="299" y2="104" stroke="#ef6b73" strokeWidth="2.5" strokeLinecap="round" markerEnd="url(#arrow-partial-wait)" />
+        <line x1="94" y1="125" x2="59" y2="166" stroke="#4f8f67" strokeWidth="4" strokeLinecap="round" />
+        <line x1="94" y1="125" x2="126" y2="100" stroke="#ef6b73" strokeWidth="3.5" strokeLinecap="round" markerEnd="url(#arrow-partial-wait)" />
+
+        <circle cx="225" cy="61" r="21" fill="#1f2937" stroke="var(--color-text-muted)" strokeWidth="2" />
+        <text x="225" y="65" textAnchor="middle" fill="#fff" fontSize="11" fontWeight="800" fontFamily="ui-monospace, monospace">C1</text>
+        <circle cx="94" cy="125" r="21" fill="#1f2937" stroke="#ef6b73" strokeWidth="3" />
+        <text x="94" y="129" textAnchor="middle" fill="#fff" fontSize="11" fontWeight="800" fontFamily="ui-monospace, monospace">C5</text>
+
+        <rect x="126" y="78" width="34" height="23" rx="4" fill="#4f8f67" stroke="#2f6b4a" strokeWidth="2" />
+        <text x="143" y="94" textAnchor="middle" fill="#fff" fontSize="10" fontWeight="800" fontFamily="ui-monospace, monospace">D1</text>
+        <rect x="299" y="104" width="34" height="23" rx="4" fill="#ef6b73" stroke="#991b1b" strokeWidth="2" />
+        <text x="316" y="120" textAnchor="middle" fill="#fff" fontSize="10" fontWeight="800" fontFamily="ui-monospace, monospace">D2</text>
+        <text x="316" y="142" textAnchor="middle" fill="#ef6b73" fontSize="9" fontWeight="700">{language === 'ja' ? '利用不可' : 'unavailable'}</text>
+        <rect x="42" y="166" width="34" height="23" rx="4" fill="#4f8f67" stroke="#2f6b4a" strokeWidth="2" />
+        <text x="59" y="182" textAnchor="middle" fill="#fff" fontSize="10" fontWeight="800" fontFamily="ui-monospace, monospace">D5</text>
+
+        <text x="226" y="24" textAnchor="middle" fill="var(--color-text-muted)" fontSize="9.5" fontWeight="700">
+          {language === 'ja' ? 'D1を保有・D2待ち' : 'holds D1 · waits for D2'}
+        </text>
+        <text x="95" y="91" textAnchor="middle" fill="#ef6b73" fontSize="9.5" fontWeight="800">
+          {language === 'ja' ? 'タイムアウトが近い' : 'earlier timeout'}
+        </text>
+        <text x="184" y="132" textAnchor="middle" fill="#ef6b73" fontSize="9.5" fontWeight="700">
+          {language === 'ja' ? 'C1が保有中のためD1を取得できない' : 'cannot acquire D1 while C1 owns it'}
+        </text>
+
+        <g transform="translate(81 211)">
+          <line x1="0" y1="0" x2="22" y2="0" stroke="#4f8f67" strokeWidth="4" strokeLinecap="round" />
+          <text x="30" y="3" fill="var(--color-text-muted)" fontSize="9">{language === 'ja' ? '所有' : 'owned'}</text>
+          <line x1="104" y1="0" x2="126" y2="0" stroke="#ef6b73" strokeWidth="2.5" markerEnd="url(#arrow-partial-wait)" />
+          <text x="135" y="3" fill="var(--color-text-muted)" fontSize="9">{language === 'ja' ? '取得待ち' : 'waiting'}</text>
+        </g>
+        <text x="180" y="235" textAnchor="middle" fill="#ef6b73" fontSize="10" fontWeight="800">
+          {language === 'ja' ? 'C5はコンパイルできず、制限時間を超過' : 'C5 cannot compile before its deadline'}
+        </text>
+      </svg>
+    </div>
+  );
+}
+
 function CodexionAtomicPairDiagram({ language }: { language: 'ja' | 'en' }) {
   return (
     <div
@@ -1204,6 +1268,9 @@ function ProjectTechnicalDetailsPanel({ project, language }: {
                     <p className="mt-2 leading-7 text-[var(--color-text-muted)]">{item.challenge}</p>
                     {item.challengeDiagram === 'codexion-circular-wait' && (
                       <CodexionDeadlockDiagram mode="circular-wait" language={language} />
+                    )}
+                    {item.challengeDiagram === 'codexion-partial-ownership' && (
+                      <CodexionPartialOwnershipDiagram language={language} />
                     )}
                   </div>
                   <div className="px-4 py-4 sm:px-5">

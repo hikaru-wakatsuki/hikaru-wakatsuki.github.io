@@ -25,7 +25,7 @@ export interface ProjectTechnicalCaseStudy {
     text: string;
   }>;
   diagram?: 'function-selection' | 'json-generation' | 'recursive-schema' | 'precomputation';
-  challengeDiagram?: 'codexion-circular-wait';
+  challengeDiagram?: 'codexion-circular-wait' | 'codexion-partial-ownership';
   solutionDiagram?: 'codexion-lock-order' | 'codexion-atomic-pair';
 }
 
