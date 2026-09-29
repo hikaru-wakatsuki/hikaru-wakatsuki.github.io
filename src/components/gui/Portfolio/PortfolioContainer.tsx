@@ -259,8 +259,8 @@ const PROJECTS: PortfolioProject[] = [
     "id": "Fly-in",
     "title": "Fly-in",
     "description": {
-      "ja": "地図入力を検証済みグラフへ変換し、複数ドローンを目的地までターン単位で配車するルーティングシミュレータ。ZoneとConnectionの容量、特殊Zone、現在の混雑をコストと移動可否に反映し、経路選択と再探索を行います。",
-      "en": "A turn-based routing simulator that parses map input into a validated graph and schedules multiple drones to a destination. Zone and connection capacity, special zone behavior, and current congestion feed into movement checks, route selection and rerouting."
+      "ja": "容量制約のある地図上で、複数ドローンの経路選択と移動順を制御するルーティングシミュレータ。入力をPydanticで検証してグラフ化し、特殊Zoneと現在の混雑を考慮した経路選択・再探索を実装。",
+      "en": "A routing simulator that coordinates route selection and turn-by-turn movement for multiple drones on a capacity-constrained map. Pydantic validates the input before graph construction, while zone behavior and current congestion drive routing and rerouting."
     },
     "tags": [
       "Python",
@@ -277,7 +277,6 @@ const PROJECTS: PortfolioProject[] = [
     },
     "demoGuide": {
       "ja": {
-        "overview": "上部の進捗、Zoneの色と数値、Connectionの明るさを見ると、ドローンが容量制約を守って移動する過程を追えます。",
         "cues": [
           "Turn / Arrived / Moving / Waiting：ターン数と全ドローンの進捗",
           "Zoneの「現在数 / 容量」とConnectionの「使用数 / 容量」：同時利用の上限",
@@ -287,7 +286,6 @@ const PROJECTS: PortfolioProject[] = [
         ]
       },
       "en": {
-        "overview": "Use the progress header, zone counts and link brightness to follow capacity-safe movement through the network.",
         "cues": [
           "Turn / Arrived / Moving / Waiting: overall progress",
           "Zone and connection badges: current occupancy or usage / capacity",
@@ -299,12 +297,32 @@ const PROJECTS: PortfolioProject[] = [
     },
     "technicalDetails": {
       "ja": {
-        "challenge": "初期最短路が同じでも、複数ドローンが同時に動くとZoneとConnectionの容量が競合します。さらにRestrictedは進入に2ターン、Blockedは通行不可というドメインルールがあるため、経路探索と移動スケジューリングの分離が必要でした。",
-        "design": [
-          "PydanticモデルでZone・Connection・Networkを構造化し、重複名/座標、未知の接続先、不正容量、到達不可能なグラフを実行前に排除",
-          "隣接リストとDijkstra型探索を使い、Restricted・容量の小さいZoneにコストを加算。同コスト時はPriority Zoneを優先",
-          "ターンごとにZone占有数、Connection使用数、次ターンの予約を管理し、判定後に移動を確定。Restrictedへの移動はConnection占有とZone進入の2段階で表現",
-          "予定した次の移動が塞がった場合、現在のConnection使用数とZone占有数をペナルティに反映し、現在位置から1度再探索"
+        "caseStudies": [
+          {
+            "title": "不正な地図をシミュレーション開始前に排除",
+            "challenge": "テキスト形式の地図には、不正なメタデータ、重複するZone名や座標、存在しない接続先、容量の不整合、到達不能な経路が含まれる可能性がある。処理途中で発覚すると、原因の特定が難しくなる。",
+            "solution": "Zone・Connection・DronesNetworkをPydanticモデルとして定義し、項目単位とネットワーク全体の制約を段階的に検証。Blockedを含むConnectionを除外して隣接リストを構築し、DFSでStartからGoalへの到達可能性まで確認してからシミュレーションを開始。"
+          },
+          {
+            "title": "Zoneの特性と容量を経路選択へ反映",
+            "challenge": "移動回数だけで経路を選ぶと、進入に時間がかかるRestrictedや、混雑しやすい低容量のZoneを通る経路が選ばれる。Priorityは最短距離を崩さず、同コストの場合だけ優先する必要がある。",
+            "solution": "隣接リスト上でDijkstra型探索を実装。基本コストにRestrictedとZone容量に応じたコストを加え、同じ暫定距離ではPriority Zoneを先に確定。距離・Zone特性・容量を一つの比較基準へまとめて経路を選択。"
+          },
+          {
+            "title": "次ターンの予約を含めて容量超過を防止",
+            "challenge": "複数のDroneが同じターンに同じZoneやConnectionへ進もうとすると、現在の占有数だけでは、移動中のDroneが次に入るZoneの容量を超える可能性がある。",
+            "solution": "現在のZone占有数、Connection使用数、次ターンにZoneへ入るDroneの予約数を分けて管理。Droneをターン内で順番に判定し、現在数と予約数の合計がZone容量未満か、Connectionに空きがある場合だけ移動を確定。"
+          },
+          {
+            "title": "Restrictedへの移動を2ターンの状態遷移で管理",
+            "challenge": "Restrictedへの進入には2ターン必要なため、通常のZoneと同じ1回の位置更新では、移動中のConnection占有と到着先の予約を表現できない。",
+            "solution": "Droneにin_transitとtransit_toを持たせ、1ターン目に出発Zoneを離れてConnectionを占有し、到着先を予約。次のターンにConnectionと予約を解放してRestrictedへ進入する2段階の状態遷移として実装。"
+          },
+          {
+            "title": "混雑時に現在地から経路を再計算",
+            "challenge": "開始時に選んだ経路が、ほかのDroneの移動によって利用できなくなる場合がある。初期経路だけを待ち続けると、利用可能な迂回路があっても進めない。",
+            "solution": "予定した次の移動ができない場合、使用中のConnectionと占有中のZoneをペナルティとして現在地からGoalまで一度再探索。再計算した最初の移動にも同じ容量判定を適用し、利用できなければそのターンは待機。"
+          }
         ],
         "verification": [
           "メタデータ解析と不正入力、Blocked除外、到達可能性、Zoneコスト、Priorityのタイブレーク、混雑ペナルティをUnit Test",
@@ -317,11 +335,32 @@ const PROJECTS: PortfolioProject[] = [
         ]
       },
       "en": {
-        "challenge": "Account for zone and link capacity, congestion and simultaneous drone movement in addition to path length.",
-        "design": [
-          "Separated weighted graph search from turn-based movement scheduling",
-          "Checked zone and connection capacity before committing movement",
-          "Visualized current, moving, waiting and arrived states"
+        "caseStudies": [
+          {
+            "title": "Reject invalid maps before simulation",
+            "challenge": "Text input may contain malformed metadata, duplicate zone names or coordinates, unknown endpoints, invalid capacities or an unreachable goal. Discovering these failures during scheduling would obscure their cause.",
+            "solution": "Pydantic models validate Zone, Connection and DronesNetwork constraints in stages. Graph construction removes links touching blocked zones, then a DFS reachability check confirms a path from Start to Goal before simulation begins."
+          },
+          {
+            "title": "Include zone behavior and capacity in route selection",
+            "challenge": "A route based only on hop count can favor restricted or low-capacity zones. Priority zones should win ties without overriding a shorter route.",
+            "solution": "A Dijkstra-style search adds costs for restricted and low-capacity zones. When tentative distances are equal, a priority zone is selected first, combining distance, zone behavior and capacity in one route decision."
+          },
+          {
+            "title": "Prevent over-capacity moves with next-turn reservations",
+            "challenge": "Several drones may target the same zone or connection in one turn. Current occupancy alone cannot account for drones already in transit to that zone.",
+            "solution": "The scheduler tracks current zone occupancy, connection usage and next-turn reservations separately. It evaluates drones sequentially and commits a move only when current occupancy plus reservations and link usage remain within capacity."
+          },
+          {
+            "title": "Model restricted entry as a two-turn transition",
+            "challenge": "Entering a restricted zone takes two turns, so a single position update cannot represent an occupied connection and a reserved destination.",
+            "solution": "Each drone stores in_transit and transit_to. On the first turn it leaves the source, occupies the connection and reserves the destination; on the next turn it releases both and enters the restricted zone."
+          },
+          {
+            "title": "Recalculate a route when congestion blocks the next move",
+            "challenge": "A route selected at startup can become unavailable as other drones move. Waiting on that route can ignore an available detour.",
+            "solution": "When the next move is blocked, the scheduler adds penalties for occupied links and zones and recalculates once from the current position. The new first move passes through the same capacity checks; otherwise the drone waits for that turn."
+          }
         ],
         "verification": ["Tests cover parsing, blocked and unreachable graphs, weighted costs, tie-breaking, congestion penalties and restricted transit.", "Integration-style tests serialize multiple drones within zone and link capacities; the recorded run completes with zero violations."],
         "limitations": ["The congestion response is a local heuristic and does not guarantee globally optimal throughput.", "There is no maximum-turn guard; physical flight control, continuous space and network latency are outside scope."]
@@ -500,7 +539,62 @@ function ProjectVideoGuide({ project, language }: {
       </button>
       {isOpen && (
         <div id={contentId} className="border-t border-[var(--color-splitter)] px-5 py-4 sm:px-6">
-          {project.id === 'Codexion' ? (
+          {project.id === 'Fly-in' ? (
+            <div className="grid gap-3 text-xs leading-5">
+              <div className="grid gap-3 rounded-md border border-[var(--color-splitter)] bg-[var(--color-cli-bg)] p-3">
+                <div className="grid gap-1 sm:grid-cols-[minmax(12rem,auto)_1fr] sm:items-center sm:gap-4">
+                  <span className="font-mono font-bold text-[#43d6a8]">Turn / Arrived / Moving / Waiting</span>
+                  <span className="text-[var(--color-text-muted)]">{language === 'ja' ? 'ターン数と全Droneの進捗' : 'Turn count and progress for all drones'}</span>
+                </div>
+                <div className="grid gap-1 border-t border-[var(--color-splitter)] pt-3 sm:grid-cols-[minmax(12rem,auto)_1fr] sm:items-center sm:gap-4">
+                  <span className="font-mono font-bold text-[#9faab8]">Zone 1 / 2　·　Connection 1 / 2</span>
+                  <span className="text-[var(--color-text-muted)]">{language === 'ja' ? '現在の使用数 / 同時利用できる上限' : 'Current usage / simultaneous capacity'}</span>
+                </div>
+                <div className="flex flex-wrap gap-x-5 gap-y-2 border-t border-[var(--color-splitter)] pt-3 text-[var(--color-text-muted)]">
+                  <span className="inline-flex items-center gap-2">
+                    <span className="h-1 w-8 rounded bg-[#43d6a8]" aria-hidden="true" />
+                    {language === 'ja' ? '明るいConnection：使用中' : 'Bright connection: active'}
+                  </span>
+                  <span className="inline-flex items-center gap-2">
+                    <span className="h-0.5 w-8 rounded bg-[#414954]" aria-hidden="true" />
+                    {language === 'ja' ? '暗いConnection：空き' : 'Dark connection: idle'}
+                  </span>
+                </div>
+              </div>
+
+              <div className="grid gap-2 rounded-md border border-[var(--color-splitter)] bg-[var(--color-cli-bg)] p-3 sm:grid-cols-2 lg:grid-cols-3">
+                <div className="flex items-center gap-2.5">
+                  <span className="h-4 w-4 shrink-0 rounded-full border-2 border-white bg-[#34d399]" aria-hidden="true" />
+                  <span><strong className="text-[#34d399]">Start</strong>：{language === 'ja' ? '出発地点' : 'origin'}</span>
+                </div>
+                <div className="flex items-center gap-2.5">
+                  <span className="h-4 w-4 shrink-0 rounded-full border-[3px] border-white bg-[#3b82f6] ring-1 ring-[#3b82f6]" aria-hidden="true" />
+                  <span><strong className="text-[#3b82f6]">Goal</strong>：{language === 'ja' ? '到着地点' : 'destination'}</span>
+                </div>
+                <div className="flex items-center gap-2.5">
+                  <span className="h-4 w-4 shrink-0 rounded bg-[#6b7280]" aria-hidden="true" />
+                  <span><strong className="text-[#9ca3af]">Normal</strong>：{language === 'ja' ? '通常のZone' : 'standard zone'}</span>
+                </div>
+                <div className="flex items-center gap-2.5">
+                  <span className="h-3.5 w-3.5 shrink-0 rotate-45 bg-[#facc15]" aria-hidden="true" />
+                  <span><strong className="text-[#facc15]">Priority</strong>：{language === 'ja' ? '同コスト時に優先' : 'wins equal-cost ties'}</span>
+                </div>
+                <div className="flex items-center gap-2.5">
+                  <span className="h-0 w-0 shrink-0 border-x-[8px] border-b-[14px] border-x-transparent border-b-[#f87171]" aria-hidden="true" />
+                  <span><strong className="text-[#f87171]">Restricted</strong>：{language === 'ja' ? '進入に2ターン' : 'two-turn entry'}</span>
+                </div>
+                <div className="flex items-center gap-2.5">
+                  <span className="flex h-4 w-4 shrink-0 items-center justify-center rounded bg-[#dc2626] text-[10px] font-bold text-white" aria-hidden="true">×</span>
+                  <span><strong className="text-[#dc2626]">Blocked</strong>：{language === 'ja' ? '通行不可' : 'unavailable'}</span>
+                </div>
+              </div>
+
+              <div className="rounded-md border border-[#43d6a8]/50 bg-[var(--color-cli-bg)] px-3 py-2.5">
+                <strong className="font-mono text-[#43d6a8]">Simulation Complete</strong>
+                <span className="ml-3 text-[var(--color-text-muted)]">{language === 'ja' ? '到着数、完了ターン、容量違反数' : 'Arrivals, elapsed turns and capacity violations'}</span>
+              </div>
+            </div>
+          ) : project.id === 'Codexion' ? (
             <div className="grid gap-4">
               <div className="grid gap-3 lg:grid-cols-[0.95fr_1.05fr]">
                 <div className="grid content-start gap-3">
