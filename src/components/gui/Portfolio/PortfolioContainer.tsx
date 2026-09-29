@@ -1,4 +1,4 @@
-import { Fragment, useRef, useCallback, useEffect, useId, useState } from 'react';
+import { useRef, useCallback, useEffect, useId, useState } from 'react';
 import type { PortfolioProject, ProjectTechnicalCaseStudy } from '../../../types/portfolio';
 import { useAppState } from '../../../context/AppStateContext';
 
@@ -733,50 +733,82 @@ function CodexionDeadlockDiagram({
   };
 
   if (isLockOrder) {
-    const pairOrders = [
-      ['C1', 'D1', 'D2'],
-      ['C2', 'D2', 'D3'],
-      ['C3', 'D3', 'D4'],
-      ['C4', 'D4', 'D5'],
-      ['C5', 'D1', 'D5'],
+    const nodes = [...coders, ...dongles];
+    const directedEdges = [
+      ['D1', 'C1'], ['C1', 'D2'],
+      ['D2', 'C2'], ['C2', 'D3'],
+      ['D3', 'C3'], ['C3', 'D4'],
+      ['D4', 'C4'], ['C4', 'D5'],
+      ['D1', 'C5'], ['C5', 'D5'],
     ];
     return (
-      <div
+      <svg
         role="img"
         aria-label={language === 'ja'
-          ? 'すべてのCoderが小さいDongle IDから大きいDongle IDへmutexを取得する図'
-          : 'Every coder locks the lower dongle ID before the higher dongle ID'}
-        className="mt-4 grid gap-3 rounded-md border border-[var(--color-accent-border)] bg-[var(--color-accent-soft)] p-3"
+          ? '円形配置された全Coderが小さいDongle IDから大きいDongle IDへmutexを取得する図'
+          : 'Circular layout showing every coder locking the lower dongle ID before the higher dongle ID'}
+        viewBox="0 0 360 286"
+        className="mx-auto mt-4 h-auto w-full max-w-[22rem]"
       >
-        <p className="text-center text-xs font-bold">
-          {language === 'ja' ? '全Coder共通のロック方向' : 'One lock direction for every coder'}
-        </p>
-        <div className="overflow-x-auto">
-          <div className="mx-auto flex min-w-[19rem] items-center justify-center gap-1.5 font-mono text-[11px] font-bold">
-            {['D1', 'D2', 'D3', 'D4', 'D5'].map((dongle, index) => (
-              <Fragment key={dongle}>
-                {index > 0 && <span className="text-[var(--color-accent-secondary)]">→</span>}
-                <span className="rounded border border-[#854d0e] bg-[#facc15] px-2 py-1 text-[#422006]">{dongle}</span>
-              </Fragment>
-            ))}
-          </div>
-        </div>
-        <div className="grid grid-cols-2 gap-2 font-mono text-[10px] sm:grid-cols-3">
-          {pairOrders.map(([coder, first, second]) => (
-            <div key={coder} className={`rounded border px-2 py-2 text-center ${coder === 'C5' ? 'border-[var(--color-cli-text)] bg-[var(--color-bg)] font-bold text-[var(--color-cli-text)]' : 'border-[var(--color-splitter)] bg-[var(--color-cli-bg)]'}`}>
-              <span className="mr-1.5">{coder}</span>
-              <span>{first}</span>
-              <span className="mx-1 text-[var(--color-accent-secondary)]">→</span>
-              <span>{second}</span>
-            </div>
-          ))}
-        </div>
-        <p className="text-center text-[10px] leading-5 text-[var(--color-text-muted)]">
-          {language === 'ja'
-            ? 'C5もD5 → D1ではなくD1 → D5。矢印が小さいIDから大きいIDへだけ進むため循環しない'
-            : 'C5 also locks D1 → D5, not D5 → D1. Every edge points from a lower ID to a higher ID, so no cycle can form.'}
-        </p>
-      </div>
+        <title>{language === 'ja' ? '全Coder共通のmutex取得方向' : 'One mutex acquisition direction for every coder'}</title>
+        <defs>
+          <marker id="arrow-global-lock-order" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto">
+            <path d="M0,0 L5,2.5 L0,5 Z" fill="#4f8f67" />
+          </marker>
+        </defs>
+
+        {directedEdges.map(([fromLabel, toLabel]) => {
+          const from = nodes.find((node) => node.label === fromLabel)!;
+          const to = nodes.find((node) => node.label === toLabel)!;
+          const dx = to.x - from.x;
+          const dy = to.y - from.y;
+          const distance = Math.hypot(dx, dy);
+          const targetOffset = toLabel.startsWith('C') ? 23 : 18;
+          const endX = to.x - (dx / distance) * targetOffset;
+          const endY = to.y - (dy / distance) * targetOffset;
+          const isCycleBreak = fromLabel === 'D1' && toLabel === 'C5' || fromLabel === 'C5' && toLabel === 'D5';
+          return (
+            <line
+              key={`${fromLabel}-${toLabel}`}
+              x1={from.x}
+              y1={from.y}
+              x2={endX}
+              y2={endY}
+              stroke="#4f8f67"
+              strokeWidth={isCycleBreak ? 3.5 : 2.5}
+              strokeLinecap="round"
+              markerEnd="url(#arrow-global-lock-order)"
+            />
+          );
+        })}
+
+        {coders.map((coder) => (
+          <g key={coder.label}>
+            <circle cx={coder.x} cy={coder.y} r="20" fill="#1f2937" stroke="var(--color-cli-text)" strokeWidth="2" />
+            <text x={coder.x} y={coder.y + 4} textAnchor="middle" fill="#f8fafc" fontSize="11" fontWeight="700" fontFamily="ui-monospace, monospace">{coder.label}</text>
+          </g>
+        ))}
+        {dongles.map((dongle) => (
+          <g key={dongle.label}>
+            <rect x={dongle.x - 14} y={dongle.y - 10} width="28" height="20" rx="4" fill="#facc15" stroke="#854d0e" strokeWidth="2" />
+            <text x={dongle.x} y={dongle.y + 4} textAnchor="middle" fill="#422006" fontSize="9" fontWeight="800" fontFamily="ui-monospace, monospace">{dongle.label}</text>
+          </g>
+        ))}
+
+        <text x="180" y="132" textAnchor="middle" fill="var(--color-text-muted)" fontSize="10" fontWeight="700">
+          {language === 'ja' ? '全Coder共通' : 'Every coder'}
+        </text>
+        <text x="180" y="150" textAnchor="middle" fill="var(--color-text)" fontSize="12" fontWeight="800">
+          {language === 'ja' ? '小さいID → 大きいID' : 'lower ID → higher ID'}
+        </text>
+        <text x="180" y="168" textAnchor="middle" fill="var(--color-cli-text)" fontSize="10" fontWeight="700">
+          {language === 'ja' ? 'C5も D1 → D5' : 'C5 also uses D1 → D5'}
+        </text>
+        <g transform="translate(113 270)">
+          <line x1="0" y1="0" x2="24" y2="0" stroke="#4f8f67" strokeWidth="2.5" markerEnd="url(#arrow-global-lock-order)" />
+          <text x="34" y="3" fill="var(--color-text-muted)" fontSize="9">{language === 'ja' ? 'mutexの取得方向' : 'mutex lock direction'}</text>
+        </g>
+      </svg>
     );
   }
 
@@ -868,9 +900,8 @@ function CodexionDeadlockDiagram({
         </g>
       ) : (
         <g>
-          <circle cx="180" cy="143" r="47" fill="var(--color-bg)" stroke="#ef6b73" strokeWidth="2" />
           <text x="180" y="139" textAnchor="middle" fill="#ef6b73" fontSize="12" fontWeight="800">{language === 'ja' ? '循環待ち' : 'CIRCULAR WAIT'}</text>
-          <text x="180" y="156" textAnchor="middle" fill="var(--color-text-muted)" fontSize="10">{language === 'ja' ? '全スレッドが次のmutex待ち' : 'every thread waits for the next mutex'}</text>
+          <text x="180" y="158" textAnchor="middle" fill="var(--color-text-muted)" fontSize="9.5">{language === 'ja' ? '全スレッドが次のmutexを待機' : 'every thread waits for the next mutex'}</text>
         </g>
       )}
 
