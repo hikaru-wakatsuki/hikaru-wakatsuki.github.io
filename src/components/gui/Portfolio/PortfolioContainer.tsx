@@ -25,7 +25,6 @@ const PROJECTS: PortfolioProject[] = [
     },
     "demoGuide": {
       "ja": {
-        "overview": "自然言語の依頼を受け取り、関数の選択、JSON引数の生成、形式・型の検証を行うまでの処理を確認できます。",
         "cues": [
           "Available functions：この実行でLLMが選択できる登録済み関数。関数定義を追加することで候補を拡張可能",
           "Current request：現在処理しているユーザーの自然言語による依頼と、全4件中の処理位置",
@@ -36,7 +35,6 @@ const PROJECTS: PortfolioProject[] = [
         ]
       },
       "en": {
-        "overview": "See how a natural-language request moves through function selection, JSON argument generation, and syntax and type validation.",
         "cues": [
           "Available functions: registered functions the LLM can select; adding definitions extends the candidates",
           "Current request: the user's natural-language request being processed and its position among four requests",
@@ -380,8 +378,8 @@ function ProjectVideoGuide({ project, language }: {
       </button>
       {isOpen && (
         <div id={contentId} className="border-t border-[var(--color-splitter)] px-5 py-4 sm:px-6">
-          <p className="text-sm leading-6 opacity-80">{guide.overview}</p>
-          <ul className="mt-3 grid gap-x-8 gap-y-1.5 text-xs leading-5 opacity-70 xl:grid-cols-2">
+          {guide.overview && <p className="text-sm leading-6 opacity-80">{guide.overview}</p>}
+          <ul className={`${guide.overview ? 'mt-3 ' : ''}grid gap-x-8 gap-y-1.5 text-xs leading-5 opacity-70 xl:grid-cols-2`}>
             {guide.cues.map((cue) => (
               <li key={cue} className="flex gap-2">
                 <span aria-hidden="true" className="text-[var(--color-cli-text)]">•</span>

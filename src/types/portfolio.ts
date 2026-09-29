@@ -16,7 +16,7 @@ export interface ProjectTechnicalDetails {
 }
 
 export interface ProjectDemoGuide {
-  overview: string;
+  overview?: string;
   cues: string[];
 }
 
