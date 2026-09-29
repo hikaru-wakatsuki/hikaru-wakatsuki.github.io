@@ -472,16 +472,16 @@ function ProjectVideoGuide({ project, language }: {
                   <section className="overflow-hidden rounded-md border border-[var(--color-splitter)] bg-[var(--color-cli-bg)]">
                     <h4 className="border-b border-[var(--color-splitter)] px-3 py-2 font-mono text-[11px] font-bold text-[var(--color-cli-text)]">Status Guide</h4>
                     <div className="grid gap-3 p-3 text-[11px]">
-                      <div className="flex flex-wrap items-center gap-1.5">
+                      <div className="mx-auto grid w-fit grid-cols-[auto_2rem_auto] items-center justify-items-center gap-y-2">
                         {status('WAITING')}
                         <span aria-hidden="true">→</span>
                         {status('COMPILING')}
-                        <span aria-hidden="true">→</span>
-                        {status('DEBUGGING')}
-                        <span aria-hidden="true">→</span>
+                        <span aria-hidden="true">↑</span>
+                        <span aria-hidden="true" />
+                        <span aria-hidden="true">↓</span>
                         {status('REFACTORING')}
-                        <span aria-hidden="true">→</span>
-                        {status('WAITING')}
+                        <span aria-hidden="true">←</span>
+                        {status('DEBUGGING')}
                       </div>
                       <div className="flex flex-wrap items-center gap-1.5 border-t border-[var(--color-splitter)] pt-3">
                         {status('COMPILING')}
