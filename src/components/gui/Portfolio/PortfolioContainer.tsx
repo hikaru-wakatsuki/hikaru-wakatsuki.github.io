@@ -337,6 +337,7 @@ const PROJECTS: PortfolioProject[] = [
                 "text": "Normal Zoneへの移動は、そのターン内に完了する移動として占有数を更新。Restricted Zoneへの移動は「移動中」として扱い、Connectionの使用と到着先の予約を次のターンまで保持した。到着時に予約を解放し、Zoneの占有数へ反映する2段階の処理とした。"
               }
             ],
+            "challengeDiagram": "flyin-unreserved-arrivals",
             "solutionDiagram": "flyin-capacity-state"
           },
           {
@@ -347,15 +348,8 @@ const PROJECTS: PortfolioProject[] = [
             "solutionDiagram": "flyin-reroute"
           }
         ],
-        "verification": [
-          "メタデータ解析と不正入力、Blocked除外、到達可能性、Zoneコスト、Priorityのタイブレーク、混雑ペナルティをUnit Test",
-          "Restrictedの2ターン移動、複数ドローン時のZone/Connection容量の直列化を統合的に検証",
-          "動画の完了画面で、全機到着とCapacity violations: 0を確認"
-        ],
-        "limitations": [
-          "混雑回避は現時点の局所情報を使うヒューリスティックで、最小完了ターンやグローバル最適性は保証しない",
-          "進捗不能時の最大ターン制限は未実装。実機の飛行制御、通信遅延、連続空間は対象外"
-        ]
+        "verification": [],
+        "limitations": []
       },
       "en": {
         "caseStudies": [
@@ -398,6 +392,7 @@ const PROJECTS: PortfolioProject[] = [
                 "text": "A move to a Normal Zone completes within the same turn and updates occupancy immediately. A move to a Restricted Zone remains in transit, keeping the Connection in use and the destination reserved until the next turn. On arrival, the reservation is released and the destination occupancy is updated."
               }
             ],
+            "challengeDiagram": "flyin-unreserved-arrivals",
             "solutionDiagram": "flyin-capacity-state"
           },
           {
@@ -408,8 +403,8 @@ const PROJECTS: PortfolioProject[] = [
             "solutionDiagram": "flyin-reroute"
           }
         ],
-        "verification": ["Tests cover parsing, blocked and unreachable graphs, weighted costs, tie-breaking, congestion penalties and restricted transit.", "Integration-style tests serialize multiple drones within zone and link capacities; the recorded run completes with zero violations."],
-        "limitations": ["The congestion response is a local heuristic and does not guarantee globally optimal throughput.", "There is no maximum-turn guard; physical flight control, continuous space and network latency are outside scope."]
+        "verification": [],
+        "limitations": []
       }
     }
   },
@@ -1617,6 +1612,49 @@ function FlyInDecisionDiagram({ kind, language }: { kind: string; language: 'ja'
   type DiagramNode = { label: string; detail?: string; tone?: 'danger' | 'warning' | 'accent' | 'muted' };
   type DiagramConfig = { nodes: DiagramNode[]; code?: string; note?: string };
   const ja = language === 'ja';
+
+  if (kind === 'flyin-unreserved-arrivals') {
+    return (
+      <div
+        role="img"
+        aria-label={ja
+          ? '予約がないとD1とD2がどちらも空のRestricted Zoneへ移動し、次のターンに容量1のZoneへ2台が到着する'
+          : 'Without reservations, D1 and D2 both move toward an empty Restricted Zone and two drones arrive at a capacity-one Zone on the next turn'}
+        className="mt-4 overflow-hidden rounded-md border border-[var(--color-splitter)] bg-[var(--color-cli-bg)] p-3"
+      >
+        <p className="font-mono text-[10px] font-bold text-[var(--color-text)]">
+          {ja ? '予約を数えない場合' : 'Without destination reservations'}
+        </p>
+        <div className="mt-2 grid items-stretch gap-2 sm:grid-cols-[minmax(0,1.35fr)_auto_minmax(0,0.65fr)] sm:items-center">
+          <section className="rounded-md border border-[#d6a84f] bg-[#d6a84f]/5 p-2.5">
+            <p className="font-mono text-[9px] font-bold text-[var(--color-text)]">Turn N</p>
+            <div className="mt-2 grid grid-cols-[auto_auto_minmax(0,1fr)] items-center gap-x-2 gap-y-1.5">
+              <span className="flex h-7 w-7 items-center justify-center rounded-full border border-[var(--color-splitter)] bg-[var(--color-bg)] font-mono text-[9px] font-bold">D1</span>
+              <span aria-hidden="true" className="font-bold text-[#d6a84f]">→</span>
+              <div className="row-span-2 flex min-h-16 flex-col items-center justify-center rounded-md border border-[#d6a84f] bg-[#d6a84f]/10 px-2 py-1.5 text-center">
+                <p className="font-mono text-[9px] font-bold text-[var(--color-text)]">Restricted Zone</p>
+                <p className="mt-1 font-mono text-[11px] font-bold text-[var(--color-text)]">0 / 1</p>
+              </div>
+              <span className="flex h-7 w-7 items-center justify-center rounded-full border border-[var(--color-splitter)] bg-[var(--color-bg)] font-mono text-[9px] font-bold">D2</span>
+              <span aria-hidden="true" className="font-bold text-[#d6a84f]">→</span>
+            </div>
+            <p className="mt-2 text-center text-[9px] leading-4 text-[var(--color-text-muted)]">
+              {ja ? 'どちらも「現在0台」を見て移動可能と判定' : 'both see zero current drones and are allowed to move'}
+            </p>
+          </section>
+
+          <span aria-hidden="true" className="self-center text-center font-bold text-[#ef6b73] sm:rotate-0 rotate-90">→</span>
+
+          <section className="flex flex-col items-center justify-center rounded-md border border-[#ef6b73] bg-[#ef6b73]/10 p-2.5 text-center">
+            <p className="font-mono text-[9px] font-bold text-[var(--color-text)]">Turn N + 1</p>
+            <p className="mt-2 font-mono text-[9px] font-bold text-[var(--color-text)]">Restricted Zone</p>
+            <p className="mt-1 font-mono text-lg font-bold text-[#ef6b73]">2 / 1</p>
+            <p className="mt-1 text-[9px] font-bold text-[#ef6b73]">{ja ? '容量超過' : 'over capacity'}</p>
+          </section>
+        </div>
+      </div>
+    );
+  }
 
   if (kind === 'flyin-weighted-route') {
     const routeNodeClass = 'rounded-md border px-2.5 py-2 text-center font-mono';
