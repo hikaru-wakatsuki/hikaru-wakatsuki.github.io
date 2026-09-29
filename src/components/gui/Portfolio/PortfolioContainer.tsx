@@ -299,9 +299,27 @@ const PROJECTS: PortfolioProject[] = [
       "ja": {
         "caseStudies": [
           {
-            "title": "不正な地図をシミュレーション開始前に排除",
-            "challenge": "テキスト形式の地図には、不正なメタデータ、重複するZone名や座標、存在しない接続先、容量の不整合、到達不能な経路が含まれる可能性がある。処理途中で発覚すると、原因の特定が難しくなる。",
-            "solution": "Zone・Connection・DronesNetworkをPydanticモデルとして定義し、項目単位とネットワーク全体の制約を段階的に検証。Blockedを含むConnectionを除外して隣接リストを構築し、DFSでStartからGoalへの到達可能性まで確認してからシミュレーションを開始。",
+            "title": "不正な地図をシミュレーション開始前に検出",
+            "challenge": "テキストで入力される地図には、書式や型の誤りだけでなく、Zone名・座標の重複、存在しないZoneへの接続など、地図全体を見なければ分からない矛盾も含まれる。形式上は正しくても、Blocked Zoneを除くとStartからGoalへ到達できない場合があり、移動処理の途中で発覚すると原因を特定しにくい。",
+            "solution": "入力をモデル化して段階的に検証し、実際に移動可能な地図だけを後続処理へ渡す構成にした。",
+            "solutionSteps": [
+              {
+                "title": "入力を役割ごとのモデルへ変換",
+                "text": "Zone、Connection、地図全体を表すDronesNetworkをPydanticモデルとして定義。Zoneの種類はZoneTypeで管理し、文字列のまま後続処理へ渡さない構成にした。"
+              },
+              {
+                "title": "入力行の書式と値を検証",
+                "text": "座標・容量の型、Zone種別、メタデータ、不明な項目、必須項目の不足や重複を解析時に確認。失敗した行と原因をエラーメッセージへ含めた。"
+              },
+              {
+                "title": "地図全体の矛盾を検証",
+                "text": "Zone名・座標の重複、存在しないZoneへの接続、向きを入れ替えただけの重複通路、Blockedに設定されたStart・GoalをDronesNetworkで検出した。"
+              },
+              {
+                "title": "実際に移動可能な地図か確認",
+                "text": "検証済みモデルから双方向の隣接リストを構築し、Blocked Zoneにつながる通路を除外。DFSでStartからGoalへ到達できる場合だけシミュレーションを開始した。"
+              }
+            ],
             "challengeDiagram": "flyin-invalid-input",
             "solutionDiagram": "flyin-validation"
           },
@@ -347,9 +365,27 @@ const PROJECTS: PortfolioProject[] = [
       "en": {
         "caseStudies": [
           {
-            "title": "Reject invalid maps before simulation",
-            "challenge": "Text input may contain malformed metadata, duplicate zone names or coordinates, unknown endpoints, invalid capacities or an unreachable goal. Discovering these failures during scheduling would obscure their cause.",
-            "solution": "Pydantic models validate Zone, Connection and DronesNetwork constraints in stages. Graph construction removes links touching blocked zones, then a DFS reachability check confirms a path from Start to Goal before simulation begins.",
+            "title": "Detect invalid maps before simulation",
+            "challenge": "A text map can contain format and type errors as well as contradictions that only appear across the full map, such as duplicate zone names or coordinates and connections to unknown zones. A syntactically valid map may also become unreachable after blocked zones are removed, and discovering that during movement makes the cause difficult to trace.",
+            "solution": "The input is modelled and validated in stages so only an executable map reaches scheduling.",
+            "solutionSteps": [
+              {
+                "title": "Convert input into role-specific models",
+                "text": "Pydantic models represent Zone, Connection and the full DronesNetwork. ZoneType carries the zone category so raw strings do not pass into later processing."
+              },
+              {
+                "title": "Validate line format and values",
+                "text": "Parsing checks coordinate and capacity types, zone categories, metadata, unknown fields and missing or duplicate required fields, then reports the failing line and cause."
+              },
+              {
+                "title": "Validate whole-map consistency",
+                "text": "DronesNetwork rejects duplicate names or coordinates, unknown endpoints, reversed duplicate connections and blocked Start or Goal zones."
+              },
+              {
+                "title": "Confirm that the map is executable",
+                "text": "The program builds an undirected adjacency list, excludes links touching blocked zones and runs DFS from Start to Goal before simulation begins."
+              }
+            ],
             "challengeDiagram": "flyin-invalid-input",
             "solutionDiagram": "flyin-validation"
           },
@@ -1591,24 +1627,79 @@ function FlyInDecisionDiagram({ kind, language }: { kind: string; language: 'ja'
   type DiagramNode = { label: string; detail?: string; tone?: 'danger' | 'warning' | 'accent' | 'muted' };
   type DiagramConfig = { nodes: DiagramNode[]; code?: string; note?: string };
   const ja = language === 'ja';
+
+  if (kind === 'flyin-invalid-input') {
+    const issues = ja
+      ? [
+          { title: '入力行の誤り', examples: ['座標・容量の型', '不明なメタデータ', '必須項目の不足'] },
+          { title: '地図全体の矛盾', examples: ['Zone名・座標の重複', '存在しない接続先', '同じ通路の重複'] },
+          { title: '実行できない地図', examples: ['BlockedのStart / Goal', 'StartからGoalへ到達不能'] },
+        ]
+      : [
+          { title: 'Invalid input line', examples: ['coordinate / capacity type', 'unknown metadata', 'missing required field'] },
+          { title: 'Whole-map conflict', examples: ['duplicate zone / coordinate', 'unknown endpoint', 'duplicate connection'] },
+          { title: 'Unusable map', examples: ['blocked Start / Goal', 'Goal is unreachable'] },
+        ];
+    return (
+      <div role="img" aria-label={ja ? '入力行の誤り、地図全体の矛盾、到達不能な地図が処理途中の失敗につながる図' : 'Input, map and reachability failures surfacing during scheduling'} className="mt-4 overflow-hidden rounded-md border border-[var(--color-splitter)] bg-[var(--color-cli-bg)] p-3">
+        <div className="grid gap-2 sm:grid-cols-3">
+          {issues.map((issue) => (
+            <section key={issue.title} className="rounded-md border border-[#d6a84f] bg-[#d6a84f]/10 p-3">
+              <h5 className="text-[11px] font-bold text-[var(--color-text)]">{issue.title}</h5>
+              <ul className="mt-2 grid gap-1 text-[9px] leading-4 text-[var(--color-text-muted)]">
+                {issue.examples.map((example) => <li key={example}>• {example}</li>)}
+              </ul>
+            </section>
+          ))}
+        </div>
+        <div className="my-2 text-center font-bold text-[var(--color-text-muted)]" aria-hidden="true">↓</div>
+        <div className="rounded-md border border-[#ef6b73] bg-[#ef6b73]/10 px-3 py-2.5 text-center">
+          <p className="text-[11px] font-bold text-[#ef6b73]">{ja ? '移動処理の途中で失敗' : 'Failure during movement'}</p>
+          <p className="mt-1 text-[9px] text-[var(--color-text-muted)]">{ja ? '入力のどこが原因か追いにくい' : 'The responsible input is difficult to locate'}</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (kind === 'flyin-validation') {
+    const stages = ja
+      ? [
+          { title: '入力行を解析', detail: '書式・型・メタデータを確認', code: 'parse_lines()' },
+          { title: '役割ごとにモデル化', detail: 'Zone / Connection / DronesNetwork', code: 'Pydantic BaseModel' },
+          { title: '地図全体を検証', detail: '重複・接続先・Start / Goalを確認', code: 'drones_network_check()' },
+          { title: '移動可能性を検証', detail: 'Blockedを除外し、DFSでStart → Goalを確認', code: 'create_graph() → check_graph()' },
+        ]
+      : [
+          { title: 'Parse each input line', detail: 'check format, types and metadata', code: 'parse_lines()' },
+          { title: 'Create role-specific models', detail: 'Zone / Connection / DronesNetwork', code: 'Pydantic BaseModel' },
+          { title: 'Validate the whole map', detail: 'check duplicates, endpoints and Start / Goal', code: 'drones_network_check()' },
+          { title: 'Validate movement feasibility', detail: 'exclude Blocked and run DFS from Start to Goal', code: 'create_graph() → check_graph()' },
+        ];
+    return (
+      <div role="img" aria-label={ja ? '入力解析から到達可能性確認まで4段階で検証する流れ' : 'Four validation stages from parsing to reachability'} className="mt-4 overflow-hidden rounded-md border border-[var(--color-splitter)] bg-[var(--color-cli-bg)] p-3">
+        <ol className="grid gap-2">
+          {stages.map((stage, index) => (
+            <Fragment key={stage.title}>
+              <li className="grid grid-cols-[1.5rem_minmax(0,1fr)] gap-2 rounded-md border border-[#4f8f67] bg-[#4f8f67]/10 p-2.5">
+                <span className="flex h-6 w-6 items-center justify-center rounded-full bg-[#4f8f67] font-mono text-[10px] font-bold text-white">{index + 1}</span>
+                <div className="min-w-0">
+                  <p className="text-[11px] font-bold text-[var(--color-text)]">{stage.title}</p>
+                  <p className="mt-0.5 text-[9px] leading-4 text-[var(--color-text-muted)]">{stage.detail}</p>
+                  <code className="mt-1 block overflow-x-auto whitespace-nowrap font-mono text-[9px] leading-4 text-[var(--color-cli-text)]">{stage.code}</code>
+                </div>
+              </li>
+              {index < stages.length - 1 && <li aria-hidden="true" className="text-center font-bold text-[#4f8f67]">↓</li>}
+            </Fragment>
+          ))}
+        </ol>
+        <div className="mt-2 rounded-md border border-[var(--color-cli-text)] bg-[var(--color-cli-text)] px-3 py-2 text-center text-[10px] font-bold text-[var(--color-cli-bg)]">
+          {ja ? 'すべて通過した地図だけシミュレーションを開始' : 'Start simulation only after every stage passes'}
+        </div>
+      </div>
+    );
+  }
+
   const diagrams: Record<string, DiagramConfig> = {
-    'flyin-invalid-input': {
-      nodes: [
-        { label: ja ? '入力ファイル' : 'Input file', detail: ja ? '重複座標・不明な接続先・容量0' : 'duplicate coordinates, unknown endpoint, capacity 0', tone: 'warning' },
-        { label: ja ? '未検証で実行' : 'Run unvalidated', tone: 'muted' },
-        { label: ja ? '処理途中で失敗' : 'Fail during scheduling', detail: ja ? '原因を追いにくい' : 'hard to trace', tone: 'danger' },
-      ],
-    },
-    'flyin-validation': {
-      nodes: [
-        { label: ja ? 'テキスト解析' : 'Parse text', tone: 'muted' },
-        { label: 'Pydantic', detail: 'Zone / Connection / DronesNetwork', tone: 'accent' },
-        { label: ja ? 'グラフ構築' : 'Build graph', detail: ja ? 'Blockedを除外' : 'exclude Blocked', tone: 'accent' },
-        { label: ja ? '到達確認' : 'Reachability', detail: 'DFS: Start → Goal', tone: 'accent' },
-        { label: ja ? '実行開始' : 'Start simulation', tone: 'accent' },
-      ],
-      code: 'parse_input_file.py  DronesNetwork.model_validator()  →  create_graph.py  check_graph()',
-    },
     'flyin-hop-only': {
       nodes: [
         { label: ja ? '移動回数だけで比較' : 'Compare hops only', tone: 'muted' },
