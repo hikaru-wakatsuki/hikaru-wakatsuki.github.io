@@ -25,8 +25,8 @@ export interface ProjectTechnicalCaseStudy {
     text: string;
   }>;
   diagram?: 'function-selection' | 'json-generation' | 'recursive-schema' | 'precomputation';
-  challengeDiagram?: 'codexion-circular-wait' | 'codexion-partial-ownership';
-  solutionDiagram?: 'codexion-lock-order' | 'codexion-atomic-pair' | 'codexion-priority-heap';
+  challengeDiagram?: 'codexion-circular-wait' | 'codexion-partial-ownership' | 'codexion-log-interleaving';
+  solutionDiagram?: 'codexion-lock-order' | 'codexion-atomic-pair' | 'codexion-priority-heap' | 'codexion-log-mutex';
 }
 
 export interface ProjectDemoGuide {

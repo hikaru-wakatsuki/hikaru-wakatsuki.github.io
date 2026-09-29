@@ -193,14 +193,16 @@ const PROJECTS: PortfolioProject[] = [
           },
           {
             "title": "FIFO・EDFの優先順序をmin-heapで再現",
-            "challenge": "同じDongleを待つ要求について、FIFOでは到着が早いCoder、EDFではタイムアウト期限が近いCoderを先頭に保つ必要がある。要求の追加・取り出し後も、選択した方式の優先順序を維持できるデータ構造が必要だった。",
-            "solution": "各Dongleの待機要求をバイナリmin-heapで管理。FIFOは到着順、EDFは期限を最初に比較し、同順位では到着順とCoder IDで順序を確定。要求追加時はshift-up、先頭取り出し後はshift-downで木を並べ直し、スケジューリング方式と資源取得処理を分離。",
+            "challenge": "複数のCoderが同じDongleを要求したとき、FIFOでは到着順、EDFでは期限の近さに従って、次にDongleを割り当てるCoderを決める必要がある。",
+            "solution": "各Dongleに、待機中のCoderを管理するmin-heapを実装。各要求が持つ到着順と期限のうち、FIFOでは到着順、EDFでは期限を比較し、優先度の高いCoderが先頭になるように並べ替える。同順位の場合は、到着順とCoder IDで順序を確定。",
             "solutionDiagram": "codexion-priority-heap"
           },
           {
             "title": "共有状態ごとにmutexの責務を分離",
-            "challenge": "コンパイル回数、最終コンパイル時刻、終了状態、完了人数、ログを複数のスレッドが同時に読み書きするため、更新の競合やログの混在が発生する可能性がある。",
-            "solution": "ドングルの所有状態、Coderの進捗、シミュレーションの停止状態、完了人数、ログ出力を、それぞれ個別のmutexで保護。すべてを1つのロックで制御せず、データの責務ごとにロックを分けて、安全な状態更新とログの直列化を実現。"
+            "challenge": "コンパイル回数や終了状態などの共有データを複数のスレッドが同時に更新すると競合が発生する。ログも複数箇所から同時に出力されるため、行の順序が前後して実行の流れを追えなくなる可能性がある。",
+            "solution": "Dongleの所有状態、Coderの進捗、停止状態、完了人数を、それぞれ専用のmutexで保護。ログ出力にはlog_mutexを設け、1件の出力が完了してから次のスレッドが出力するように直列化。共有データごとにmutexの責務を分け、安全な更新と読み取れるログを両立。",
+            "challengeDiagram": "codexion-log-interleaving",
+            "solutionDiagram": "codexion-log-mutex"
           },
           {
             "title": "完了とタイムアウトを監視スレッドで判定",
@@ -236,14 +238,16 @@ const PROJECTS: PortfolioProject[] = [
           },
           {
             "title": "Reproduce FIFO and EDF priority with a min-heap",
-            "challenge": "For requests waiting on the same dongle, FIFO must keep the earliest arrival first while EDF must keep the nearest timeout deadline first. The selected order has to remain valid after every insertion and removal.",
-            "solution": "Each dongle stores requests in a binary min-heap. FIFO compares arrival order; EDF compares the deadline first, then arrival order and coder ID. Insertion restores order with shift-up and removal with shift-down, separating scheduling policy from resource acquisition.",
+            "challenge": "When multiple coders request the same dongle, the next coder must be selected by arrival order under FIFO and by the nearest deadline under EDF.",
+            "solution": "Each dongle has a min-heap for waiting coders. Every request carries both arrival order and a deadline; FIFO compares arrival order while EDF compares the deadline, keeping the highest-priority coder at the front. Arrival order and coder ID resolve ties.",
             "solutionDiagram": "codexion-priority-heap"
           },
           {
             "title": "Separate mutex responsibility by shared state",
-            "challenge": "Compile counts, last-compile times, stop state, completion count and logs are read and written by multiple threads, creating risks of data races and interleaved output.",
-            "solution": "Separate mutexes protect dongle ownership, coder progress, simulation stop state, completion count and log output. Dividing locks by responsibility keeps state updates safe and serializes each log line without one global lock."
+            "challenge": "Shared values such as compile progress and stop state can race when several threads update them. Log lines emitted concurrently from different paths can also appear out of order and make execution difficult to follow.",
+            "solution": "Dedicated mutexes protect dongle ownership, coder progress, stop state and completion count. A separate log_mutex serializes output so one line finishes before another thread prints. Assigning one responsibility to each mutex keeps updates safe and logs readable.",
+            "challengeDiagram": "codexion-log-interleaving",
+            "solutionDiagram": "codexion-log-mutex"
           },
           {
             "title": "Detect completion and timeout in a monitor thread",
@@ -1027,33 +1031,42 @@ function CodexionAtomicPairDiagram({ language }: { language: 'ja' | 'en' }) {
 }
 
 function CodexionPriorityHeapDiagram({ language }: { language: 'ja' | 'en' }) {
-  const HeapTree = ({ mode }: { mode: 'fifo' | 'edf' }) => {
+  const PriorityFlow = ({ mode }: { mode: 'fifo' | 'edf' }) => {
     const isFifo = mode === 'fifo';
-    const root = isFifo
-      ? { coder: 'C1', primary: language === 'ja' ? '到着 #1' : 'arrival #1', secondary: 'deadline 900' }
-      : { coder: 'C2', primary: 'deadline 600', secondary: language === 'ja' ? '到着 #2' : 'arrival #2' };
-    const child = isFifo
-      ? { coder: 'C2', primary: language === 'ja' ? '到着 #2' : 'arrival #2', secondary: 'deadline 600' }
-      : { coder: 'C1', primary: 'deadline 900', secondary: language === 'ja' ? '到着 #1' : 'arrival #1' };
+    const selectedCoder = isFifo ? 'C1' : 'C2';
     return (
       <section className="overflow-hidden rounded-md border border-[var(--color-splitter)] bg-[var(--color-cli-bg)]">
         <h5 className="border-b border-[var(--color-splitter)] px-3 py-2 text-center text-[11px] font-bold">
-          {mode.toUpperCase()}：{isFifo ? (language === 'ja' ? '到着順を比較' : 'compare arrival') : (language === 'ja' ? '期限を先に比較' : 'compare deadline first')}
+          {mode.toUpperCase()}：{isFifo ? (language === 'ja' ? '今回は到着順で比較' : 'compare arrival this time') : (language === 'ja' ? '今回は期限で比較' : 'compare deadline this time')}
         </h5>
-        <svg viewBox="0 0 220 174" className="h-auto w-full" aria-hidden="true">
-          <line x1="110" y1="66" x2="70" y2="125" stroke="var(--color-splitter)" strokeWidth="2" />
-          <rect x="64" y="24" width="92" height="54" rx="8" fill="var(--color-accent-soft)" stroke="var(--color-cli-text)" strokeWidth="2" />
-          <text x="110" y="43" textAnchor="middle" fill="var(--color-cli-text)" fontSize="10" fontWeight="800">root / next</text>
-          <text x="110" y="59" textAnchor="middle" fill="var(--color-text)" fontSize="12" fontWeight="800" fontFamily="ui-monospace, monospace">{root.coder}</text>
-          <text x="110" y="72" textAnchor="middle" fill="var(--color-text-muted)" fontSize="8.5">{root.primary} · {root.secondary}</text>
-          <rect x="24" y="116" width="92" height="46" rx="8" fill="var(--color-bg)" stroke="var(--color-splitter)" strokeWidth="2" />
-          <text x="70" y="136" textAnchor="middle" fill="var(--color-text)" fontSize="11" fontWeight="800" fontFamily="ui-monospace, monospace">{child.coder}</text>
-          <text x="70" y="151" textAnchor="middle" fill="var(--color-text-muted)" fontSize="8.5">{child.primary} · {child.secondary}</text>
-          <text x="168" y="132" textAnchor="middle" fill="var(--color-text-muted)" fontSize="9" fontWeight="700">
-            {language === 'ja' ? '同じ2件でも' : 'same requests'}
+        <svg viewBox="0 0 360 190" className="h-auto w-full" aria-hidden="true">
+          <defs>
+            <marker id={`arrow-priority-${mode}`} markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto">
+              <path d="M0,0 L5,2.5 L0,5 Z" fill="var(--color-cli-text)" />
+            </marker>
+          </defs>
+          <circle cx="34" cy="54" r="20" fill="#1f2937" stroke="var(--color-cli-text)" strokeWidth="2" />
+          <text x="34" y="58" textAnchor="middle" fill="#fff" fontSize="11" fontWeight="800" fontFamily="ui-monospace, monospace">C1</text>
+          <text x="67" y="49" fill="var(--color-text)" fontSize="10" fontWeight={isFifo ? '800' : '600'}>{language === 'ja' ? '到着：1' : 'Arrival: 1'}</text>
+          <text x="67" y="65" fill="var(--color-text-muted)" fontSize="10" fontWeight={!isFifo ? '800' : '600'}>{language === 'ja' ? '期限：800 ms' : 'Deadline: 800 ms'}</text>
+
+          <circle cx="34" cy="124" r="20" fill="#1f2937" stroke="var(--color-cli-text)" strokeWidth="2" />
+          <text x="34" y="128" textAnchor="middle" fill="#fff" fontSize="11" fontWeight="800" fontFamily="ui-monospace, monospace">C2</text>
+          <text x="67" y="119" fill="var(--color-text)" fontSize="10" fontWeight={isFifo ? '800' : '600'}>{language === 'ja' ? '到着：2' : 'Arrival: 2'}</text>
+          <text x="67" y="135" fill="var(--color-text-muted)" fontSize="10" fontWeight={!isFifo ? '800' : '600'}>{language === 'ja' ? '期限：500 ms' : 'Deadline: 500 ms'}</text>
+
+          <line x1="135" y1="54" x2="166" y2="81" stroke="var(--color-splitter)" strokeWidth="2" />
+          <line x1="135" y1="124" x2="166" y2="97" stroke="var(--color-splitter)" strokeWidth="2" />
+          <rect x="166" y="67" width="92" height="44" rx="9" fill="var(--color-accent-soft)" stroke="var(--color-accent-border)" strokeWidth="2" />
+          <text x="212" y="84" textAnchor="middle" fill="var(--color-cli-text)" fontSize="11" fontWeight="800">min-heap</text>
+          <text x="212" y="100" textAnchor="middle" fill="var(--color-text-muted)" fontSize="9.5" fontWeight="700">
+            {isFifo ? (language === 'ja' ? '到着順に並べ替え' : 'order by arrival') : (language === 'ja' ? '期限順に並べ替え' : 'order by deadline')}
           </text>
-          <text x="168" y="148" textAnchor="middle" fill="var(--color-cli-text)" fontSize="9" fontWeight="800">
-            {language === 'ja' ? 'rootが変わる' : 'different root'}
+          <line x1="258" y1="89" x2="298" y2="89" stroke="var(--color-cli-text)" strokeWidth="2.5" markerEnd={`url(#arrow-priority-${mode})`} />
+          <circle cx="326" cy="89" r="22" fill="var(--color-accent-soft)" stroke="var(--color-cli-text)" strokeWidth="2.5" />
+          <text x="326" y="93" textAnchor="middle" fill="var(--color-cli-text)" fontSize="12" fontWeight="800" fontFamily="ui-monospace, monospace">{selectedCoder}</text>
+          <text x="326" y="128" textAnchor="middle" fill="var(--color-cli-text)" fontSize="9.5" fontWeight="800">
+            {language === 'ja' ? '先に選択' : 'selected first'}
           </text>
         </svg>
       </section>
@@ -1067,20 +1080,69 @@ function CodexionPriorityHeapDiagram({ language }: { language: 'ja' | 'en' }) {
       className="mt-4 grid gap-3"
     >
       <div className="grid gap-3 sm:grid-cols-2">
-        <HeapTree mode="fifo" />
-        <HeapTree mode="edf" />
-      </div>
-      <div className="grid gap-2 rounded-md border border-[var(--color-accent-border)] bg-[var(--color-accent-soft)] p-3 font-mono text-[10px] sm:grid-cols-2">
-        <p className="rounded border border-[var(--color-splitter)] bg-[var(--color-bg)] px-3 py-2 text-center">
-          push：{language === 'ja' ? '末尾へ追加' : 'append'} → <strong>shift-up</strong>
-        </p>
-        <p className="rounded border border-[var(--color-splitter)] bg-[var(--color-bg)] px-3 py-2 text-center">
-          pop：{language === 'ja' ? 'rootを取り出す' : 'remove root'} → <strong>shift-down</strong>
-        </p>
+        <PriorityFlow mode="fifo" />
+        <PriorityFlow mode="edf" />
       </div>
       <p className="text-center text-[10px] leading-5 text-[var(--color-text-muted)]">
-        {language === 'ja' ? '模式例：比較関数を切り替え、同じheap実装でFIFOとEDFを表現' : 'Schematic: one heap implementation supports FIFO and EDF by switching the comparator.'}
+        {language === 'ja' ? '同じ待機要求でも、比較する条件によって先に選ばれるCoderが変わる' : 'The selected coder changes according to the comparison used for the same waiting requests.'}
       </p>
+    </div>
+  );
+}
+
+function CodexionLogDiagram({ mode, language }: { mode: 'interleaving' | 'mutex'; language: 'ja' | 'en' }) {
+  const protectedOutput = mode === 'mutex';
+  return (
+    <div className="mt-4 overflow-hidden rounded-md border border-[var(--color-splitter)] bg-[var(--color-cli-bg)]">
+      <svg
+        role="img"
+        aria-label={protectedOutput
+          ? (language === 'ja' ? '複数スレッドのログをlog_mutexで1行ずつ出力する図' : 'log_mutex serializes log lines from multiple threads')
+          : (language === 'ja' ? '複数スレッドが同時に出力してログの順序が前後する図' : 'Concurrent threads produce out-of-order log lines')}
+        viewBox="0 0 360 205"
+        className="h-auto w-full"
+      >
+        <defs>
+          <marker id={`arrow-log-${mode}`} markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto">
+            <path d="M0,0 L5,2.5 L0,5 Z" fill={protectedOutput ? '#4f8f67' : '#ef6b73'} />
+          </marker>
+        </defs>
+        <circle cx="40" cy="58" r="21" fill="#1f2937" stroke="var(--color-cli-text)" strokeWidth="2" />
+        <text x="40" y="62" textAnchor="middle" fill="#fff" fontSize="11" fontWeight="800" fontFamily="ui-monospace, monospace">C1</text>
+        <circle cx="40" cy="144" r="21" fill="#1f2937" stroke="var(--color-cli-text)" strokeWidth="2" />
+        <text x="40" y="148" textAnchor="middle" fill="#fff" fontSize="11" fontWeight="800" fontFamily="ui-monospace, monospace">C2</text>
+
+        {protectedOutput ? (
+          <>
+            <line x1="62" y1="58" x2="133" y2="88" stroke="#4f8f67" strokeWidth="2.5" markerEnd="url(#arrow-log-mutex)" />
+            <line x1="62" y1="144" x2="133" y2="113" stroke="#4f8f67" strokeWidth="2.5" markerEnd="url(#arrow-log-mutex)" />
+            <rect x="136" y="77" width="86" height="49" rx="8" fill="var(--color-accent-soft)" stroke="#4f8f67" strokeWidth="2" />
+            <text x="179" y="98" textAnchor="middle" fill="#4f8f67" fontSize="10.5" fontWeight="800" fontFamily="ui-monospace, monospace">log_mutex</text>
+            <text x="179" y="114" textAnchor="middle" fill="var(--color-text-muted)" fontSize="9">{language === 'ja' ? '1件ずつ通す' : 'one at a time'}</text>
+            <line x1="222" y1="101" x2="257" y2="101" stroke="#4f8f67" strokeWidth="2.5" markerEnd="url(#arrow-log-mutex)" />
+            <rect x="264" y="48" width="82" height="106" rx="7" fill="var(--color-bg)" stroke="#4f8f67" strokeWidth="2" />
+            <text x="305" y="72" textAnchor="middle" fill="var(--color-text-muted)" fontSize="9" fontWeight="700">LOG</text>
+            <text x="276" y="96" fill="var(--color-text)" fontSize="8.5" fontFamily="ui-monospace, monospace">12 1 compiling</text>
+            <text x="276" y="116" fill="var(--color-text)" fontSize="8.5" fontFamily="ui-monospace, monospace">13 2 debugging</text>
+            <text x="276" y="136" fill="#4f8f67" fontSize="8.5" fontWeight="800">{language === 'ja' ? '行単位で出力' : 'complete lines'}</text>
+          </>
+        ) : (
+          <>
+            <line x1="62" y1="58" x2="176" y2="93" stroke="#ef6b73" strokeWidth="2.5" markerEnd="url(#arrow-log-interleaving)" />
+            <line x1="62" y1="144" x2="176" y2="109" stroke="#ef6b73" strokeWidth="2.5" markerEnd="url(#arrow-log-interleaving)" />
+            <rect x="184" y="52" width="162" height="100" rx="7" fill="var(--color-bg)" stroke="#ef6b73" strokeWidth="2" />
+            <text x="265" y="75" textAnchor="middle" fill="var(--color-text-muted)" fontSize="9" fontWeight="700">LOG</text>
+            <text x="196" y="101" fill="#ef6b73" fontSize="8.5" fontFamily="ui-monospace, monospace">13 2 debugging</text>
+            <text x="196" y="121" fill="#ef6b73" fontSize="8.5" fontFamily="ui-monospace, monospace">12 1 compiling</text>
+            <text x="265" y="141" textAnchor="middle" fill="#ef6b73" fontSize="9" fontWeight="800">{language === 'ja' ? '行の順序が前後' : 'lines out of order'}</text>
+          </>
+        )}
+        <text x="180" y="187" textAnchor="middle" fill={protectedOutput ? '#4f8f67' : '#ef6b73'} fontSize="10" fontWeight="800">
+          {protectedOutput
+            ? (language === 'ja' ? '1行の出力完了後に、次のスレッドへ' : 'The next thread prints after the current line finishes')
+            : (language === 'ja' ? '同時出力では実行順序を追えない' : 'Concurrent output obscures execution order')}
+        </text>
+      </svg>
     </div>
   );
 }
@@ -1311,6 +1373,9 @@ function ProjectTechnicalDetailsPanel({ project, language }: {
                     {item.challengeDiagram === 'codexion-partial-ownership' && (
                       <CodexionPartialOwnershipDiagram language={language} />
                     )}
+                    {item.challengeDiagram === 'codexion-log-interleaving' && (
+                      <CodexionLogDiagram mode="interleaving" language={language} />
+                    )}
                   </div>
                   <div className="px-4 py-4 sm:px-5">
                     <p className="font-mono text-[11px] font-bold uppercase tracking-wider text-[var(--color-cli-text)]">
@@ -1341,6 +1406,9 @@ function ProjectTechnicalDetailsPanel({ project, language }: {
                     )}
                     {item.solutionDiagram === 'codexion-priority-heap' && (
                       <CodexionPriorityHeapDiagram language={language} />
+                    )}
+                    {item.solutionDiagram === 'codexion-log-mutex' && (
+                      <CodexionLogDiagram mode="mutex" language={language} />
                     )}
                   </div>
                 </div>
