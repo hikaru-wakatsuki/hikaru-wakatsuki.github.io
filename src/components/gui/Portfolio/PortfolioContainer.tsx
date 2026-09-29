@@ -371,8 +371,8 @@ const PROJECTS: PortfolioProject[] = [
     "id": "souaoao/A-Maze-ing",
     "title": "A-Maze-ing",
     "description": {
-      "ja": "設定ファイルからDFS/BFSで迷路を生成し、構造的な制約を保ったまま最短経路と圧縮した16進壁データを出力する2名のPython共同開発。",
-      "en": "A two-person Python project that generates mazes with DFS or BFS, preserves structural constraints, finds a shortest route, and writes compact hexadecimal wall data."
+      "ja": "設定からDFS/BFSで迷路を生成し、壁の整合性や保護領域などの制約を守りながら最短経路まで求めるPython共同開発。各セルの壁を4ビットで管理し、再現可能な生成、16進形式の出力、再利用可能なパッケージ化を実装。",
+      "en": "A two-person Python project that generates reproducible DFS/BFS mazes, enforces wall and protected-region constraints, and solves the shortest route. Walls are encoded in four bits, written as hexadecimal data, and exposed through a reusable package."
     },
     "tags": [
       "Python",
@@ -389,35 +389,48 @@ const PROJECTS: PortfolioProject[] = [
     },
     "demoGuide": {
       "ja": {
-        "overview": "上部の実行条件と凡例を確認してから、生成された迷路と最短経路をご覧ください。",
         "cues": [
-          "Algorithm / Size / Seed / Perfect Maze：生成条件。同じSeedで同じ結果を再現",
-          "Start（緑の円）/ Goal（赤の円）：探索の開始点と終点",
-          "Shortest path（青の線）：BFSが求めた最短経路 / Visited（シアンの点）：探索済みセル",
-          "中央の「42」：全4方向の壁を閉じた18セルの保護領域",
-          "Shortest path / Visited cells / Generation time：経路長、探索量、生成時間。青い経路はStartからGoalへ順に表示"
+          "Algorithm / Size / Seed / Perfect Maze：生成方式、迷路サイズ、再現用のSeed、Perfect Mazeの設定",
+          "Shortest path / Visited cells / Generation time：最短経路の長さ、探索したセル数、生成時間",
+          "1: Regenerate / 2: Show shortest path / 3: Change wall color / 4: Animate generation / ESC: Close：操作キー"
         ]
       },
       "en": {
-        "overview": "Read the generation settings and legend first, then follow the generated structure and shortest route.",
         "cues": [
-          "Algorithm / Size / Seed / Perfect Maze: generation conditions and reproducibility",
-          "Start (green circle) / Goal (red circle): search endpoints",
-          "Shortest path (blue line) / Visited (cyan dot): BFS result and explored cells",
-          "Central 42: an 18-cell protected region whose four walls remain closed",
-          "Shortest path / Visited cells / Generation time: route length, search effort and generation time"
+          "Algorithm / Size / Seed / Perfect Maze: generation method, maze size, reproducibility seed and perfect-maze setting",
+          "Shortest path / Visited cells / Generation time: route length, explored cells and generation time",
+          "1: Regenerate / 2: Show shortest path / 3: Change wall color / 4: Animate generation / ESC: Close: keyboard controls"
         ]
       }
     },
     "technicalDetails": {
       "ja": {
-        "challenge": "各セルの上下左右の壁をコンパクトに表現しつつ、隣接セルとの壁の整合性、閉じた外周、保護領域、3×3の完全開放禁止を守る必要がありました。さらに生成アルゴリズムと解法を分け、どの生成方式でも最短経路を求められる設計が必要でした。",
-        "design": [
-          "2名で機能を分担し、Gitで変更を管理。本人は生成・探索アルゴリズム、壁の4ビット表現、構造制約、パッケージ化を担当",
-          "北・東・南・西の壁を1/2/4/8の4ビットで保持。通路を開く際は対象セルと隣接セルの反対側の壁を同時に更新",
-          "シード付きの方向シャッフルを共通化し、再帰DFSとキューを使うBFSの2種類の生成を実装。Perfect時は木構造、Imperfect時は制約内で追加の通路を生成",
-          "生成と解法を分離し、解法側はBFSで先行セルを記録。Goalから逆順に復元してN/E/S/Wの最短経路を出力",
-          "コア生成処理を可視化と分離し、MazeGeneratorを再利用可能なmazegenパッケージとしてwheel/source distributionにビルド"
+        "caseStudies": [
+          {
+            "title": "隣接セルの壁を常に一致させる",
+            "challenge": "通路を一つ開く操作は、現在のセルと隣のセルの両方に影響する。片側だけを更新すると、同じ境界に壁があるセルとないセルが生まれ、迷路データが壊れる。",
+            "solution": "北・東・南・西の壁を1・2・4・8の4ビットで保持。通路を開く処理を一か所にまとめ、現在のセルの壁と隣接セルの反対側の壁を同時に解除することで、すべての境界を一致させた。"
+          },
+          {
+            "title": "DFSとBFSを同じ制約で生成する",
+            "challenge": "再帰で進むDFSとキューで広げるBFSでは探索方法が異なる。一方で、外壁、保護領域、再現性などの生成条件は、どちらを選んでも同じように守る必要がある。",
+            "solution": "移動方向、壁を開けられる条件、壁の更新を共通処理として分離。DFSは再帰的なバックトラック、BFSはキューで未訪問セルを展開し、どちらも専用のRandomインスタンスをSeedで初期化して方向を並べ替える構成にした。"
+          },
+          {
+            "title": "構造制約を守ってPerfect / Imperfectを切り替える",
+            "challenge": "Perfect Mazeでは全セルをつなぐ木構造が必要になる。Imperfect Mazeでは経路を増やしながら、外壁、中央の「42」、3×3領域の完全開放を避けなければならない。",
+            "solution": "全壁が閉じた状態から未訪問セルだけを接続し、Perfect Mazeではその時点で生成を完了。Imperfect Mazeでは候補となる壁ごとに制約を再確認し、条件を満たす通路だけを追加した。中央の「42」は生成前に訪問済みとして扱い、18セルを閉じたまま保護した。"
+          },
+          {
+            "title": "生成方式から独立して最短経路を求める",
+            "challenge": "DFSやBFSによる迷路の生成順序は、完成した迷路上の最短経路とは一致しない。生成アルゴリズムを切り替えても同じ方法で解ける仕組みが必要になる。",
+            "solution": "生成処理とは別に、完成した迷路を対象とするBFSを実装。Startから通行可能なセルを探索し、各セルへ到達した直前のセルを記録。Goalから逆にたどって経路を復元し、N・E・S・Wの列として出力した。"
+          },
+          {
+            "title": "生成結果を再利用できる形式へ分離する",
+            "challenge": "迷路生成と画面描画が密結合すると、生成処理だけを別のプログラムから利用しにくい。壁情報、開始・終了座標、経路を一貫した形式で受け渡す必要もある。",
+            "solution": "各セルの4ビット壁情報を1桁の16進数へ変換し、Start、Goal、最短経路とともにファイルへ出力。生成処理をMazeGeneratorとして可視化から分離し、wheelとsource distributionへビルドできるmazegenパッケージにまとめた。"
+          }
         ],
         "verification": [
           "同一Seedの再現性、DFS/BFSの有効な経路、隣接壁の一致、閉じた外周、Perfect Mazeの木構造をテスト",
@@ -430,11 +443,32 @@ const PROJECTS: PortfolioProject[] = [
         ]
       },
       "en": {
-        "challenge": "Represent four directional walls in four bits while keeping maze-generation constraints and shortest-path search consistent.",
-        "design": [
-          "Split features between two developers and managed changes with Git. My contribution covered generation and search algorithms, four-bit wall encoding, structural constraints and packaging",
-          "Encoded walls in four bits and maintained consistency between adjacent cells",
-          "Packaged the contributed functionality as reusable mazegen functionality"
+        "caseStudies": [
+          {
+            "title": "Keep both sides of every wall consistent",
+            "challenge": "Opening one passage changes two adjacent cells. Updating only one side would produce contradictory maze data.",
+            "solution": "North, east, south and west use the 1, 2, 4 and 8 bits. A single wall-opening operation clears both the current wall and the opposite wall of its neighbor."
+          },
+          {
+            "title": "Generate DFS and BFS mazes under the same rules",
+            "challenge": "Recursive DFS and queue-based BFS traverse differently, but both must preserve boundaries, protected cells and seeded reproducibility.",
+            "solution": "Direction data, candidate checks and wall updates are shared. DFS uses recursive backtracking, BFS expands a queue, and both shuffle directions through a seed-scoped Random instance."
+          },
+          {
+            "title": "Switch Perfect and Imperfect modes without breaking constraints",
+            "challenge": "Perfect mode must remain a tree; Imperfect mode adds cycles without opening the outer boundary, the protected 42 or a fully open 3x3 area.",
+            "solution": "Generation starts with every wall closed. Perfect mode stops after connecting unvisited cells; Imperfect mode rechecks each candidate before adding eligible passages. The 18 cells forming 42 are marked visited from the start."
+          },
+          {
+            "title": "Solve the shortest route independently of generation",
+            "challenge": "The order used to generate a maze is not necessarily its shortest solution and must not tie solving to DFS or BFS generation.",
+            "solution": "A separate BFS records each predecessor in the completed maze. It reconstructs from Goal to Start and writes the route as N, E, S and W directions."
+          },
+          {
+            "title": "Separate reusable maze data from visualization",
+            "challenge": "Generation should remain reusable without MLX while preserving walls, endpoints and route data through one stable contract.",
+            "solution": "Each four-bit cell is written as one hexadecimal digit followed by Start, Goal and the route. MazeGenerator is separated from visualization and packaged as wheel and source distributions."
+          }
         ],
         "verification": ["Tests cover deterministic seeds, DFS/BFS routes, wall symmetry, closed boundaries and the perfect-maze tree invariant.", "They also cover imperfect connections, 3x3 prevention, all 18 protected cells, hexadecimal output and loaded route validation."],
         "limitations": ["Recursive DFS can reach Python's recursion limit on very large mazes.", "Imperfect-mode passages are heuristic rather than uniformly sampled; MLX visualization requires a compatible environment."]
@@ -539,11 +573,59 @@ function ProjectVideoGuide({ project, language }: {
       </button>
       {isOpen && (
         <div id={contentId} className="border-t border-[var(--color-splitter)] px-5 py-4 sm:px-6">
-          {project.id === 'Fly-in' ? (
+          {project.id === 'souaoao/A-Maze-ing' ? (
+            <div className="grid gap-3 text-xs leading-5">
+              <div className="grid gap-3 rounded-md border border-[var(--color-splitter)] bg-[var(--color-cli-bg)] p-3">
+                {guide.cues.map((cue) => {
+                  const japaneseSeparator = cue.indexOf('：');
+                  const englishSeparator = cue.lastIndexOf(': ');
+                  const separatorIndex = japaneseSeparator >= 0 ? japaneseSeparator : englishSeparator;
+                  const separatorLength = japaneseSeparator >= 0 ? 1 : 2;
+                  const displayLabel = cue.slice(0, separatorIndex);
+                  const displayText = cue.slice(separatorIndex + separatorLength);
+                  return (
+                    <div key={cue} className="grid gap-1 border-b border-[var(--color-splitter)] pb-3 last:border-b-0 last:pb-0 sm:grid-cols-[minmax(15rem,auto)_1fr] sm:items-center sm:gap-4">
+                      <span className="font-mono font-bold text-[#22d3ee]">{displayLabel}</span>
+                      <span className="text-[var(--color-text-muted)]">{displayText}</span>
+                    </div>
+                  );
+                })}
+              </div>
+
+              <div className="grid gap-2 rounded-md border border-[var(--color-splitter)] bg-[var(--color-cli-bg)] p-3 sm:grid-cols-2 lg:grid-cols-3">
+                <div className="flex items-center gap-2.5">
+                  <span className="h-4 w-4 shrink-0 rounded-full border-2 border-[#0b1118] bg-[#34d399]" aria-hidden="true" />
+                  <span><strong className="text-[#34d399]">Start</strong>：{language === 'ja' ? '探索の開始点' : 'search origin'}</span>
+                </div>
+                <div className="flex items-center gap-2.5">
+                  <span className="h-4 w-4 shrink-0 rounded-full border-2 border-[#0b1118] bg-[#fb7185]" aria-hidden="true" />
+                  <span><strong className="text-[#fb7185]">Goal</strong>：{language === 'ja' ? '探索の終了点' : 'search destination'}</span>
+                </div>
+                <div className="flex items-center gap-2.5">
+                  <span className="h-1 w-8 shrink-0 rounded bg-[#3b82f6]" aria-hidden="true" />
+                  <span><strong className="text-[#3b82f6]">Shortest path</strong>：{language === 'ja' ? 'BFSで求めた最短経路' : 'shortest route found by BFS'}</span>
+                </div>
+                <div className="flex items-center gap-2.5">
+                  <span className="h-2.5 w-2.5 shrink-0 rounded-full bg-[#22d3ee]" aria-hidden="true" />
+                  <span><strong className="text-[#22d3ee]">Visited</strong>：{language === 'ja' ? '最短経路探索で確認したセル' : 'cells examined by the solver'}</span>
+                </div>
+                <div className="flex items-center gap-2.5 sm:col-span-2">
+                  <span className="grid h-6 w-10 shrink-0 place-items-center rounded bg-[#a78bfa] font-mono text-[10px] font-black text-white" aria-hidden="true">42</span>
+                  <span><strong className="text-[#a78bfa]">42</strong>：{language === 'ja' ? '全方向の壁を閉じた18セルの保護領域' : '18 protected cells with all four walls closed'}</span>
+                </div>
+              </div>
+
+              <div className="rounded-md border border-[#3b82f6]/40 bg-[var(--color-cli-bg)] px-3 py-2.5 text-[var(--color-text-muted)]">
+                {language === 'ja'
+                  ? '「2」を押すと、シアンの探索済みセルに続いて青い最短経路がStartからGoalまで順に描画されます。「4」では迷路の壁が生成されていく過程を表示します。'
+                  : 'Press 2 to reveal visited cells in cyan and animate the blue shortest route from Start to Goal. Press 4 to watch the maze walls appear during generation.'}
+              </div>
+            </div>
+          ) : project.id === 'Fly-in' ? (
             <div className="grid gap-3 text-xs leading-5">
               <div className="grid gap-3 rounded-md border border-[var(--color-splitter)] bg-[var(--color-cli-bg)] p-3">
                 <div className="grid gap-1 sm:grid-cols-[minmax(12rem,auto)_1fr] sm:items-center sm:gap-4">
-                  <span className="font-mono font-bold text-[#43d6a8]">Turn / Arrived / Moving / Waiting</span>
+                  <span className="font-mono font-bold text-[#4f8f67]">Turn / Arrived / Moving / Waiting</span>
                   <span className="text-[var(--color-text-muted)]">{language === 'ja' ? 'ターン数と全Droneの進捗' : 'Turn count and progress for all drones'}</span>
                 </div>
                 <div className="grid gap-1 border-t border-[var(--color-splitter)] pt-3 sm:grid-cols-[minmax(12rem,auto)_1fr] sm:items-center sm:gap-4">
@@ -552,7 +634,7 @@ function ProjectVideoGuide({ project, language }: {
                 </div>
                 <div className="flex flex-wrap gap-x-5 gap-y-2 border-t border-[var(--color-splitter)] pt-3 text-[var(--color-text-muted)]">
                   <span className="inline-flex items-center gap-2">
-                    <span className="h-1 w-8 rounded bg-[#43d6a8]" aria-hidden="true" />
+                    <span className="h-1 w-8 rounded bg-[#4f8f67]" aria-hidden="true" />
                     {language === 'ja' ? '明るいConnection：使用中' : 'Bright connection: active'}
                   </span>
                   <span className="inline-flex items-center gap-2">
@@ -564,8 +646,8 @@ function ProjectVideoGuide({ project, language }: {
 
               <div className="grid gap-2 rounded-md border border-[var(--color-splitter)] bg-[var(--color-cli-bg)] p-3 sm:grid-cols-2 lg:grid-cols-3">
                 <div className="flex items-center gap-2.5">
-                  <span className="h-4 w-4 shrink-0 rounded-full border-2 border-white bg-[#34d399]" aria-hidden="true" />
-                  <span><strong className="text-[#34d399]">Start</strong>：{language === 'ja' ? '出発地点' : 'origin'}</span>
+                  <span className="h-4 w-4 shrink-0 rounded-full border-2 border-white bg-[#4f8f67]" aria-hidden="true" />
+                  <span><strong className="text-[#4f8f67]">Start</strong>：{language === 'ja' ? '出発地点' : 'origin'}</span>
                 </div>
                 <div className="flex items-center gap-2.5">
                   <span className="h-4 w-4 shrink-0 rounded-full border-[3px] border-white bg-[#3b82f6] ring-1 ring-[#3b82f6]" aria-hidden="true" />
@@ -589,8 +671,8 @@ function ProjectVideoGuide({ project, language }: {
                 </div>
               </div>
 
-              <div className="rounded-md border border-[#43d6a8]/50 bg-[var(--color-cli-bg)] px-3 py-2.5">
-                <strong className="font-mono text-[#43d6a8]">Simulation Complete</strong>
+              <div className="rounded-md border border-[#4f8f67]/50 bg-[var(--color-cli-bg)] px-3 py-2.5">
+                <strong className="font-mono text-[#4f8f67]">Simulation Complete</strong>
                 <span className="ml-3 text-[var(--color-text-muted)]">{language === 'ja' ? '到着数、完了ターン、容量違反数' : 'Arrivals, elapsed turns and capacity violations'}</span>
               </div>
             </div>
