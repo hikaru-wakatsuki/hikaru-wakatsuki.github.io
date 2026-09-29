@@ -1144,7 +1144,7 @@ function CodexionMonitorDiagram({ language }: { language: 'ja' | 'en' }) {
       <svg
         role="img"
         aria-label={language === 'ja' ? '監視専用スレッドが完了とタイムアウトを約1ms間隔で繰り返し判定する図' : 'A monitor thread repeatedly checks completion and timeout at roughly 1 ms intervals'}
-        viewBox="0 0 520 240"
+        viewBox="0 0 360 250"
         className="h-auto w-full"
       >
         <defs>
@@ -1156,52 +1156,46 @@ function CodexionMonitorDiagram({ language }: { language: 'ja' | 'en' }) {
           </marker>
         </defs>
 
-        <rect x="30" y="28" width="120" height="42" rx="9" fill="var(--color-accent-soft)" stroke="var(--color-cli-text)" strokeWidth="2" />
-        <text x="90" y="53" textAnchor="middle" fill="var(--color-cli-text)" fontSize="10.5" fontWeight="800">
+        <rect x="111" y="15" width="138" height="34" rx="17" fill="var(--color-accent-soft)" stroke="var(--color-cli-text)" strokeWidth="2" />
+        <text x="180" y="36" textAnchor="middle" fill="var(--color-cli-text)" fontSize="10.5" fontWeight="800">
           {language === 'ja' ? '監視専用スレッド' : 'Monitor thread'}
         </text>
-        <line x1="150" y1="49" x2="194" y2="49" stroke="var(--color-cli-text)" strokeWidth="2" markerEnd="url(#arrow-monitor)" />
+        <text x="180" y="68" textAnchor="middle" fill="var(--color-text-muted)" fontSize="9" fontWeight="700">
+          {language === 'ja' ? '約1ms間隔で確認' : 'check about every 1 ms'}
+        </text>
+        <path d="M145 49 V77 H101 V84" fill="none" stroke="var(--color-cli-text)" strokeWidth="2" markerEnd="url(#arrow-monitor)" />
 
-        <rect x="200" y="28" width="140" height="42" rx="9" fill="var(--color-bg)" stroke="var(--color-splitter)" strokeWidth="2" />
-        <text x="270" y="46" textAnchor="middle" fill="var(--color-text)" fontSize="10" fontWeight="800">
+        <rect x="35" y="90" width="132" height="42" rx="8" fill="var(--color-bg)" stroke="var(--color-splitter)" strokeWidth="2" />
+        <text x="101" y="108" textAnchor="middle" fill="var(--color-text)" fontSize="10" fontWeight="800">
           {language === 'ja' ? '全員が目標回数を完了？' : 'Everyone reached target?'}
         </text>
-        <text x="270" y="61" textAnchor="middle" fill="var(--color-text-muted)" fontSize="8.5">finish_mutex</text>
+        <text x="101" y="123" textAnchor="middle" fill="var(--color-text-muted)" fontSize="8.5">finish_mutex</text>
 
-        <line x1="340" y1="49" x2="369" y2="49" stroke="#4f8f67" strokeWidth="2.5" markerEnd="url(#arrow-monitor)" />
-        <text x="354" y="42" textAnchor="middle" fill="#4f8f67" fontSize="8" fontWeight="800">YES</text>
-        <rect x="375" y="28" width="115" height="42" rx="9" fill="var(--color-accent-soft)" stroke="#4f8f67" strokeWidth="2" />
-        <text x="432.5" y="53" textAnchor="middle" fill="#4f8f67" fontSize="10" fontWeight="800">
+        <line x1="167" y1="111" x2="194" y2="111" stroke="var(--color-cli-text)" strokeWidth="2" markerEnd="url(#arrow-monitor)" />
+        <text x="180" y="104" textAnchor="middle" fill="var(--color-text-muted)" fontSize="8" fontWeight="800">NO</text>
+        <rect x="200" y="90" width="126" height="42" rx="8" fill="var(--color-bg)" stroke="var(--color-splitter)" strokeWidth="2" />
+        <text x="263" y="108" textAnchor="middle" fill="var(--color-text)" fontSize="10" fontWeight="800">
+          {language === 'ja' ? '期限を超過したCoder？' : 'Any coder timed out?'}
+        </text>
+        <text x="263" y="123" textAnchor="middle" fill="var(--color-text-muted)" fontSize="8.5">state_mutex</text>
+
+        <path d="M326 111 H344 V32 H255" fill="none" stroke="var(--color-cli-text)" strokeWidth="2" markerEnd="url(#arrow-monitor)" />
+        <text x="336" y="104" textAnchor="middle" fill="var(--color-text-muted)" fontSize="8" fontWeight="800">NO</text>
+
+        <line x1="101" y1="132" x2="101" y2="169" stroke="#4f8f67" strokeWidth="2.5" markerEnd="url(#arrow-monitor)" />
+        <text x="109" y="153" fill="#4f8f67" fontSize="8" fontWeight="800">YES</text>
+        <rect x="38" y="175" width="126" height="36" rx="8" fill="var(--color-accent-soft)" stroke="#4f8f67" strokeWidth="2" />
+        <text x="101" y="197" textAnchor="middle" fill="#4f8f67" fontSize="10" fontWeight="800">
           {language === 'ja' ? '正常終了' : 'Complete'}
         </text>
 
-        <line x1="270" y1="70" x2="270" y2="154" stroke="var(--color-cli-text)" strokeWidth="2" markerEnd="url(#arrow-monitor)" />
-        <text x="280" y="116" fill="var(--color-text-muted)" fontSize="8" fontWeight="800">NO</text>
-        <rect x="200" y="160" width="140" height="42" rx="9" fill="var(--color-bg)" stroke="var(--color-splitter)" strokeWidth="2" />
-        <text x="270" y="178" textAnchor="middle" fill="var(--color-text)" fontSize="10" fontWeight="800">
-          {language === 'ja' ? '期限を超過したCoder？' : 'Any coder timed out?'}
-        </text>
-        <text x="270" y="193" textAnchor="middle" fill="var(--color-text-muted)" fontSize="8.5">state_mutex</text>
-
-        <line x1="340" y1="181" x2="369" y2="181" stroke="#ef6b73" strokeWidth="2.5" markerEnd="url(#arrow-monitor-stop)" />
-        <text x="354" y="174" textAnchor="middle" fill="#ef6b73" fontSize="8" fontWeight="800">YES</text>
-        <rect x="375" y="153" width="115" height="56" rx="9" fill="var(--color-bg)" stroke="#ef6b73" strokeWidth="2" />
-        <text x="432.5" y="176" textAnchor="middle" fill="#ef6b73" fontSize="9.5" fontWeight="800">
+        <line x1="263" y1="132" x2="263" y2="169" stroke="#ef6b73" strokeWidth="2.5" markerEnd="url(#arrow-monitor-stop)" />
+        <text x="271" y="153" fill="#ef6b73" fontSize="8" fontWeight="800">YES</text>
+        <rect x="200" y="175" width="126" height="49" rx="8" fill="var(--color-bg)" stroke="#ef6b73" strokeWidth="2" />
+        <text x="263" y="194" textAnchor="middle" fill="#ef6b73" fontSize="9.5" fontWeight="800">
           {language === 'ja' ? '停止フラグを更新' : 'Set stop flag'}
         </text>
-        <text x="432.5" y="194" textAnchor="middle" fill="#ef6b73" fontSize="9" fontWeight="800">burned out</text>
-
-        <line x1="200" y1="181" x2="156" y2="181" stroke="var(--color-cli-text)" strokeWidth="2" markerEnd="url(#arrow-monitor)" />
-        <text x="178" y="174" textAnchor="middle" fill="var(--color-text-muted)" fontSize="8" fontWeight="800">NO</text>
-        <rect x="30" y="160" width="120" height="42" rx="9" fill="var(--color-accent-soft)" stroke="var(--color-cli-text)" strokeWidth="2" />
-        <text x="90" y="178" textAnchor="middle" fill="var(--color-cli-text)" fontSize="9.5" fontWeight="800">
-          {language === 'ja' ? '監視スレッドで' : 'Monitor thread'}
-        </text>
-        <text x="90" y="193" textAnchor="middle" fill="var(--color-text-muted)" fontSize="9" fontWeight="700">
-          {language === 'ja' ? '約1ms待機' : 'waits ~1 ms'}
-        </text>
-
-        <line x1="90" y1="160" x2="90" y2="76" stroke="var(--color-cli-text)" strokeWidth="2" markerEnd="url(#arrow-monitor)" />
+        <text x="263" y="211" textAnchor="middle" fill="#ef6b73" fontSize="9" fontWeight="800">burned out</text>
       </svg>
     </div>
   );
