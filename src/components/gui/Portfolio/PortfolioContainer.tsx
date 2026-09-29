@@ -318,10 +318,9 @@ const PROJECTS: PortfolioProject[] = [
             ]
           },
           {
-            "title": "Zoneの特性と容量を経路選択へ反映",
-            "challenge": "移動回数だけで経路を選ぶと、進入に時間がかかるRestrictedや、混雑しやすい低容量のZoneを通る経路が選ばれる。Priorityは最短距離を崩さず、同コストの場合だけ優先する必要がある。",
-            "solution": "隣接リスト上でDijkstra型探索を実装。基本コストにRestrictedとZone容量に応じたコストを加え、同じ暫定距離ではPriority Zoneを先に確定。距離・Zone特性・容量を一つの比較基準へまとめて経路を選択。",
-            "challengeDiagram": "flyin-hop-only",
+            "title": "地点の特性と容量を考慮して初期経路を選択",
+            "challenge": "移動回数だけで経路を選ぶと、進入に時間がかかるRestricted Zoneや、容量が小さく混雑しやすいZoneを通る経路が選ばれる。複数の経路がある地図で、距離だけでなく各Zoneの条件も含めて比較する必要があった。",
+            "solution": "地図を隣接リストで表し、Dijkstra法を使ってStartからGoalまでの初期経路を探索。1回の移動を基本コストとし、Restricted Zoneや容量の小さいZoneには追加コストを設定。Startから各Zoneまでの累積コストを更新し、最も小さいZoneから順に経路を確定した。同じコストの場合はPriority Zoneを優先。",
             "solutionDiagram": "flyin-weighted-route"
           },
           {
@@ -378,10 +377,9 @@ const PROJECTS: PortfolioProject[] = [
             ]
           },
           {
-            "title": "Include zone behavior and capacity in route selection",
-            "challenge": "A route based only on hop count can favor restricted or low-capacity zones. Priority zones should win ties without overriding a shorter route.",
-            "solution": "A Dijkstra-style search adds costs for restricted and low-capacity zones. When tentative distances are equal, a priority zone is selected first, combining distance, zone behavior and capacity in one route decision.",
-            "challengeDiagram": "flyin-hop-only",
+            "title": "Choose an initial route using zone behavior and capacity",
+            "challenge": "A route chosen only by hop count can pass through Restricted Zones or low-capacity Zones that are slower or more likely to become congested. Maps with several possible routes therefore need a comparison that includes each Zone's conditions as well as distance.",
+            "solution": "The map is represented as an adjacency list and searched with Dijkstra's algorithm. Each move has a base cost, with additional costs for Restricted and low-capacity Zones. The search updates the accumulated cost from Start to each Zone and confirms the lowest-cost Zone first. Priority Zones win when accumulated costs are equal.",
             "solutionDiagram": "flyin-weighted-route"
           },
           {
@@ -1616,23 +1614,84 @@ function FlyInDecisionDiagram({ kind, language }: { kind: string; language: 'ja'
   type DiagramConfig = { nodes: DiagramNode[]; code?: string; note?: string };
   const ja = language === 'ja';
 
+  if (kind === 'flyin-weighted-route') {
+    const routeNodeClass = 'rounded-md border px-2.5 py-2 text-center font-mono';
+    return (
+      <div
+        role="img"
+        aria-label={ja
+          ? 'Startから各Zoneまでの累積コストを比較し、コストが小さい通常Zoneの経路を先に確定するDijkstra探索'
+          : 'Dijkstra search compares accumulated costs from Start and confirms the lower-cost route through normal Zones first'}
+        className="mt-4 overflow-hidden rounded-md border border-[var(--color-splitter)] bg-[var(--color-cli-bg)] p-3"
+      >
+        <div className="mb-3 flex flex-wrap items-center justify-between gap-2 border-b border-[var(--color-splitter)] pb-2.5">
+          <p className="font-mono text-[10px] font-bold text-[var(--color-text)]">
+            {ja ? 'Dijkstra法による累積コストの比較' : 'Accumulated-cost comparison with Dijkstra'}
+          </p>
+          <p className="font-mono text-[9px] text-[var(--color-text-muted)]">
+            {ja ? '基本 +1 / Restricted +1 / 容量1 +5 / 容量2 +2' : 'base +1 / Restricted +1 / capacity 1 +5 / capacity 2 +2'}
+          </p>
+        </div>
+
+        <div className="grid gap-2.5">
+          <div className="grid grid-cols-[3.5rem_minmax(0,1fr)] items-center gap-2">
+            <span className="font-mono text-[9px] font-bold text-[var(--color-text-muted)]">{ja ? '候補 A' : 'Route A'}</span>
+            <div className="flex min-w-0 items-center gap-1.5 sm:gap-2">
+              <div className={`${routeNodeClass} w-16 shrink-0 border-[var(--color-splitter)] bg-[var(--color-bg)] text-[var(--color-text)]`}>
+                <p className="text-[10px] font-bold">Start</p>
+                <p className="mt-0.5 text-[9px] opacity-65">cost 0</p>
+              </div>
+              <span aria-hidden="true" className="shrink-0 text-center font-bold text-[var(--color-text-muted)]">→</span>
+              <div className={`${routeNodeClass} min-w-0 flex-1 border-[#d6a84f] bg-[#d6a84f]/10 text-[var(--color-text)]`}>
+                <p className="text-[10px] font-bold">Restricted</p>
+                <p className="mt-0.5 text-[9px] opacity-65">capacity 1 / cost 7</p>
+              </div>
+              <span className="w-12 shrink-0 rounded-full border border-[#d6a84f] px-1.5 py-1 text-center font-mono text-[9px] text-[var(--color-text-muted)]">
+                {ja ? '保留' : 'hold'}
+              </span>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-[3.5rem_minmax(0,1fr)] items-center gap-2">
+            <span className="font-mono text-[9px] font-bold text-[var(--color-cli-text)]">{ja ? '候補 B' : 'Route B'}</span>
+            <div className="flex min-w-0 items-center gap-1 sm:gap-1.5">
+              {[
+                ['Start', 'cost 0'],
+                ['Normal', 'cost 1'],
+                ['Normal', 'cost 2'],
+                ['Goal', 'cost 3'],
+              ].map(([label, cost], routeIndex) => (
+                <Fragment key={`${label}-${cost}`}>
+                  <div className={`${routeNodeClass} min-w-0 flex-1 ${routeIndex === 0 ? 'border-[var(--color-splitter)] bg-[var(--color-bg)]' : 'border-[#4f8f67] bg-[#4f8f67]/10'} text-[var(--color-text)]`}>
+                    <p className="truncate text-[10px] font-bold">{label}</p>
+                    <p className="mt-0.5 text-[9px] opacity-65">{cost}</p>
+                  </div>
+                  {routeIndex < 3 && (
+                    <span aria-hidden="true" className="shrink-0 text-center font-bold text-[var(--color-cli-text)]">→</span>
+                  )}
+                </Fragment>
+              ))}
+              <span className="w-12 shrink-0 rounded-full border border-[#4f8f67] bg-[#4f8f67]/10 px-1.5 py-1 text-center font-mono text-[9px] font-bold text-[var(--color-cli-text)]">
+                {ja ? '選択' : 'select'}
+              </span>
+            </div>
+          </div>
+        </div>
+
+        <p className="mt-3 border-t border-[var(--color-splitter)] pt-2.5 text-center text-[10px] leading-5 text-[var(--color-text-muted)]">
+          {ja
+            ? '累積コストが小さいZoneから確定し、Goalまでの初期経路を復元'
+            : 'Confirm the Zone with the lowest accumulated cost first, then restore the initial route to Goal'}
+        </p>
+        <div className="mt-2 border-t border-[var(--color-splitter)] pt-2.5">
+          <p className="text-[9px] font-bold uppercase tracking-wider text-[var(--color-text-muted)]">{ja ? '参照コード' : 'Code reference'}</p>
+          <code className="mt-1 block overflow-x-auto whitespace-nowrap font-mono text-[9px] leading-4 text-[var(--color-cli-text)]">path_finding.py&nbsp; get_cost() &rarr; find_shortest_path()</code>
+        </div>
+      </div>
+    );
+  }
+
   const diagrams: Record<string, DiagramConfig> = {
-    'flyin-hop-only': {
-      nodes: [
-        { label: ja ? '移動回数だけで比較' : 'Compare hops only', tone: 'muted' },
-        { label: ja ? '短い経路' : 'Fewer hops', detail: 'Restricted / max_drones=1', tone: 'warning' },
-        { label: ja ? '待ちやすい経路を選択' : 'Select a likely bottleneck', tone: 'danger' },
-      ],
-    },
-    'flyin-weighted-route': {
-      nodes: [
-        { label: ja ? '基本コスト' : 'Base cost', detail: '+1', tone: 'muted' },
-        { label: 'Restricted', detail: '+1', tone: 'warning' },
-        { label: ja ? '低容量Zone' : 'Low-capacity zone', detail: 'max=2: +2 / max≤1: +5', tone: 'warning' },
-        { label: ja ? '最小コストを選択' : 'Choose lowest cost', detail: ja ? '同値ならPriorityを先に確定' : 'Priority wins equal-distance selection', tone: 'accent' },
-      ],
-      code: 'path_finding.py  get_cost()  →  find_shortest_path()',
-    },
     'flyin-capacity-race': {
       nodes: [
         { label: 'Zone  1 / 2', detail: ja ? '空きは1' : 'one slot open', tone: 'muted' },
