@@ -158,18 +158,18 @@ const PROJECTS: PortfolioProject[] = [
       "ja": {
         "overview": "各行が1人のCoder。Donglesは保有数、Progressは現在のコンパイル数／目標数を表示。",
         "cues": [
-          "Coders（並行実行）: 5人",
+          "Coders（1人につき1スレッド）: 5人",
           "USB dongles（共有資源）: 5台",
-          "Required per compile（1回に必要なドングル）: 2台",
+          "Required per compile（1回に必要なドングル）: 左右の2台",
           "Goal per coder（1人あたりの目標）: コンパイル4回"
         ]
       },
       "en": {
         "overview": "Each row represents one coder. Dongles shows the number held; Progress shows the current and target compile counts.",
         "cues": [
-          "Coders: 5",
+          "Coders (one thread each): 5",
           "USB dongles: 5",
-          "Required per compile: 2",
+          "Required per compile: 2 adjacent dongles",
           "Goal per coder: 4 compiles"
         ]
       }
@@ -634,9 +634,12 @@ function CodexionResourceDiagram({ language }: { language: 'ja' | 'en' }) {
         {language === 'ja' ? 'コンパイルには' : 'Compile requires'}
       </text>
       <text x="180" y="154" textAnchor="middle" fill="var(--color-text)" fontSize="12" fontWeight="800">
-        {language === 'ja' ? 'ドングル2台が必要' : '2 adjacent dongles'}
+        {language === 'ja' ? '左右のドングル2台が必要' : 'the 2 adjacent dongles'}
       </text>
-      <g transform="translate(126 171)">
+      <text x="180" y="170" textAnchor="middle" fill="var(--color-text-muted)" fontSize="9" fontWeight="700">
+        {language === 'ja' ? '（任意の2台ではない）' : '(not any 2 dongles)'}
+      </text>
+      <g transform="translate(126 187)">
         <circle cx="7" cy="7" r="6" fill="#1f2937" stroke="var(--color-cli-text)" />
         <text x="18" y="10" fill="var(--color-text-muted)" fontSize="9">Coder</text>
         <rect x="61" y="1" width="14" height="12" rx="2" fill="#facc15" stroke="#854d0e" />
