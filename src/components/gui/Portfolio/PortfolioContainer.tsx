@@ -158,10 +158,10 @@ const PROJECTS: PortfolioProject[] = [
       "ja": {
         "overview": "各行が1人のCoder。Donglesは保有数、Progressは現在のコンパイル数／目標数を表示。",
         "cues": [
-          "Coders: 5",
-          "USB dongles: 5",
-          "Required per compile: 2",
-          "Goal per coder: 4 compiles",
+          "Coders（並行実行）: 5人",
+          "USB dongles（共有資源）: 5台",
+          "Required per compile: 2台",
+          "Goal per coder: 4回",
           "Scheduler: EDF"
         ]
       },
@@ -560,8 +560,8 @@ function CodexionResourceDiagram({ language }: { language: 'ja' | 'en' }) {
       </title>
       <desc>
         {language === 'ja'
-          ? 'Coderとドングルを交互に円形配置し、各Coderが左右の2台を共有する構成'
-          : 'Coders and dongles alternate around a ring; each coder shares the two adjacent dongles.'}
+          ? 'Coderとドングルを交互に円形配置。C1が左右のD5とD1を取得してコンパイルしている例'
+          : 'Coders and dongles alternate around a ring. C1 is shown compiling while holding adjacent dongles D5 and D1.'}
       </desc>
       <polyline
         points={ring}
@@ -570,62 +570,70 @@ function CodexionResourceDiagram({ language }: { language: 'ja' | 'en' }) {
         strokeWidth="3"
         strokeLinejoin="round"
       />
+      <line x1="180" y1="34" x2="236" y2="56" stroke="#00ff87" strokeWidth="5" strokeLinecap="round" />
+      <line x1="180" y1="34" x2="124" y2="56" stroke="#00ff87" strokeWidth="5" strokeLinecap="round" />
 
-      {coders.map((coder) => (
-        <g key={coder.label}>
-          <circle
-            cx={coder.x}
-            cy={coder.y}
-            r="22"
-            fill="#1f2937"
-            stroke="var(--color-cli-text)"
-            strokeWidth="2"
-          />
-          <text
-            x={coder.x}
-            y={coder.y + 4}
-            textAnchor="middle"
-            fill="#f8fafc"
-            fontSize="11"
-            fontWeight="700"
-            fontFamily="ui-monospace, monospace"
-          >
-            {coder.label}
-          </text>
-        </g>
-      ))}
+      {coders.map((coder) => {
+        const isCompiling = coder.label === 'C1';
+        return (
+          <g key={coder.label}>
+            <circle
+              cx={coder.x}
+              cy={coder.y}
+              r="22"
+              fill={isCompiling ? '#00ff87' : '#1f2937'}
+              stroke={isCompiling ? '#15803d' : 'var(--color-cli-text)'}
+              strokeWidth="2"
+            />
+            <text
+              x={coder.x}
+              y={coder.y + 4}
+              textAnchor="middle"
+              fill={isCompiling ? '#052e16' : '#f8fafc'}
+              fontSize="11"
+              fontWeight="700"
+              fontFamily="ui-monospace, monospace"
+            >
+              {coder.label}
+            </text>
+          </g>
+        );
+      })}
 
-      {dongles.map((dongle) => (
-        <g key={dongle.label}>
-          <rect
-            x={dongle.x - 14}
-            y={dongle.y - 10}
-            width="28"
-            height="20"
-            rx="4"
-            fill="#facc15"
-            stroke="#854d0e"
-            strokeWidth="2"
-          />
-          <text
-            x={dongle.x}
-            y={dongle.y + 4}
-            textAnchor="middle"
-            fill="#422006"
-            fontSize="9"
-            fontWeight="800"
-            fontFamily="ui-monospace, monospace"
-          >
-            {dongle.label}
-          </text>
-        </g>
-      ))}
+      {dongles.map((dongle) => {
+        const isHeld = dongle.label === 'D1' || dongle.label === 'D5';
+        return (
+          <g key={dongle.label}>
+            <rect
+              x={dongle.x - 14}
+              y={dongle.y - 10}
+              width="28"
+              height="20"
+              rx="4"
+              fill={isHeld ? '#00ff87' : '#facc15'}
+              stroke={isHeld ? '#15803d' : '#854d0e'}
+              strokeWidth="2"
+            />
+            <text
+              x={dongle.x}
+              y={dongle.y + 4}
+              textAnchor="middle"
+              fill={isHeld ? '#052e16' : '#422006'}
+              fontSize="9"
+              fontWeight="800"
+              fontFamily="ui-monospace, monospace"
+            >
+              {dongle.label}
+            </text>
+          </g>
+        );
+      })}
 
       <text x="180" y="117" textAnchor="middle" fill="var(--color-text-muted)" fontSize="10" fontWeight="700">
-        Compile requires
+        C1: COMPILING
       </text>
       <text x="180" y="134" textAnchor="middle" fill="var(--color-text)" fontSize="12" fontWeight="800">
-        2 adjacent dongles
+        {language === 'ja' ? 'D5・D1の2台を保有' : 'holding D5 + D1'}
       </text>
       <g transform="translate(126 151)">
         <circle cx="7" cy="7" r="6" fill="#1f2937" stroke="var(--color-cli-text)" />
