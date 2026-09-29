@@ -341,9 +341,9 @@ const PROJECTS: PortfolioProject[] = [
             "solutionDiagram": "flyin-capacity-state"
           },
           {
-            "title": "混雑時に現在地から経路を再計算",
-            "challenge": "開始時に選んだ経路が、ほかのDroneの移動によって利用できなくなる場合がある。初期経路だけを待ち続けると、利用可能な迂回路があっても進めない。",
-            "solution": "予定した次の移動ができない場合、使用中のConnectionと占有中のZoneをペナルティとして現在地からGoalまで一度再探索。再計算した最初の移動にも同じ容量判定を適用し、利用できなければそのターンは待機。",
+            "title": "進めない経路を待たず、現在地から迂回路を再探索",
+            "challenge": "開始時に選んだ経路でも、ほかのDroneの移動によって、次のZoneが満員になったりConnectionに空きがなくなったりする場合がある。最初の経路だけを使い続けると、通行可能な迂回路があってもその場で待機し続けてしまう。",
+            "solution": "予定した次の移動ができない場合、使用中のConnectionと占有中のZoneにペナルティを加え、Droneの現在地からGoalまでの経路をDijkstra法で再探索。再計算した経路へ切り替え、最初の移動先についてもう一度容量を確認した。移動できる場合は新しい経路を進み、利用できない場合はそのターンだけ待機する構成とした。",
             "challengeDiagram": "flyin-blocked-route",
             "solutionDiagram": "flyin-reroute"
           }
@@ -396,9 +396,9 @@ const PROJECTS: PortfolioProject[] = [
             "solutionDiagram": "flyin-capacity-state"
           },
           {
-            "title": "Recalculate a route when congestion blocks the next move",
-            "challenge": "A route selected at startup can become unavailable as other drones move. Waiting on that route can ignore an available detour.",
-            "solution": "When the next move is blocked, the scheduler adds penalties for occupied links and zones and recalculates once from the current position. The new first move passes through the same capacity checks; otherwise the drone waits for that turn.",
+            "title": "Search for a detour from the current position instead of waiting on a blocked route",
+            "challenge": "A route selected at startup can become unavailable when another drone fills the next Zone or Connection. If the scheduler keeps only the original route, the drone continues waiting even when another route to Goal remains open.",
+            "solution": "When the planned next move is unavailable, the scheduler adds penalties to occupied Connections and Zones and reruns Dijkstra's algorithm from the drone's current position to Goal. It replaces the route with that result and applies the same capacity check to its first move. The drone follows the new route when possible or waits for that turn when it is still blocked.",
             "challengeDiagram": "flyin-blocked-route",
             "solutionDiagram": "flyin-reroute"
           }
@@ -1656,6 +1656,130 @@ function FlyInDecisionDiagram({ kind, language }: { kind: string; language: 'ja'
     );
   }
 
+  if (kind === 'flyin-blocked-route') {
+    const routeBoxClass = 'min-w-0 flex-1 rounded-md border px-2 py-2 text-center';
+    return (
+      <div
+        role="img"
+        aria-label={ja
+          ? '初期経路のRestricted Zoneは満員だが、Normal Zoneを通る迂回路は利用できる'
+          : 'The Restricted Zone on the initial route is full while a detour through a Normal Zone is available'}
+        className="mt-4 overflow-hidden rounded-md border border-[var(--color-splitter)] bg-[var(--color-cli-bg)] p-3"
+      >
+        <p className="font-mono text-[10px] font-bold text-[var(--color-text)]">
+          {ja ? '初期経路だけを使う場合' : 'When only the initial route is used'}
+        </p>
+        <div className="mt-2 grid gap-2">
+          <div>
+            <p className="mb-1 font-mono text-[9px] font-bold text-[#ef6b73]">{ja ? '初期経路' : 'Initial route'}</p>
+            <div className="flex items-center gap-1.5">
+              <div className={`${routeBoxClass} border-[var(--color-splitter)] bg-[var(--color-bg)]`}>
+                <p className="font-mono text-[9px] font-bold">{ja ? '現在地' : 'Current'}</p>
+                <p className="mt-1 text-[9px] text-[var(--color-text-muted)]">D1</p>
+              </div>
+              <span aria-hidden="true" className="font-bold text-[#ef6b73]">→</span>
+              <div className={`${routeBoxClass} border-[#ef6b73] bg-[#ef6b73]/10`}>
+                <p className="font-mono text-[9px] font-bold">Restricted</p>
+                <p className="mt-1 text-[9px] font-bold text-[#ef6b73]">1 / 1 · {ja ? '満員' : 'full'}</p>
+              </div>
+              <span aria-hidden="true" className="font-bold text-[var(--color-text-muted)]">→</span>
+              <div className={`${routeBoxClass} border-[var(--color-splitter)] bg-[var(--color-bg)]`}>
+                <p className="font-mono text-[9px] font-bold">Goal</p>
+              </div>
+            </div>
+          </div>
+
+          <div>
+            <p className="mb-1 font-mono text-[9px] font-bold text-[#4f8f67]">{ja ? '利用できる迂回路' : 'Available detour'}</p>
+            <div className="flex items-center gap-1.5 opacity-70">
+              <div className={`${routeBoxClass} border-[var(--color-splitter)] bg-[var(--color-bg)]`}>
+                <p className="font-mono text-[9px] font-bold">{ja ? '現在地' : 'Current'}</p>
+                <p className="mt-1 text-[9px] text-[var(--color-text-muted)]">D1</p>
+              </div>
+              <span aria-hidden="true" className="font-bold text-[#4f8f67]">→</span>
+              <div className={`${routeBoxClass} border-[#4f8f67] bg-[#4f8f67]/10`}>
+                <p className="font-mono text-[9px] font-bold">Normal</p>
+                <p className="mt-1 text-[9px] text-[var(--color-text-muted)]">0 / 2 · {ja ? '空き' : 'open'}</p>
+              </div>
+              <span aria-hidden="true" className="font-bold text-[#4f8f67]">→</span>
+              <div className={`${routeBoxClass} border-[#4f8f67] bg-[#4f8f67]/10`}>
+                <p className="font-mono text-[9px] font-bold">Goal</p>
+              </div>
+            </div>
+          </div>
+        </div>
+        <p className="mt-3 rounded-md border border-[#ef6b73] bg-[#ef6b73]/10 px-2.5 py-2 text-center text-[9px] font-bold text-[#ef6b73]">
+          {ja ? '迂回路があっても、進めない初期経路を待ち続ける' : 'The drone keeps waiting on the blocked initial route despite the open detour'}
+        </p>
+      </div>
+    );
+  }
+
+  if (kind === 'flyin-reroute') {
+    const routeBoxClass = 'min-w-0 flex-1 rounded-md border px-2 py-2 text-center';
+    return (
+      <div
+        role="img"
+        aria-label={ja
+          ? '混雑した初期経路にペナルティを加え、現在地から再探索して迂回路へ切り替える'
+          : 'Add a penalty to the congested initial route, search again from the current position and switch to the detour'}
+        className="mt-4 overflow-hidden rounded-md border border-[var(--color-splitter)] bg-[var(--color-cli-bg)] p-3"
+      >
+        <p className="font-mono text-[10px] font-bold text-[var(--color-text)]">
+          {ja ? '混雑を反映して現在地から再探索' : 'Search again from the current position with congestion penalties'}
+        </p>
+        <div className="mt-2 grid gap-2">
+          <div className="flex items-center gap-1.5 opacity-60">
+            <div className={`${routeBoxClass} border-[var(--color-splitter)] bg-[var(--color-bg)]`}>
+              <p className="font-mono text-[9px] font-bold">{ja ? '現在地' : 'Current'}</p>
+            </div>
+            <span aria-hidden="true" className="font-bold text-[var(--color-text-muted)]">→</span>
+            <div className={`${routeBoxClass} border-[#ef6b73] bg-[#ef6b73]/10`}>
+              <p className="font-mono text-[9px] font-bold">Restricted</p>
+              <p className="mt-1 text-[9px] text-[#ef6b73]">{ja ? '満員 · ペナルティ追加' : 'full · penalty added'}</p>
+            </div>
+            <span aria-hidden="true" className="font-bold text-[var(--color-text-muted)]">→</span>
+            <div className={`${routeBoxClass} border-[var(--color-splitter)] bg-[var(--color-bg)]`}>
+              <p className="font-mono text-[9px] font-bold">Goal</p>
+            </div>
+          </div>
+
+          <div className="flex items-center gap-1.5">
+            <div className={`${routeBoxClass} border-[#4f8f67] bg-[#4f8f67]/10`}>
+              <p className="font-mono text-[9px] font-bold">{ja ? '現在地' : 'Current'}</p>
+            </div>
+            <span aria-hidden="true" className="font-bold text-[#4f8f67]">→</span>
+            <div className={`${routeBoxClass} border-[#4f8f67] bg-[#4f8f67]/10`}>
+              <p className="font-mono text-[9px] font-bold">Normal</p>
+              <p className="mt-1 text-[9px] text-[var(--color-text-muted)]">{ja ? '空きあり' : 'open'}</p>
+            </div>
+            <span aria-hidden="true" className="font-bold text-[#4f8f67]">→</span>
+            <div className={`${routeBoxClass} border-[#4f8f67] bg-[#4f8f67]/10`}>
+              <p className="font-mono text-[9px] font-bold">Goal</p>
+              <p className="mt-1 text-[9px] font-bold text-[var(--color-cli-text)]">{ja ? '再探索後の経路' : 'new route'}</p>
+            </div>
+          </div>
+        </div>
+
+        <div className="mt-3 grid grid-cols-[1fr_auto_1fr_auto_1fr] items-center gap-1.5 border-t border-[var(--color-splitter)] pt-2.5 text-center text-[9px] text-[var(--color-text-muted)]">
+          <span className="rounded border border-[var(--color-splitter)] px-1.5 py-1.5">{ja ? 'Dijkstra法で再探索' : 'rerun Dijkstra'}</span>
+          <span aria-hidden="true">→</span>
+          <span className="rounded border border-[var(--color-splitter)] px-1.5 py-1.5">{ja ? '経路を置き換え' : 'replace route'}</span>
+          <span aria-hidden="true">→</span>
+          <span className="rounded border border-[#4f8f67] bg-[#4f8f67]/10 px-1.5 py-1.5">{ja ? '最初の移動先を再確認' : 'recheck first move'}</span>
+        </div>
+        <div className="mt-2 flex justify-center gap-2 text-[9px] font-bold">
+          <span className="rounded-full border border-[#4f8f67] bg-[#4f8f67]/10 px-2.5 py-1 text-[var(--color-cli-text)]">
+            {ja ? '移動可能 → 迂回路を進む' : 'available → follow detour'}
+          </span>
+          <span className="rounded-full border border-[var(--color-splitter)] px-2.5 py-1 text-[var(--color-text-muted)]">
+            {ja ? '移動不可 → そのターンは待機' : 'blocked → wait this turn'}
+          </span>
+        </div>
+      </div>
+    );
+  }
+
   if (kind === 'flyin-weighted-route') {
     const routeNodeClass = 'rounded-md border px-2.5 py-2 text-center font-mono';
     return (
@@ -1810,22 +1934,6 @@ function FlyInDecisionDiagram({ kind, language }: { kind: string; language: 'ja'
   }
 
   const diagrams: Record<string, DiagramConfig> = {
-    'flyin-blocked-route': {
-      nodes: [
-        { label: ja ? '予定経路 A' : 'Planned route A', tone: 'muted' },
-        { label: ja ? '次の移動先が満員' : 'Next move is full', tone: 'warning' },
-        { label: ja ? 'Aを待ち続ける' : 'Keep waiting for A', tone: 'danger' },
-        { label: ja ? '経路 B は空き' : 'Route B is open', detail: ja ? '利用されない' : 'left unused', tone: 'muted' },
-      ],
-    },
-    'flyin-reroute': {
-      nodes: [
-        { label: 'can_move() = False', tone: 'warning' },
-        { label: ja ? '現在の混雑をコスト化' : 'Convert current traffic to penalties', detail: ja ? '使用中の通路・占有中のZone' : 'used links and occupied zones', tone: 'accent' },
-        { label: 'recompute_path()', detail: ja ? '現在地から再探索' : 'search again from current zone', tone: 'accent' },
-        { label: ja ? '新経路を再判定' : 'Check the new route', detail: ja ? '進めなければ待機' : 'wait if still blocked', tone: 'accent' },
-      ],
-    },
   };
   const config = diagrams[kind];
   if (!config) return null;
