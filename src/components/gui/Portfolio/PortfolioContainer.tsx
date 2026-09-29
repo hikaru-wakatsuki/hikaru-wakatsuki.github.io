@@ -542,7 +542,7 @@ function ProjectTechnicalDetailsPanel({ project, language }: {
               {language === 'ja' ? 'Engineering decisions' : 'Engineering decisions'}
             </p>
             <h3 className="mt-1 text-lg font-bold">
-              {language === 'ja' ? '技術課題と実装上の工夫' : 'Challenges and implementation decisions'}
+              {language === 'ja' ? '技術課題と実装の工夫' : 'Challenges and implementation decisions'}
             </h3>
           </div>
           <div className="grid gap-4">
@@ -694,24 +694,65 @@ function PortfolioCard({
       onMouseLeave={handleMouseLeave}
     >
       <div className="border-b border-[var(--color-splitter)] p-5 sm:p-6">
-        <div className="min-w-0">
-          <h3 className="text-xl font-bold leading-snug sm:text-2xl">{project.title}</h3>
-          {project.projectType && (
-            <p className="mt-2 font-mono text-xs uppercase tracking-wider opacity-60">
-              {project.projectType[language]}
-            </p>
-          )}
-          <p className="mt-3 max-w-3xl text-sm leading-6 opacity-75">
-            {project.description[language]}
-          </p>
-        </div>
-      </div>
+        <div className="flex flex-wrap items-start justify-between gap-x-6 gap-y-3">
+          <div className="min-w-0">
+            <h3 className="text-xl font-bold leading-snug sm:text-2xl">
+              <a
+                href={project.githubUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-baseline gap-1.5 hover:text-[var(--color-cli-text)] hover:underline focus-visible:outline-2 focus-visible:outline-offset-2"
+                aria-label={language === 'ja' ? `${project.title}のGitHubを開く` : `Open ${project.title} on GitHub`}
+              >
+                {project.title}
+                <span aria-hidden="true" className="font-mono text-xs opacity-60">↗</span>
+              </a>
+            </h3>
+            {project.projectType && (
+              <p className="mt-2 font-mono text-xs uppercase tracking-wider opacity-60">
+                {project.projectType[language]}
+              </p>
+            )}
+          </div>
 
-      {project.demoGuide && (
-        <div className="border-b border-[var(--color-splitter)] p-4 sm:px-6">
-          <ProjectVideoGuide project={project} language={language} />
+          <div className="flex max-w-full flex-wrap justify-start gap-1.5 sm:justify-end">
+            {project.tags.map((tag) => {
+              const isActive = activeTag === tag;
+              return (
+                <button
+                  key={tag}
+                  type="button"
+                  onClick={() => onTagClick(tag)}
+                  className={[
+                    'rounded border px-2 py-0.5 font-mono text-xs transition-all duration-150',
+                    isActive ? 'font-bold' : 'opacity-60 hover:opacity-100',
+                  ].join(' ')}
+                  style={
+                    isActive
+                      ? {
+                          background: 'var(--color-cli-text)',
+                          color: 'var(--color-cli-bg)',
+                          borderColor: 'var(--color-cli-text)',
+                        }
+                      : {
+                          background: 'transparent',
+                          color: 'var(--color-text)',
+                          borderColor: 'var(--color-splitter)',
+                        }
+                  }
+                  aria-pressed={isActive}
+                  aria-label={language === 'ja' ? `${tag}でプロジェクトを絞り込む` : `Filter projects by ${tag}`}
+                >
+                  {tag}
+                </button>
+              );
+            })}
+          </div>
         </div>
-      )}
+        <p className="mt-3 max-w-3xl text-sm leading-6 opacity-75">
+          {project.description[language]}
+        </p>
+      </div>
 
       {/* ── Media area ── */}
       <div
@@ -750,62 +791,23 @@ function PortfolioCard({
         )}
       </div>
 
+      {project.demoGuide && (
+        <div className="border-b border-[var(--color-splitter)] p-4 sm:px-6">
+          <ProjectVideoGuide project={project} language={language} />
+        </div>
+      )}
+
       {/* ── Content ── */}
       <div className="flex flex-col gap-5 p-5 sm:p-6">
-        <div className="flex flex-wrap items-center justify-between gap-4">
-          {/* Tags */}
-          <div className="flex flex-wrap gap-1.5">
-            {project.tags.map((tag) => {
-              const isActive = activeTag === tag;
-              return (
-                <button
-                  key={tag}
-                  type="button"
-                  onClick={() => onTagClick(tag)}
-                  className={[
-                    'px-2 py-0.5 rounded text-xs font-mono border transition-all duration-150',
-                    'cursor-pointer',
-                    isActive ? 'font-bold' : 'opacity-60 hover:opacity-100',
-                  ].join(' ')}
-                  style={
-                    isActive
-                      ? {
-                          background: 'var(--color-cli-text)',
-                          color: 'var(--color-cli-bg)',
-                          borderColor: 'var(--color-cli-text)',
-                        }
-                      : {
-                          background: 'transparent',
-                          color: 'var(--color-text)',
-                          borderColor: 'var(--color-splitter)',
-                        }
-                  }
-                  aria-pressed={isActive}
-                  aria-label={language === 'ja' ? `${tag}でプロジェクトを絞り込む` : `Filter projects by ${tag}`}
-                >
-                  {tag}
-                </button>
-              );
-            })}
-          </div>
-
+        <div className="flex justify-end">
           <div className="flex flex-wrap items-center gap-3">
             <button
               type="button"
               onClick={() => onOpenDetails(project)}
               className="rounded border border-[var(--color-cli-text)] bg-[var(--color-cli-text)] px-4 py-2 font-mono text-xs font-bold text-[var(--color-cli-bg)] hover:opacity-80 focus-visible:outline-2 focus-visible:outline-offset-2"
             >
-              {language === 'ja' ? '詳しく見る' : 'View details'}
+              {language === 'ja' ? '技術課題と実装の工夫を見る' : 'View engineering decisions'}
             </button>
-            <a
-              href={project.githubUrl}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="w-fit font-mono text-xs opacity-70 transition-opacity hover:underline hover:opacity-100"
-              style={{ color: 'var(--color-cli-text)' }}
-            >
-              GitHub ↗
-            </a>
           </div>
         </div>
       </div>
@@ -855,8 +857,6 @@ function ProjectDetailModal({ project, language, onClose }: {
             {project.description[language]}
           </p>
 
-          <ProjectVideoGuide project={project} language={language} />
-
           {project.videoUrl ? (
             <div className="overflow-hidden rounded-lg border border-[var(--color-splitter)] bg-black" style={{ aspectRatio: '16 / 9' }}>
               <video
@@ -877,6 +877,8 @@ function ProjectDetailModal({ project, language, onClose }: {
             />
           ) : null}
 
+          <ProjectVideoGuide project={project} language={language} />
+
           <ProjectTechnicalDetailsPanel project={project} language={language} />
 
           <footer className="flex flex-wrap items-center justify-between gap-4 border-t border-[var(--color-splitter)] pt-5">
@@ -893,7 +895,7 @@ function ProjectDetailModal({ project, language, onClose }: {
               rel="noopener noreferrer"
               className="font-mono text-xs font-bold text-[var(--color-cli-text)] hover:underline"
             >
-              GitHub ↗
+              {language === 'ja' ? 'GitHubでコードを見る ↗' : 'View code on GitHub ↗'}
             </a>
           </footer>
         </div>
