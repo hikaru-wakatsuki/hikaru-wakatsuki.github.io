@@ -329,12 +329,12 @@ const PROJECTS: PortfolioProject[] = [
             "solution": "Zone占有数、Connection使用数、Restricted Zoneへの次ターン予約数を分け、移動時間に応じて各状態を更新する構成にした。",
             "solutionSteps": [
               {
-                "title": "用途ごとに3種類の状態を管理",
-                "text": "Zoneの現在占有数、Connectionの使用数、次ターンにRestricted Zoneへ到着するDroneの予約数を分けて管理。移動前に「現在の占有数＋予約数」がZone容量未満であり、Connectionにも空きがあることを確認した。"
+                "title": "現在の利用数と移動予定を分けて管理",
+                "text": "各Zoneに現在いるDrone、Connectionを使用しているDrone、Restricted Zoneへ次のターンに到着するDroneを別々に管理。移動前に、到着先の現在数と予約数の合計、Connectionの使用数を確認し、どちらも上限を超えない場合だけ移動させた。"
               },
               {
-                "title": "移動時間に合わせて状態を更新",
-                "text": "Normal Zoneへの移動は、同じターン中に出発元と到着先の占有数を更新し、使用したConnectionをターン終了時に解放。Restricted Zoneへの移動は、1ターン目にConnectionを使用して到着先を予約し、Droneにin_transitとtransit_toを保持。次のターンにConnectionと予約を解放し、到着先の占有数へ反映した。"
+                "title": "1ターン移動と2ターン移動を分けて管理",
+                "text": "Normal Zoneへの移動は、そのターン内に完了する移動として占有数を更新。Restricted Zoneへの移動は「移動中」として扱い、Connectionの使用と到着先の予約を次のターンまで保持した。到着時に予約を解放し、Zoneの占有数へ反映する2段階の処理とした。"
               }
             ],
             "solutionDiagram": "flyin-capacity-state"
@@ -390,12 +390,12 @@ const PROJECTS: PortfolioProject[] = [
             "solution": "Zone occupancy, Connection usage and next-turn Restricted reservations are stored separately and updated according to the movement duration.",
             "solutionSteps": [
               {
-                "title": "Track three states for separate responsibilities",
-                "text": "The scheduler stores current Zone occupancy, Connection usage and reservations for drones reaching a Restricted Zone on the next turn. Before committing a move, it checks that current occupancy plus reservations stays below the Zone capacity and that the Connection has space."
+                "title": "Track current usage separately from planned arrivals",
+                "text": "The scheduler separately tracks drones currently in each Zone, drones using each Connection and drones due to reach a Restricted Zone on the next turn. A move is allowed only when the destination's current count plus reservations and the Connection usage both remain within their limits."
               },
               {
-                "title": "Update state according to movement duration",
-                "text": "A Normal move updates source and destination occupancy in the same turn and releases its Connection at turn end. A Restricted move occupies the Connection, reserves the destination and stores in_transit and transit_to on the first turn; the next turn releases the Connection and reservation and adds the drone to destination occupancy."
+                "title": "Handle one-turn and two-turn movement separately",
+                "text": "A move to a Normal Zone completes within the same turn and updates occupancy immediately. A move to a Restricted Zone remains in transit, keeping the Connection in use and the destination reserved until the next turn. On arrival, the reservation is released and the destination occupancy is updated."
               }
             ],
             "solutionDiagram": "flyin-capacity-state"
@@ -1699,75 +1699,72 @@ function FlyInDecisionDiagram({ kind, language }: { kind: string; language: 'ja'
   }
 
   if (kind === 'flyin-capacity-state') {
-    const stateBoxClass = 'rounded-md border border-[var(--color-splitter)] bg-[var(--color-bg)] px-2.5 py-2 text-center';
     return (
       <div
         role="img"
         aria-label={ja
-          ? 'Zone占有数、Connection使用数、次ターン予約数を使った容量判定と、Normal・Restricted移動の状態更新'
-          : 'Capacity checks using Zone occupancy, Connection usage and next-turn reservations, followed by Normal and Restricted state updates'}
+          ? '移動前に容量を確認し、Normal Zoneは同じターン、Restricted Zoneは次のターンに到着する処理'
+          : 'Check capacity before movement; Normal movement completes in the same turn and Restricted movement completes on the next turn'}
         className="mt-4 overflow-hidden rounded-md border border-[var(--color-splitter)] bg-[var(--color-cli-bg)] p-3"
       >
-        <p className="font-mono text-[10px] font-bold text-[var(--color-text)]">
-          {ja ? '移動前の共通判定' : 'Shared checks before movement'}
-        </p>
-        <div className="mt-2 grid gap-2 sm:grid-cols-2">
-          <div className={`${stateBoxClass} border-[#4f8f67] bg-[#4f8f67]/10`}>
-            <p className="font-mono text-[9px] font-bold text-[var(--color-cli-text)]">Zone</p>
-            <p className="mt-1 text-[10px] text-[var(--color-text)]">
-              {ja ? '現在占有数＋予約数＜容量' : 'occupancy + reservations < capacity'}
-            </p>
-          </div>
-          <div className={`${stateBoxClass} border-[#4f8f67] bg-[#4f8f67]/10`}>
-            <p className="font-mono text-[9px] font-bold text-[var(--color-cli-text)]">Connection</p>
-            <p className="mt-1 text-[10px] text-[var(--color-text)]">
-              {ja ? '使用数＜容量' : 'usage < capacity'}
-            </p>
-          </div>
+        <div className="rounded-md border border-[#4f8f67] bg-[#4f8f67]/10 px-3 py-2.5 text-center">
+          <p className="font-mono text-[10px] font-bold text-[var(--color-cli-text)]">
+            {ja ? '移動前に容量を確認' : 'Check capacity before movement'}
+          </p>
+          <p className="mt-1 text-[10px] leading-5 text-[var(--color-text-muted)]">
+            {ja
+              ? '到着先の現在数＋予約数と、Connectionの使用数を確認'
+              : 'Check destination occupancy plus reservations and current Connection usage'}
+          </p>
+          <span className="mt-1.5 inline-flex rounded-full border border-[#4f8f67] bg-[var(--color-bg)] px-2.5 py-1 font-mono text-[9px] font-bold text-[var(--color-cli-text)]">
+            {ja ? 'どちらも上限内 → 移動可能' : 'both within limits → move allowed'}
+          </span>
         </div>
 
         <div aria-hidden="true" className="py-1.5 text-center font-bold text-[var(--color-cli-text)]">↓</div>
 
         <div className="grid gap-2.5 sm:grid-cols-2">
           <section className="rounded-md border border-[var(--color-splitter)] bg-[var(--color-bg)] p-2.5">
-            <div className="flex items-center justify-between gap-2">
-              <p className="font-mono text-[10px] font-bold text-[var(--color-text)]">Normal Zone</p>
-              <span className="rounded-full border border-[var(--color-splitter)] px-2 py-0.5 font-mono text-[8px] text-[var(--color-text-muted)]">
-                {ja ? '同じターン' : 'same turn'}
-              </span>
+            <p className="font-mono text-[10px] font-bold text-[var(--color-text)]">Normal Zone</p>
+            <div className="mt-2 flex items-center gap-1.5">
+              <div className="min-w-0 flex-1 rounded border border-[var(--color-splitter)] px-2 py-2 text-center">
+                <p className="font-mono text-[9px] font-bold text-[var(--color-text)]">Turn N</p>
+                <p className="mt-1 text-[9px] text-[var(--color-text-muted)]">{ja ? '出発' : 'depart'}</p>
+              </div>
+              <span aria-hidden="true" className="font-bold text-[var(--color-cli-text)]">→</span>
+              <div className="min-w-0 flex-1 rounded border border-[#4f8f67] bg-[#4f8f67]/10 px-2 py-2 text-center">
+                <p className="font-mono text-[9px] font-bold text-[var(--color-text)]">Turn N</p>
+                <p className="mt-1 text-[9px] text-[var(--color-text-muted)]">{ja ? '到着・移動完了' : 'arrive and complete'}</p>
+              </div>
             </div>
-            <div className="mt-2 grid gap-1.5 text-[9px] leading-4 text-[var(--color-text-muted)]">
-              <p className="rounded border border-[var(--color-splitter)] px-2 py-1.5">
-                {ja ? '出発Zoneの占有数 −1' : 'source occupancy −1'}
-              </p>
-              <p className="rounded border border-[#4f8f67] bg-[#4f8f67]/10 px-2 py-1.5">
-                {ja ? '到着Zoneの占有数 ＋1' : 'destination occupancy +1'}
-              </p>
-              <p className="rounded border border-[var(--color-splitter)] px-2 py-1.5">
-                {ja ? 'Connectionを使用 → ターン終了時に解放' : 'use Connection → release at turn end'}
-              </p>
-            </div>
+            <p className="mt-2 text-center text-[9px] text-[var(--color-text-muted)]">
+              {ja ? '同じターン内で完了' : 'completed within the same turn'}
+            </p>
           </section>
 
           <section className="rounded-md border border-[#d6a84f] bg-[#d6a84f]/5 p-2.5">
             <p className="font-mono text-[10px] font-bold text-[var(--color-text)]">Restricted Zone</p>
-            <div className="mt-2 grid grid-cols-[1fr_auto_1fr] items-stretch gap-1.5">
-              <div className="rounded border border-[#d6a84f] bg-[#d6a84f]/10 px-2 py-1.5 text-[9px] leading-4 text-[var(--color-text-muted)]">
+            <div className="mt-2 grid grid-cols-[1fr_auto_1fr] items-center gap-1.5">
+              <div className="rounded border border-[#d6a84f] bg-[#d6a84f]/10 px-2 py-2 text-center">
                 <p className="font-mono font-bold text-[var(--color-text)]">Turn N</p>
-                <p className="mt-1">{ja ? '出発Zone −1' : 'source −1'}</p>
-                <p>{ja ? 'Connection ＋1' : 'Connection +1'}</p>
-                <p>{ja ? '予約 ＋1' : 'reservation +1'}</p>
-                <p className="font-mono">in_transit = true</p>
+                <p className="mt-1 text-[9px] leading-4 text-[var(--color-text-muted)]">
+                  {ja ? '出発 → 移動中' : 'depart → in transit'}
+                </p>
+                <p className="mt-1 text-[8px] leading-4 text-[var(--color-text-muted)]">
+                  {ja ? 'Connectionを使用・到着先を予約' : 'use Connection and reserve destination'}
+                </p>
               </div>
               <span aria-hidden="true" className="self-center font-bold text-[var(--color-text-muted)]">→</span>
-              <div className="rounded border border-[#4f8f67] bg-[#4f8f67]/10 px-2 py-1.5 text-[9px] leading-4 text-[var(--color-text-muted)]">
+              <div className="rounded border border-[#4f8f67] bg-[#4f8f67]/10 px-2 py-2 text-center">
                 <p className="font-mono font-bold text-[var(--color-text)]">Turn N + 1</p>
-                <p className="mt-1">{ja ? 'Connection −1' : 'Connection −1'}</p>
-                <p>{ja ? '予約 −1' : 'reservation −1'}</p>
-                <p>{ja ? '到着Zone ＋1' : 'destination +1'}</p>
-                <p className="font-mono">in_transit = false</p>
+                <p className="mt-1 text-[9px] leading-4 text-[var(--color-text-muted)]">
+                  {ja ? '予約を解放 → 到着' : 'release reservation → arrive'}
+                </p>
               </div>
             </div>
+            <p className="mt-2 text-center text-[9px] text-[var(--color-text-muted)]">
+              {ja ? '2ターンで完了' : 'completed over two turns'}
+            </p>
           </section>
         </div>
       </div>
