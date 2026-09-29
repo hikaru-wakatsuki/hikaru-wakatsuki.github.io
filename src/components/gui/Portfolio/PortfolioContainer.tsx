@@ -180,7 +180,9 @@ const PROJECTS: PortfolioProject[] = [
           {
             "title": "2台のドングル取得時のデッドロックを防止",
             "challenge": "各Coderは左右のドングル2台を取得する必要がある。複数のCoderがそれぞれ片方を取得したまま、もう片方の解放を待つと、互いに処理を進められない循環待ちが発生する。",
-            "solution": "取得対象のドングルをID順に並べ、すべてのスレッドが小さいIDから大きいIDの順にmutexを取得。ロックの順序を統一して循環待ちを防止。2台をロックした状態で、空き状況、クールダウン、待機順序を確認し、条件を満たす場合だけ同じCoderへまとめて割り当て。"
+            "solution": "取得対象のドングルをID順に並べ、すべてのスレッドが小さいIDから大きいIDの順にmutexを取得。ロックの順序を統一して循環待ちを防止。2台をロックした状態で、空き状況、クールダウン、待機順序を確認し、条件を満たす場合だけ同じCoderへまとめて割り当て。",
+            "challengeDiagram": "codexion-circular-wait",
+            "solutionDiagram": "codexion-lock-order"
           },
           {
             "title": "競合時の取得順序をFIFO・EDFで制御",
@@ -213,7 +215,9 @@ const PROJECTS: PortfolioProject[] = [
           {
             "title": "Prevent deadlock while acquiring two dongles",
             "challenge": "Every coder needs both adjacent dongles. If multiple coders each hold one dongle while waiting for the other, they can enter a circular wait and stop making progress.",
-            "solution": "Dongles are sorted by ID and every thread locks the lower ID before the higher ID. With both mutexes held, the implementation checks availability, cooldown and waiting priority, then assigns the pair to one coder only when all conditions pass."
+            "solution": "Dongles are sorted by ID and every thread locks the lower ID before the higher ID. With both mutexes held, the implementation checks availability, cooldown and waiting priority, then assigns the pair to one coder only when all conditions pass.",
+            "challengeDiagram": "codexion-circular-wait",
+            "solutionDiagram": "codexion-lock-order"
           },
           {
             "title": "Control acquisition order with FIFO and EDF",
@@ -679,6 +683,133 @@ function CodexionResourceDiagram({ language }: { language: 'ja' | 'en' }) {
   );
 }
 
+function CodexionDeadlockDiagram({
+  mode,
+  language,
+}: {
+  mode: 'circular-wait' | 'lock-order';
+  language: 'ja' | 'en';
+}) {
+  const coders = [
+    { label: 'C1', x: 180, y: 45 },
+    { label: 'C2', x: 276, y: 115 },
+    { label: 'C3', x: 239, y: 225 },
+    { label: 'C4', x: 121, y: 225 },
+    { label: 'C5', x: 84, y: 115 },
+  ];
+  const dongles = [
+    { label: 'D1', x: 239, y: 69 },
+    { label: 'D2', x: 276, y: 178 },
+    { label: 'D3', x: 180, y: 245 },
+    { label: 'D4', x: 84, y: 178 },
+    { label: 'D5', x: 121, y: 69 },
+  ];
+  const heldPairs = [[0, 0], [1, 1], [2, 2], [3, 3], [4, 4]];
+  const waitingPairs = [[0, 4], [1, 0], [2, 1], [3, 2], [4, 3]];
+  const isLockOrder = mode === 'lock-order';
+
+  return (
+    <svg
+      role="img"
+      aria-label={isLockOrder
+        ? (language === 'ja' ? 'C1が小さいIDのD1から大きいIDのD5の順に取得する図' : 'C1 acquires lower-ID D1 before higher-ID D5')
+        : (language === 'ja' ? '各Coderが片方のドングルを保持してもう片方を待つ循環待ちの図' : 'Circular wait where each coder holds one dongle and waits for another')}
+      viewBox="0 0 360 286"
+      className="mx-auto mt-4 h-auto w-full max-w-[22rem]"
+    >
+      <title>{isLockOrder ? (language === 'ja' ? 'ID順で取得' : 'Acquire by ID order') : (language === 'ja' ? '循環待ち' : 'Circular wait')}</title>
+      <defs>
+        <marker id={`arrow-${mode}`} markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto">
+          <path d="M0,0 L7,3.5 L0,7 Z" fill={isLockOrder ? '#4f8f67' : '#ef6b73'} />
+        </marker>
+      </defs>
+
+      {isLockOrder ? (
+        <>
+          <line x1="180" y1="45" x2="239" y2="69" stroke="#4f8f67" strokeWidth="5" strokeLinecap="round" markerEnd="url(#arrow-lock-order)" />
+          <path d="M 239 69 Q 180 126 121 69" fill="none" stroke="#4f8f67" strokeWidth="5" strokeLinecap="round" markerEnd="url(#arrow-lock-order)" />
+          <circle cx="207" cy="45" r="10" fill="#4f8f67" />
+          <text x="207" y="49" textAnchor="middle" fill="#fff" fontSize="10" fontWeight="800">1</text>
+          <circle cx="180" cy="115" r="10" fill="#4f8f67" />
+          <text x="180" y="119" textAnchor="middle" fill="#fff" fontSize="10" fontWeight="800">2</text>
+        </>
+      ) : (
+        <>
+          {heldPairs.map(([coderIndex, dongleIndex]) => (
+            <line
+              key={`held-${coderIndex}`}
+              x1={coders[coderIndex].x}
+              y1={coders[coderIndex].y}
+              x2={dongles[dongleIndex].x}
+              y2={dongles[dongleIndex].y}
+              stroke="#4f8f67"
+              strokeWidth="5"
+              strokeLinecap="round"
+            />
+          ))}
+          {waitingPairs.map(([coderIndex, dongleIndex]) => (
+            <line
+              key={`waiting-${coderIndex}`}
+              x1={coders[coderIndex].x}
+              y1={coders[coderIndex].y}
+              x2={dongles[dongleIndex].x}
+              y2={dongles[dongleIndex].y}
+              stroke="#ef6b73"
+              strokeWidth="3"
+              strokeDasharray="6 5"
+              markerEnd="url(#arrow-circular-wait)"
+            />
+          ))}
+        </>
+      )}
+
+      {coders.map((coder) => {
+        const active = !isLockOrder || coder.label === 'C1';
+        return (
+          <g key={coder.label} opacity={active ? 1 : 0.38}>
+            <circle cx={coder.x} cy={coder.y} r="20" fill={active ? '#1f2937' : 'var(--color-bg)'} stroke="var(--color-cli-text)" strokeWidth="2" />
+            <text x={coder.x} y={coder.y + 4} textAnchor="middle" fill={active ? '#f8fafc' : 'var(--color-text-muted)'} fontSize="11" fontWeight="700" fontFamily="ui-monospace, monospace">{coder.label}</text>
+          </g>
+        );
+      })}
+      {dongles.map((dongle) => {
+        const active = !isLockOrder || dongle.label === 'D1' || dongle.label === 'D5';
+        return (
+          <g key={dongle.label} opacity={active ? 1 : 0.38}>
+            <rect x={dongle.x - 14} y={dongle.y - 10} width="28" height="20" rx="4" fill={active ? '#facc15' : 'var(--color-bg)'} stroke={active ? '#854d0e' : 'var(--color-text-muted)'} strokeWidth="2" />
+            <text x={dongle.x} y={dongle.y + 4} textAnchor="middle" fill={active ? '#422006' : 'var(--color-text-muted)'} fontSize="9" fontWeight="800" fontFamily="ui-monospace, monospace">{dongle.label}</text>
+          </g>
+        );
+      })}
+
+      {isLockOrder ? (
+        <g>
+          <rect x="94" y="145" width="172" height="47" rx="8" fill="var(--color-accent-soft)" stroke="var(--color-accent-border)" />
+          <text x="180" y="163" textAnchor="middle" fill="var(--color-text-muted)" fontSize="10" fontWeight="700">
+            {language === 'ja' ? '全スレッドで取得順序を統一' : 'Same order for every thread'}
+          </text>
+          <text x="180" y="182" textAnchor="middle" fill="var(--color-text)" fontSize="13" fontWeight="800" fontFamily="ui-monospace, monospace">D1 → D5</text>
+        </g>
+      ) : (
+        <g>
+          <circle cx="180" cy="143" r="47" fill="var(--color-bg)" stroke="#ef6b73" strokeWidth="2" />
+          <text x="180" y="139" textAnchor="middle" fill="#ef6b73" fontSize="12" fontWeight="800">{language === 'ja' ? '循環待ち' : 'CIRCULAR WAIT'}</text>
+          <text x="180" y="156" textAnchor="middle" fill="var(--color-text-muted)" fontSize="10">{language === 'ja' ? '全員が解放待ち' : 'everyone waits'}</text>
+        </g>
+      )}
+
+      <g transform="translate(92 270)" fontSize="9">
+        <line x1="0" y1="0" x2="22" y2="0" stroke="#4f8f67" strokeWidth="5" strokeLinecap="round" />
+        <text x="29" y="3" fill="var(--color-text-muted)">{language === 'ja' ? '保持・取得' : 'held / acquire'}</text>
+        {!isLockOrder && <>
+          <line x1="105" y1="0" x2="127" y2="0" stroke="#ef6b73" strokeWidth="3" strokeDasharray="5 4" />
+          <text x="134" y="3" fill="var(--color-text-muted)">{language === 'ja' ? '待機' : 'waiting'}</text>
+        </>}
+      </g>
+    </svg>
+  );
+}
+
 function TechnicalCaseDiagram({
   kind,
   language,
@@ -899,6 +1030,9 @@ function ProjectTechnicalDetailsPanel({ project, language }: {
                       {language === 'ja' ? '課題' : 'Challenge'}
                     </p>
                     <p className="mt-2 leading-7 text-[var(--color-text-muted)]">{item.challenge}</p>
+                    {item.challengeDiagram === 'codexion-circular-wait' && (
+                      <CodexionDeadlockDiagram mode="circular-wait" language={language} />
+                    )}
                   </div>
                   <div className="px-4 py-4 sm:px-5">
                     <p className="font-mono text-[11px] font-bold uppercase tracking-wider text-[var(--color-cli-text)]">
@@ -920,6 +1054,9 @@ function ProjectTechnicalDetailsPanel({ project, language }: {
                       </ol>
                     ) : (
                       <p className="mt-2 leading-7 text-[var(--color-text-muted)]">{item.solution}</p>
+                    )}
+                    {item.solutionDiagram === 'codexion-lock-order' && (
+                      <CodexionDeadlockDiagram mode="lock-order" language={language} />
                     )}
                   </div>
                 </div>

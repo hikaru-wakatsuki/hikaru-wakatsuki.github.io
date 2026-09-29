@@ -25,6 +25,8 @@ export interface ProjectTechnicalCaseStudy {
     text: string;
   }>;
   diagram?: 'function-selection' | 'json-generation' | 'recursive-schema' | 'precomputation';
+  challengeDiagram?: 'codexion-circular-wait';
+  solutionDiagram?: 'codexion-lock-order';
 }
 
 export interface ProjectDemoGuide {
