@@ -176,15 +176,30 @@ const PROJECTS: PortfolioProject[] = [
     },
     "technicalDetails": {
       "ja": {
-        "challenge": "各Coderは隣接する2台のドングルを同時に獲得できたときだけコンパイルできます。複数スレッドが個別に資源を待つと、循環待ち、飢餓、状態更新の競合が起きうるため、取得順序と優先度を一貫させる必要がありました。",
-        "design": [
-          "2つのドングルをindex順に並べ、必ず小さい側からmutexを取得するグローバルなロック順序で循環待ちを除去",
-          "両方のmutexを保持した状態で、所有者・クールダウン・優先待ちを確認し、2台をペアでアトミックに割り当て",
-          "各ドングルにバイナリmin-heapを持たせ、FIFOは到着順、EDFはバーンアウト期限→到着順→Coder IDで優先度を決定",
-          "Coderの状態、停止フラグ、完了数、ログを別々のmutexで保護し、監視スレッドが全員完了とバーンアウトを判定"
+        "caseStudies": [
+          {
+            "title": "2台のドングル取得時のデッドロックを防止",
+            "challenge": "各Coderは左右のドングル2台を取得する必要がある。複数のCoderがそれぞれ片方を取得したまま、もう片方の解放を待つと、互いに処理を進められない循環待ちが発生する。",
+            "solution": "取得対象のドングルをID順に並べ、すべてのスレッドが小さいIDから大きいIDの順にmutexを取得。ロックの順序を統一して循環待ちを防止。2台をロックした状態で、空き状況、クールダウン、待機順序を確認し、条件を満たす場合だけ同じCoderへまとめて割り当て。"
+          },
+          {
+            "title": "競合時の取得順序をFIFO・EDFで制御",
+            "challenge": "同じドングルを複数のCoderが待つ場合、スレッドの実行タイミングだけに任せると取得順序が不安定になり、特定のCoderが繰り返し取得できない可能性がある。",
+            "solution": "各ドングルに待機要求を管理する優先度付きキューを実装。FIFOでは到着順、EDFではタイムアウトまでの期限が近い順に並べ、同順位の場合は到着順とCoder IDで順序を確定。バイナリmin-heapにより、要求の追加と取り出しをO(log n)で処理。"
+          },
+          {
+            "title": "共有状態ごとにmutexの責務を分離",
+            "challenge": "コンパイル回数、最終コンパイル時刻、終了状態、完了人数、ログを複数のスレッドが同時に読み書きするため、更新の競合やログの混在が発生する可能性がある。",
+            "solution": "ドングルの所有状態、Coderの進捗、シミュレーションの停止状態、完了人数、ログ出力を、それぞれ個別のmutexで保護。すべてを1つのロックで制御せず、データの責務ごとにロックを分けて、安全な状態更新とログの直列化を実現。"
+          },
+          {
+            "title": "完了とタイムアウトを監視スレッドで判定",
+            "challenge": "各Coderは自身の処理を実行しているため、全員が目標回数へ到達したか、一定時間コンパイルできていないCoderがいるかを、シミュレーション全体で判定する必要がある。",
+            "solution": "Coderとは別に監視スレッドを用意し、全員の完了と各Coderの最終コンパイル時刻を定期的に確認。終了条件を満たした場合はmutexで保護された停止フラグを更新し、各Coderの待機処理も停止状態を確認して終了する構成。"
+          }
         ],
         "verification": [
-          "ブラックボックステストで、不正引数、1人時のバーンアウト、FIFO/EDFの完了数、1回のコンパイルごと2回の取得ログを検証",
+          "ブラックボックステストで、不正引数、1人時のタイムアウト、FIFO・EDFの完了数、1回のコンパイルごと2回の取得ログを検証",
           "ログのタイムスタンプが単調非減少であることと出力形式を確認。収録動画では5人全員が目標4回へ段階的に到達",
           "-Wall -Wextra -Werror -pthreadでビルド"
         ],
@@ -194,13 +209,29 @@ const PROJECTS: PortfolioProject[] = [
         ]
       },
       "en": {
-        "challenge": "Allocate two shared dongles per compile fairly while avoiding deadlock and starvation across concurrent workers.",
-        "design": [
-          "Used a consistent mutex acquisition order to prevent circular wait",
-          "Managed FIFO/EDF waiting order with a min-heap",
-          "Modelled WAITING, COMPILING, DEBUGGING, REFACTORING and COMPLETE explicitly"
+        "caseStudies": [
+          {
+            "title": "Prevent deadlock while acquiring two dongles",
+            "challenge": "Every coder needs both adjacent dongles. If multiple coders each hold one dongle while waiting for the other, they can enter a circular wait and stop making progress.",
+            "solution": "Dongles are sorted by ID and every thread locks the lower ID before the higher ID. With both mutexes held, the implementation checks availability, cooldown and waiting priority, then assigns the pair to one coder only when all conditions pass."
+          },
+          {
+            "title": "Control acquisition order with FIFO and EDF",
+            "challenge": "When multiple coders wait for the same dongle, leaving acquisition order to thread timing alone makes results unstable and can repeatedly disadvantage one coder.",
+            "solution": "Each dongle owns a priority queue. FIFO orders requests by arrival; EDF first uses the timeout deadline, then arrival order and coder ID as tie-breakers. A binary min-heap provides O(log n) insertion and removal."
+          },
+          {
+            "title": "Separate mutex responsibility by shared state",
+            "challenge": "Compile counts, last-compile times, stop state, completion count and logs are read and written by multiple threads, creating risks of data races and interleaved output.",
+            "solution": "Separate mutexes protect dongle ownership, coder progress, simulation stop state, completion count and log output. Dividing locks by responsibility keeps state updates safe and serializes each log line without one global lock."
+          },
+          {
+            "title": "Detect completion and timeout in a monitor thread",
+            "challenge": "Individual coder threads cannot alone determine whether everyone has finished or whether another coder has exceeded its allowed time without compiling.",
+            "solution": "A dedicated monitor thread checks the total completion count and each coder's last compile time. When a stopping condition is met, it updates a mutex-protected stop flag that coder loops and waits also observe."
+          }
         ],
-        "verification": ["Black-box tests cover invalid arguments, burnout, FIFO/EDF completion, two acquisitions per compile, and monotonic log timestamps.", "The recorded simulation shows five workers progressively reaching the target without deadlock."],
+        "verification": ["Black-box tests cover invalid arguments, single-coder timeout, FIFO/EDF completion counts, two dongle acquisitions per compile, and monotonic log timestamps.", "The recorded simulation shows five workers progressively reaching the target without deadlock.", "The project builds with -Wall -Wextra -Werror -pthread."],
         "limitations": ["Per-dongle FIFO/EDF priority is not a formal starvation-freedom proof for every timing configuration.", "Polling and gettimeofday make timing dependent on the OS scheduler and timer resolution."]
       }
     }
@@ -914,6 +945,21 @@ function ProjectTechnicalDetailsPanel({ project, language }: {
             ))}
           </ul>
         </section>
+
+        {details.limitations && details.limitations.length > 0 && (
+          <section className="overflow-hidden rounded-lg border border-[var(--color-splitter)] bg-[var(--color-bg)]">
+            <h3 className="border-b border-[var(--color-splitter)] bg-[var(--color-accent-secondary-soft)] px-4 py-3 text-sm font-bold sm:px-5">
+              {language === 'ja' ? '設計上の制約' : 'Design boundaries'}
+            </h3>
+            <ul className="px-4 py-2 text-[var(--color-text-muted)] sm:px-5">
+              {details.limitations.map((item) => (
+                <li key={item} className="border-b border-[var(--color-splitter)] py-3 last:border-b-0">
+                  <span className="block border-l-2 border-[var(--color-accent-secondary)] pl-3 leading-7">{item}</span>
+                </li>
+              ))}
+            </ul>
+          </section>
+        )}
       </div>
     );
   }
