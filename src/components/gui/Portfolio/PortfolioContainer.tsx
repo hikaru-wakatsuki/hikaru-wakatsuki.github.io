@@ -1634,8 +1634,8 @@ function FlyInDecisionDiagram({ kind, language }: { kind: string; language: 'ja'
         </div>
 
         <div className="grid gap-2.5">
-          <div className="grid grid-cols-[3.5rem_minmax(0,1fr)] items-center gap-2">
-            <span className="font-mono text-[9px] font-bold text-[var(--color-text-muted)]">{ja ? '候補 A' : 'Route A'}</span>
+          <div>
+            <p className="mb-1.5 font-mono text-[9px] font-bold text-[var(--color-text-muted)]">{ja ? '候補 A' : 'Route A'}</p>
             <div className="flex min-w-0 items-center gap-1.5 sm:gap-2">
               <div className={`${routeNodeClass} w-16 shrink-0 border-[var(--color-splitter)] bg-[var(--color-bg)] text-[var(--color-text)]`}>
                 <p className="text-[10px] font-bold">Start</p>
@@ -1658,8 +1658,8 @@ function FlyInDecisionDiagram({ kind, language }: { kind: string; language: 'ja'
             </div>
           </div>
 
-          <div className="grid grid-cols-[3.5rem_minmax(0,1fr)] items-center gap-2">
-            <span className="font-mono text-[9px] font-bold text-[var(--color-cli-text)]">{ja ? '候補 B' : 'Route B'}</span>
+          <div>
+            <p className="mb-1.5 font-mono text-[9px] font-bold text-[var(--color-cli-text)]">{ja ? '候補 B' : 'Route B'}</p>
             <div className="flex min-w-0 items-center gap-1 sm:gap-1.5">
               {[
                 ['Start', '0'],
