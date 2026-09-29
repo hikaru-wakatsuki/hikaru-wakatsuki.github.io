@@ -180,7 +180,7 @@ const PROJECTS: PortfolioProject[] = [
           {
             "title": "2台のドングル取得時のデッドロックを防止",
             "challenge": "各Coderは左右のドングル2台を取得する必要がある。複数のCoderがそれぞれ片方を取得したまま、もう片方の解放を待つと、互いに処理を進められない循環待ちが発生する。",
-            "solution": "取得対象のドングルをID順に並べ、すべてのスレッドが小さいIDから大きいIDの順にmutexを取得。ロックの順序を統一して循環待ちを防止。2台をロックした状態で、空き状況、クールダウン、待機順序を確認し、条件を満たす場合だけ同じCoderへまとめて割り当て。",
+            "solution": "各Coderスレッドは、自身の左右にある2台のドングルをID順に並べ、小さいIDから大きいIDの順にmutexを取得。全員のロック順序を統一して循環待ちを防止。2台をロックした状態で、空き状況、クールダウン、待機順序を確認し、条件を満たす場合だけ同じCoderへまとめて割り当て。",
             "challengeDiagram": "codexion-circular-wait",
             "solutionDiagram": "codexion-lock-order"
           },
@@ -215,7 +215,7 @@ const PROJECTS: PortfolioProject[] = [
           {
             "title": "Prevent deadlock while acquiring two dongles",
             "challenge": "Every coder needs both adjacent dongles. If multiple coders each hold one dongle while waiting for the other, they can enter a circular wait and stop making progress.",
-            "solution": "Dongles are sorted by ID and every thread locks the lower ID before the higher ID. With both mutexes held, the implementation checks availability, cooldown and waiting priority, then assigns the pair to one coder only when all conditions pass.",
+            "solution": "Each coder thread sorts its own two adjacent dongles by ID and locks the lower ID before the higher ID. With both mutexes held, the implementation checks availability, cooldown and waiting priority, then assigns the pair to one coder only when all conditions pass.",
             "challengeDiagram": "codexion-circular-wait",
             "solutionDiagram": "codexion-lock-order"
           },
@@ -707,6 +707,18 @@ function CodexionDeadlockDiagram({
   const heldPairs = [[0, 0], [1, 1], [2, 2], [3, 3], [4, 4]];
   const waitingPairs = [[0, 4], [1, 0], [2, 1], [3, 2], [4, 3]];
   const isLockOrder = mode === 'lock-order';
+  const stopBeforeDongle = (coderIndex: number, dongleIndex: number) => {
+    const coder = coders[coderIndex];
+    const dongle = dongles[dongleIndex];
+    const dx = dongle.x - coder.x;
+    const dy = dongle.y - coder.y;
+    const distance = Math.hypot(dx, dy);
+    const endOffset = 18;
+    return {
+      x: dongle.x - (dx / distance) * endOffset,
+      y: dongle.y - (dy / distance) * endOffset,
+    };
+  };
 
   return (
     <svg
@@ -726,8 +738,8 @@ function CodexionDeadlockDiagram({
 
       {isLockOrder ? (
         <>
-          <line x1="180" y1="45" x2="239" y2="69" stroke="#4f8f67" strokeWidth="5" strokeLinecap="round" markerEnd="url(#arrow-lock-order)" />
-          <path d="M 239 69 Q 180 126 121 69" fill="none" stroke="#4f8f67" strokeWidth="5" strokeLinecap="round" markerEnd="url(#arrow-lock-order)" />
+          <line x1="180" y1="45" x2="222" y2="62" stroke="#4f8f67" strokeWidth="5" strokeLinecap="round" markerEnd="url(#arrow-lock-order)" />
+          <path d="M 223 78 Q 180 126 137 78" fill="none" stroke="#4f8f67" strokeWidth="5" strokeLinecap="round" markerEnd="url(#arrow-lock-order)" />
           <circle cx="207" cy="45" r="10" fill="#4f8f67" />
           <text x="207" y="49" textAnchor="middle" fill="#fff" fontSize="10" fontWeight="800">1</text>
           <circle cx="180" cy="115" r="10" fill="#4f8f67" />
@@ -748,17 +760,22 @@ function CodexionDeadlockDiagram({
             />
           ))}
           {waitingPairs.map(([coderIndex, dongleIndex]) => (
-            <line
-              key={`waiting-${coderIndex}`}
-              x1={coders[coderIndex].x}
-              y1={coders[coderIndex].y}
-              x2={dongles[dongleIndex].x}
-              y2={dongles[dongleIndex].y}
-              stroke="#ef6b73"
-              strokeWidth="3"
-              strokeDasharray="6 5"
-              markerEnd="url(#arrow-circular-wait)"
-            />
+            (() => {
+              const end = stopBeforeDongle(coderIndex, dongleIndex);
+              return (
+                <line
+                  key={`waiting-${coderIndex}`}
+                  x1={coders[coderIndex].x}
+                  y1={coders[coderIndex].y}
+                  x2={end.x}
+                  y2={end.y}
+                  stroke="#ef6b73"
+                  strokeWidth="3"
+                  strokeDasharray="6 5"
+                  markerEnd="url(#arrow-circular-wait)"
+                />
+              );
+            })()
           ))}
         </>
       )}
@@ -786,7 +803,7 @@ function CodexionDeadlockDiagram({
         <g>
           <rect x="94" y="145" width="172" height="47" rx="8" fill="var(--color-accent-soft)" stroke="var(--color-accent-border)" />
           <text x="180" y="163" textAnchor="middle" fill="var(--color-text-muted)" fontSize="10" fontWeight="700">
-            {language === 'ja' ? '全スレッドで取得順序を統一' : 'Same order for every thread'}
+            {language === 'ja' ? '各Coderが左右2台をID順に取得' : 'Each coder locks its pair by ID'}
           </text>
           <text x="180" y="182" textAnchor="middle" fill="var(--color-text)" fontSize="13" fontWeight="800" fontFamily="ui-monospace, monospace">D1 → D5</text>
         </g>
