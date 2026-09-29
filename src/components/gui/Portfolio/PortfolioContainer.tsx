@@ -1639,15 +1639,21 @@ function FlyInDecisionDiagram({ kind, language }: { kind: string; language: 'ja'
             <div className="flex min-w-0 items-center gap-1.5 sm:gap-2">
               <div className={`${routeNodeClass} w-16 shrink-0 border-[var(--color-splitter)] bg-[var(--color-bg)] text-[var(--color-text)]`}>
                 <p className="text-[10px] font-bold">Start</p>
-                <p className="mt-0.5 text-[9px] opacity-65">cost 0</p>
+                <p className="mt-0.5 text-[9px] opacity-65">0</p>
               </div>
               <span aria-hidden="true" className="shrink-0 text-center font-bold text-[var(--color-text-muted)]">→</span>
               <div className={`${routeNodeClass} min-w-0 flex-1 border-[#d6a84f] bg-[#d6a84f]/10 text-[var(--color-text)]`}>
                 <p className="text-[10px] font-bold">Restricted</p>
-                <p className="mt-0.5 text-[9px] opacity-65">capacity 1 / cost 7</p>
+                <p className="mt-0.5 text-[9px] opacity-65">+7</p>
               </div>
-              <span className="w-12 shrink-0 rounded-full border border-[#d6a84f] px-1.5 py-1 text-center font-mono text-[9px] text-[var(--color-text-muted)]">
-                {ja ? '保留' : 'hold'}
+              <span aria-hidden="true" className="shrink-0 text-center font-bold text-[var(--color-text-muted)]">→</span>
+              <div className={`${routeNodeClass} min-w-0 flex-1 border-[var(--color-splitter)] bg-[var(--color-bg)] text-[var(--color-text)]`}>
+                <p className="text-[10px] font-bold">Goal</p>
+                <p className="mt-0.5 text-[9px] opacity-65">+1</p>
+              </div>
+              <span className="w-16 shrink-0 rounded-md border border-[#d6a84f] bg-[#d6a84f]/10 px-1.5 py-1 text-center font-mono text-[9px] text-[var(--color-text)]">
+                <strong className="block">{ja ? '合計 8' : 'total 8'}</strong>
+                <span className="opacity-65">{ja ? '保留' : 'hold'}</span>
               </span>
             </div>
           </div>
@@ -1656,10 +1662,10 @@ function FlyInDecisionDiagram({ kind, language }: { kind: string; language: 'ja'
             <span className="font-mono text-[9px] font-bold text-[var(--color-cli-text)]">{ja ? '候補 B' : 'Route B'}</span>
             <div className="flex min-w-0 items-center gap-1 sm:gap-1.5">
               {[
-                ['Start', 'cost 0'],
-                ['Normal', 'cost 1'],
-                ['Normal', 'cost 2'],
-                ['Goal', 'cost 3'],
+                ['Start', '0'],
+                ['Normal', '+1'],
+                ['Normal', '+1'],
+                ['Goal', '+1'],
               ].map(([label, cost], routeIndex) => (
                 <Fragment key={`${label}-${cost}`}>
                   <div className={`${routeNodeClass} min-w-0 flex-1 ${routeIndex === 0 ? 'border-[var(--color-splitter)] bg-[var(--color-bg)]' : 'border-[#4f8f67] bg-[#4f8f67]/10'} text-[var(--color-text)]`}>
@@ -1671,8 +1677,9 @@ function FlyInDecisionDiagram({ kind, language }: { kind: string; language: 'ja'
                   )}
                 </Fragment>
               ))}
-              <span className="w-12 shrink-0 rounded-full border border-[#4f8f67] bg-[#4f8f67]/10 px-1.5 py-1 text-center font-mono text-[9px] font-bold text-[var(--color-cli-text)]">
-                {ja ? '選択' : 'select'}
+              <span className="w-16 shrink-0 rounded-md border border-[#4f8f67] bg-[#4f8f67]/10 px-1.5 py-1 text-center font-mono text-[9px] text-[var(--color-text)]">
+                <strong className="block text-[var(--color-cli-text)]">{ja ? '合計 3' : 'total 3'}</strong>
+                <span className="opacity-65">{ja ? '選択' : 'select'}</span>
               </span>
             </div>
           </div>
@@ -1680,13 +1687,9 @@ function FlyInDecisionDiagram({ kind, language }: { kind: string; language: 'ja'
 
         <p className="mt-3 border-t border-[var(--color-splitter)] pt-2.5 text-center text-[10px] leading-5 text-[var(--color-text-muted)]">
           {ja
-            ? '累積コストが小さいZoneから確定し、Goalまでの初期経路を復元'
-            : 'Confirm the Zone with the lowest accumulated cost first, then restore the initial route to Goal'}
+            ? '各Zoneのコストを加算し、合計が小さい経路を初期経路として選択'
+            : 'Add each Zone cost and choose the route with the lower total as the initial route'}
         </p>
-        <div className="mt-2 border-t border-[var(--color-splitter)] pt-2.5">
-          <p className="text-[9px] font-bold uppercase tracking-wider text-[var(--color-text-muted)]">{ja ? '参照コード' : 'Code reference'}</p>
-          <code className="mt-1 block overflow-x-auto whitespace-nowrap font-mono text-[9px] leading-4 text-[var(--color-cli-text)]">path_finding.py&nbsp; get_cost() &rarr; find_shortest_path()</code>
-        </div>
       </div>
     );
   }
@@ -1707,7 +1710,6 @@ function FlyInDecisionDiagram({ kind, language }: { kind: string; language: 'ja'
         { label: 'D2', detail: '1 + 1 ≥ 2', tone: 'warning' },
         { label: ja ? 'このターンは待機' : 'Wait this turn', tone: 'accent' },
       ],
-      code: 'drones_scheduler.py  can_move()  /  SimulationState.next_zone_reservation',
     },
     'flyin-instant-restricted': {
       nodes: [
@@ -1724,7 +1726,6 @@ function FlyInDecisionDiagram({ kind, language }: { kind: string; language: 'ja'
         { label: 'Turn N + 1', detail: ja ? '通路と予約を解放' : 'release link and reservation', tone: 'accent' },
         { label: 'Restricted', detail: ja ? '進入完了' : 'arrival complete', tone: 'accent' },
       ],
-      code: 'drones_scheduler.py  enter_link()  →  DroneState.in_transit  →  leave_link()',
     },
     'flyin-blocked-route': {
       nodes: [
@@ -1741,7 +1742,6 @@ function FlyInDecisionDiagram({ kind, language }: { kind: string; language: 'ja'
         { label: 'recompute_path()', detail: ja ? '現在地から再探索' : 'search again from current zone', tone: 'accent' },
         { label: ja ? '新経路を再判定' : 'Check the new route', detail: ja ? '進めなければ待機' : 'wait if still blocked', tone: 'accent' },
       ],
-      code: 'drones_scheduler.py  run_turn()  →  recompute_path()  →  find_shortest_path(..., penalties)',
     },
   };
   const config = diagrams[kind];
