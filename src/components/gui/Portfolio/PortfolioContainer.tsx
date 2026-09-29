@@ -319,9 +319,7 @@ const PROJECTS: PortfolioProject[] = [
                 "title": "実際に移動可能な地図か確認",
                 "text": "検証済みモデルから双方向の隣接リストを構築し、Blocked Zoneにつながる通路を除外。DFSでStartからGoalへ到達できる場合だけシミュレーションを開始した。"
               }
-            ],
-            "challengeDiagram": "flyin-invalid-input",
-            "solutionDiagram": "flyin-validation"
+            ]
           },
           {
             "title": "Zoneの特性と容量を経路選択へ反映",
@@ -385,9 +383,7 @@ const PROJECTS: PortfolioProject[] = [
                 "title": "Confirm that the map is executable",
                 "text": "The program builds an undirected adjacency list, excludes links touching blocked zones and runs DFS from Start to Goal before simulation begins."
               }
-            ],
-            "challengeDiagram": "flyin-invalid-input",
-            "solutionDiagram": "flyin-validation"
+            ]
           },
           {
             "title": "Include zone behavior and capacity in route selection",
@@ -1627,77 +1623,6 @@ function FlyInDecisionDiagram({ kind, language }: { kind: string; language: 'ja'
   type DiagramNode = { label: string; detail?: string; tone?: 'danger' | 'warning' | 'accent' | 'muted' };
   type DiagramConfig = { nodes: DiagramNode[]; code?: string; note?: string };
   const ja = language === 'ja';
-
-  if (kind === 'flyin-invalid-input') {
-    const issues = ja
-      ? [
-          { title: '入力行の誤り', examples: ['座標・容量の型', '不明なメタデータ', '必須項目の不足'] },
-          { title: '地図全体の矛盾', examples: ['Zone名・座標の重複', '存在しない接続先', '同じ通路の重複'] },
-          { title: '実行できない地図', examples: ['BlockedのStart / Goal', 'StartからGoalへ到達不能'] },
-        ]
-      : [
-          { title: 'Invalid input line', examples: ['coordinate / capacity type', 'unknown metadata', 'missing required field'] },
-          { title: 'Whole-map conflict', examples: ['duplicate zone / coordinate', 'unknown endpoint', 'duplicate connection'] },
-          { title: 'Unusable map', examples: ['blocked Start / Goal', 'Goal is unreachable'] },
-        ];
-    return (
-      <div role="img" aria-label={ja ? '入力行の誤り、地図全体の矛盾、到達不能な地図が処理途中の失敗につながる図' : 'Input, map and reachability failures surfacing during scheduling'} className="mt-4 overflow-hidden rounded-md border border-[var(--color-splitter)] bg-[var(--color-cli-bg)] p-3">
-        <div className="grid gap-2 sm:grid-cols-3">
-          {issues.map((issue) => (
-            <section key={issue.title} className="rounded-md border border-[#d6a84f] bg-[#d6a84f]/10 p-3">
-              <h5 className="text-[11px] font-bold text-[var(--color-text)]">{issue.title}</h5>
-              <ul className="mt-2 grid gap-1 text-[9px] leading-4 text-[var(--color-text-muted)]">
-                {issue.examples.map((example) => <li key={example}>• {example}</li>)}
-              </ul>
-            </section>
-          ))}
-        </div>
-        <div className="my-2 text-center font-bold text-[var(--color-text-muted)]" aria-hidden="true">↓</div>
-        <div className="rounded-md border border-[#ef6b73] bg-[#ef6b73]/10 px-3 py-2.5 text-center">
-          <p className="text-[11px] font-bold text-[#ef6b73]">{ja ? '移動処理の途中で失敗' : 'Failure during movement'}</p>
-          <p className="mt-1 text-[9px] text-[var(--color-text-muted)]">{ja ? '入力のどこが原因か追いにくい' : 'The responsible input is difficult to locate'}</p>
-        </div>
-      </div>
-    );
-  }
-
-  if (kind === 'flyin-validation') {
-    const stages = ja
-      ? [
-          { title: '入力行を解析', detail: '書式・型・メタデータを確認', code: 'parse_lines()' },
-          { title: '役割ごとにモデル化', detail: 'Zone / Connection / DronesNetwork', code: 'Pydantic BaseModel' },
-          { title: '地図全体を検証', detail: '重複・接続先・Start / Goalを確認', code: 'drones_network_check()' },
-          { title: '移動可能性を検証', detail: 'Blockedを除外し、DFSでStart → Goalを確認', code: 'create_graph() → check_graph()' },
-        ]
-      : [
-          { title: 'Parse each input line', detail: 'check format, types and metadata', code: 'parse_lines()' },
-          { title: 'Create role-specific models', detail: 'Zone / Connection / DronesNetwork', code: 'Pydantic BaseModel' },
-          { title: 'Validate the whole map', detail: 'check duplicates, endpoints and Start / Goal', code: 'drones_network_check()' },
-          { title: 'Validate movement feasibility', detail: 'exclude Blocked and run DFS from Start to Goal', code: 'create_graph() → check_graph()' },
-        ];
-    return (
-      <div role="img" aria-label={ja ? '入力解析から到達可能性確認まで4段階で検証する流れ' : 'Four validation stages from parsing to reachability'} className="mt-4 overflow-hidden rounded-md border border-[var(--color-splitter)] bg-[var(--color-cli-bg)] p-3">
-        <ol className="grid gap-2">
-          {stages.map((stage, index) => (
-            <Fragment key={stage.title}>
-              <li className="grid grid-cols-[1.5rem_minmax(0,1fr)] gap-2 rounded-md border border-[#4f8f67] bg-[#4f8f67]/10 p-2.5">
-                <span className="flex h-6 w-6 items-center justify-center rounded-full bg-[#4f8f67] font-mono text-[10px] font-bold text-white">{index + 1}</span>
-                <div className="min-w-0">
-                  <p className="text-[11px] font-bold text-[var(--color-text)]">{stage.title}</p>
-                  <p className="mt-0.5 text-[9px] leading-4 text-[var(--color-text-muted)]">{stage.detail}</p>
-                  <code className="mt-1 block overflow-x-auto whitespace-nowrap font-mono text-[9px] leading-4 text-[var(--color-cli-text)]">{stage.code}</code>
-                </div>
-              </li>
-              {index < stages.length - 1 && <li aria-hidden="true" className="text-center font-bold text-[#4f8f67]">↓</li>}
-            </Fragment>
-          ))}
-        </ol>
-        <div className="mt-2 rounded-md border border-[var(--color-cli-text)] bg-[var(--color-cli-text)] px-3 py-2 text-center text-[10px] font-bold text-[var(--color-cli-bg)]">
-          {ja ? 'すべて通過した地図だけシミュレーションを開始' : 'Start simulation only after every stage passes'}
-        </div>
-      </div>
-    );
-  }
 
   const diagrams: Record<string, DiagramConfig> = {
     'flyin-hop-only': {
