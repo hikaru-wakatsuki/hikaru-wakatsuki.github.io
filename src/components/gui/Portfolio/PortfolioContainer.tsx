@@ -1,4 +1,4 @@
-import { useRef, useCallback, useEffect, useId, useState } from 'react';
+import { Fragment, useRef, useCallback, useEffect, useId, useState } from 'react';
 import type { PortfolioProject, ProjectTechnicalCaseStudy } from '../../../types/portfolio';
 import { useAppState } from '../../../context/AppStateContext';
 
@@ -301,27 +301,37 @@ const PROJECTS: PortfolioProject[] = [
           {
             "title": "不正な地図をシミュレーション開始前に排除",
             "challenge": "テキスト形式の地図には、不正なメタデータ、重複するZone名や座標、存在しない接続先、容量の不整合、到達不能な経路が含まれる可能性がある。処理途中で発覚すると、原因の特定が難しくなる。",
-            "solution": "Zone・Connection・DronesNetworkをPydanticモデルとして定義し、項目単位とネットワーク全体の制約を段階的に検証。Blockedを含むConnectionを除外して隣接リストを構築し、DFSでStartからGoalへの到達可能性まで確認してからシミュレーションを開始。"
+            "solution": "Zone・Connection・DronesNetworkをPydanticモデルとして定義し、項目単位とネットワーク全体の制約を段階的に検証。Blockedを含むConnectionを除外して隣接リストを構築し、DFSでStartからGoalへの到達可能性まで確認してからシミュレーションを開始。",
+            "challengeDiagram": "flyin-invalid-input",
+            "solutionDiagram": "flyin-validation"
           },
           {
             "title": "Zoneの特性と容量を経路選択へ反映",
             "challenge": "移動回数だけで経路を選ぶと、進入に時間がかかるRestrictedや、混雑しやすい低容量のZoneを通る経路が選ばれる。Priorityは最短距離を崩さず、同コストの場合だけ優先する必要がある。",
-            "solution": "隣接リスト上でDijkstra型探索を実装。基本コストにRestrictedとZone容量に応じたコストを加え、同じ暫定距離ではPriority Zoneを先に確定。距離・Zone特性・容量を一つの比較基準へまとめて経路を選択。"
+            "solution": "隣接リスト上でDijkstra型探索を実装。基本コストにRestrictedとZone容量に応じたコストを加え、同じ暫定距離ではPriority Zoneを先に確定。距離・Zone特性・容量を一つの比較基準へまとめて経路を選択。",
+            "challengeDiagram": "flyin-hop-only",
+            "solutionDiagram": "flyin-weighted-route"
           },
           {
             "title": "次ターンの予約を含めて容量超過を防止",
             "challenge": "複数のDroneが同じターンに同じZoneやConnectionへ進もうとすると、現在の占有数だけでは、移動中のDroneが次に入るZoneの容量を超える可能性がある。",
-            "solution": "現在のZone占有数、Connection使用数、次ターンにZoneへ入るDroneの予約数を分けて管理。Droneをターン内で順番に判定し、現在数と予約数の合計がZone容量未満か、Connectionに空きがある場合だけ移動を確定。"
+            "solution": "現在のZone占有数、Connection使用数、次ターンにZoneへ入るDroneの予約数を分けて管理。Droneをターン内で順番に判定し、現在数と予約数の合計がZone容量未満か、Connectionに空きがある場合だけ移動を確定。",
+            "challengeDiagram": "flyin-capacity-race",
+            "solutionDiagram": "flyin-reservation"
           },
           {
             "title": "Restrictedへの移動を2ターンの状態遷移で管理",
             "challenge": "Restrictedへの進入には2ターン必要なため、通常のZoneと同じ1回の位置更新では、移動中のConnection占有と到着先の予約を表現できない。",
-            "solution": "Droneにin_transitとtransit_toを持たせ、1ターン目に出発Zoneを離れてConnectionを占有し、到着先を予約。次のターンにConnectionと予約を解放してRestrictedへ進入する2段階の状態遷移として実装。"
+            "solution": "Droneにin_transitとtransit_toを持たせ、1ターン目に出発Zoneを離れてConnectionを占有し、到着先を予約。次のターンにConnectionと予約を解放してRestrictedへ進入する2段階の状態遷移として実装。",
+            "challengeDiagram": "flyin-instant-restricted",
+            "solutionDiagram": "flyin-two-turn"
           },
           {
             "title": "混雑時に現在地から経路を再計算",
             "challenge": "開始時に選んだ経路が、ほかのDroneの移動によって利用できなくなる場合がある。初期経路だけを待ち続けると、利用可能な迂回路があっても進めない。",
-            "solution": "予定した次の移動ができない場合、使用中のConnectionと占有中のZoneをペナルティとして現在地からGoalまで一度再探索。再計算した最初の移動にも同じ容量判定を適用し、利用できなければそのターンは待機。"
+            "solution": "予定した次の移動ができない場合、使用中のConnectionと占有中のZoneをペナルティとして現在地からGoalまで一度再探索。再計算した最初の移動にも同じ容量判定を適用し、利用できなければそのターンは待機。",
+            "challengeDiagram": "flyin-blocked-route",
+            "solutionDiagram": "flyin-reroute"
           }
         ],
         "verification": [
@@ -339,27 +349,37 @@ const PROJECTS: PortfolioProject[] = [
           {
             "title": "Reject invalid maps before simulation",
             "challenge": "Text input may contain malformed metadata, duplicate zone names or coordinates, unknown endpoints, invalid capacities or an unreachable goal. Discovering these failures during scheduling would obscure their cause.",
-            "solution": "Pydantic models validate Zone, Connection and DronesNetwork constraints in stages. Graph construction removes links touching blocked zones, then a DFS reachability check confirms a path from Start to Goal before simulation begins."
+            "solution": "Pydantic models validate Zone, Connection and DronesNetwork constraints in stages. Graph construction removes links touching blocked zones, then a DFS reachability check confirms a path from Start to Goal before simulation begins.",
+            "challengeDiagram": "flyin-invalid-input",
+            "solutionDiagram": "flyin-validation"
           },
           {
             "title": "Include zone behavior and capacity in route selection",
             "challenge": "A route based only on hop count can favor restricted or low-capacity zones. Priority zones should win ties without overriding a shorter route.",
-            "solution": "A Dijkstra-style search adds costs for restricted and low-capacity zones. When tentative distances are equal, a priority zone is selected first, combining distance, zone behavior and capacity in one route decision."
+            "solution": "A Dijkstra-style search adds costs for restricted and low-capacity zones. When tentative distances are equal, a priority zone is selected first, combining distance, zone behavior and capacity in one route decision.",
+            "challengeDiagram": "flyin-hop-only",
+            "solutionDiagram": "flyin-weighted-route"
           },
           {
             "title": "Prevent over-capacity moves with next-turn reservations",
             "challenge": "Several drones may target the same zone or connection in one turn. Current occupancy alone cannot account for drones already in transit to that zone.",
-            "solution": "The scheduler tracks current zone occupancy, connection usage and next-turn reservations separately. It evaluates drones sequentially and commits a move only when current occupancy plus reservations and link usage remain within capacity."
+            "solution": "The scheduler tracks current zone occupancy, connection usage and next-turn reservations separately. It evaluates drones sequentially and commits a move only when current occupancy plus reservations and link usage remain within capacity.",
+            "challengeDiagram": "flyin-capacity-race",
+            "solutionDiagram": "flyin-reservation"
           },
           {
             "title": "Model restricted entry as a two-turn transition",
             "challenge": "Entering a restricted zone takes two turns, so a single position update cannot represent an occupied connection and a reserved destination.",
-            "solution": "Each drone stores in_transit and transit_to. On the first turn it leaves the source, occupies the connection and reserves the destination; on the next turn it releases both and enters the restricted zone."
+            "solution": "Each drone stores in_transit and transit_to. On the first turn it leaves the source, occupies the connection and reserves the destination; on the next turn it releases both and enters the restricted zone.",
+            "challengeDiagram": "flyin-instant-restricted",
+            "solutionDiagram": "flyin-two-turn"
           },
           {
             "title": "Recalculate a route when congestion blocks the next move",
             "challenge": "A route selected at startup can become unavailable as other drones move. Waiting on that route can ignore an available detour.",
-            "solution": "When the next move is blocked, the scheduler adds penalties for occupied links and zones and recalculates once from the current position. The new first move passes through the same capacity checks; otherwise the drone waits for that turn."
+            "solution": "When the next move is blocked, the scheduler adds penalties for occupied links and zones and recalculates once from the current position. The new first move passes through the same capacity checks; otherwise the drone waits for that turn.",
+            "challengeDiagram": "flyin-blocked-route",
+            "solutionDiagram": "flyin-reroute"
           }
         ],
         "verification": ["Tests cover parsing, blocked and unreachable graphs, weighted costs, tie-breaking, congestion penalties and restricted transit.", "Integration-style tests serialize multiple drones within zone and link capacities; the recorded run completes with zero violations."],
@@ -1567,6 +1587,130 @@ function TechnicalCaseDiagram({
   );
 }
 
+function FlyInDecisionDiagram({ kind, language }: { kind: string; language: 'ja' | 'en' }) {
+  type DiagramNode = { label: string; detail?: string; tone?: 'danger' | 'warning' | 'accent' | 'muted' };
+  type DiagramConfig = { nodes: DiagramNode[]; code?: string; note?: string };
+  const ja = language === 'ja';
+  const diagrams: Record<string, DiagramConfig> = {
+    'flyin-invalid-input': {
+      nodes: [
+        { label: ja ? '入力ファイル' : 'Input file', detail: ja ? '重複座標・不明な接続先・容量0' : 'duplicate coordinates, unknown endpoint, capacity 0', tone: 'warning' },
+        { label: ja ? '未検証で実行' : 'Run unvalidated', tone: 'muted' },
+        { label: ja ? '処理途中で失敗' : 'Fail during scheduling', detail: ja ? '原因を追いにくい' : 'hard to trace', tone: 'danger' },
+      ],
+    },
+    'flyin-validation': {
+      nodes: [
+        { label: ja ? 'テキスト解析' : 'Parse text', tone: 'muted' },
+        { label: 'Pydantic', detail: 'Zone / Connection / DronesNetwork', tone: 'accent' },
+        { label: ja ? 'グラフ構築' : 'Build graph', detail: ja ? 'Blockedを除外' : 'exclude Blocked', tone: 'accent' },
+        { label: ja ? '到達確認' : 'Reachability', detail: 'DFS: Start → Goal', tone: 'accent' },
+        { label: ja ? '実行開始' : 'Start simulation', tone: 'accent' },
+      ],
+      code: 'parse_input_file.py  DronesNetwork.model_validator()  →  create_graph.py  check_graph()',
+    },
+    'flyin-hop-only': {
+      nodes: [
+        { label: ja ? '移動回数だけで比較' : 'Compare hops only', tone: 'muted' },
+        { label: ja ? '短い経路' : 'Fewer hops', detail: 'Restricted / max_drones=1', tone: 'warning' },
+        { label: ja ? '待ちやすい経路を選択' : 'Select a likely bottleneck', tone: 'danger' },
+      ],
+    },
+    'flyin-weighted-route': {
+      nodes: [
+        { label: ja ? '基本コスト' : 'Base cost', detail: '+1', tone: 'muted' },
+        { label: 'Restricted', detail: '+1', tone: 'warning' },
+        { label: ja ? '低容量Zone' : 'Low-capacity zone', detail: 'max=2: +2 / max≤1: +5', tone: 'warning' },
+        { label: ja ? '最小コストを選択' : 'Choose lowest cost', detail: ja ? '同値ならPriorityを先に確定' : 'Priority wins equal-distance selection', tone: 'accent' },
+      ],
+      code: 'path_finding.py  get_cost()  →  find_shortest_path()',
+    },
+    'flyin-capacity-race': {
+      nodes: [
+        { label: 'Zone  1 / 2', detail: ja ? '空きは1' : 'one slot open', tone: 'muted' },
+        { label: ja ? 'D1・D2' : 'D1 / D2', detail: ja ? '同じ空きを確認' : 'both see the same slot', tone: 'warning' },
+        { label: ja ? '2台とも移動' : 'Both move', tone: 'warning' },
+        { label: 'Zone  3 / 2', detail: ja ? '上限超過' : 'over capacity', tone: 'danger' },
+      ],
+    },
+    'flyin-reservation': {
+      nodes: [
+        { label: 'occupancy 1 + reserved 0', tone: 'muted' },
+        { label: 'D1', detail: ja ? '移動前にreserved +1' : 'reserve before moving', tone: 'accent' },
+        { label: 'D2', detail: '1 + 1 ≥ 2', tone: 'warning' },
+        { label: ja ? 'このターンは待機' : 'Wait this turn', tone: 'accent' },
+      ],
+      code: 'drones_scheduler.py  can_move()  /  SimulationState.next_zone_reservation',
+    },
+    'flyin-instant-restricted': {
+      nodes: [
+        { label: 'Turn N', detail: 'Zone A', tone: 'muted' },
+        { label: ja ? '1回で位置を更新' : 'One-step position update', tone: 'warning' },
+        { label: 'Restricted', tone: 'warning' },
+        { label: ja ? '移動中と予約を表せない' : 'Transit and reservation disappear', tone: 'danger' },
+      ],
+    },
+    'flyin-two-turn': {
+      nodes: [
+        { label: 'Turn N', detail: ja ? '出発Zoneを離れる' : 'leave source zone', tone: 'muted' },
+        { label: 'in_transit = True', detail: ja ? '通路を使用・到着先を予約' : 'occupy link and reserve destination', tone: 'accent' },
+        { label: 'Turn N + 1', detail: ja ? '通路と予約を解放' : 'release link and reservation', tone: 'accent' },
+        { label: 'Restricted', detail: ja ? '進入完了' : 'arrival complete', tone: 'accent' },
+      ],
+      code: 'drones_scheduler.py  enter_link()  →  DroneState.in_transit  →  leave_link()',
+    },
+    'flyin-blocked-route': {
+      nodes: [
+        { label: ja ? '予定経路 A' : 'Planned route A', tone: 'muted' },
+        { label: ja ? '次の移動先が満員' : 'Next move is full', tone: 'warning' },
+        { label: ja ? 'Aを待ち続ける' : 'Keep waiting for A', tone: 'danger' },
+        { label: ja ? '経路 B は空き' : 'Route B is open', detail: ja ? '利用されない' : 'left unused', tone: 'muted' },
+      ],
+    },
+    'flyin-reroute': {
+      nodes: [
+        { label: 'can_move() = False', tone: 'warning' },
+        { label: ja ? '現在の混雑をコスト化' : 'Convert current traffic to penalties', detail: ja ? '使用中の通路・占有中のZone' : 'used links and occupied zones', tone: 'accent' },
+        { label: 'recompute_path()', detail: ja ? '現在地から再探索' : 'search again from current zone', tone: 'accent' },
+        { label: ja ? '新経路を再判定' : 'Check the new route', detail: ja ? '進めなければ待機' : 'wait if still blocked', tone: 'accent' },
+      ],
+      code: 'drones_scheduler.py  run_turn()  →  recompute_path()  →  find_shortest_path(..., penalties)',
+    },
+  };
+  const config = diagrams[kind];
+  if (!config) return null;
+  const toneClass: Record<NonNullable<DiagramNode['tone']>, string> = {
+    danger: 'border-[#ef6b73] bg-[#ef6b73]/10 text-[#ef6b73]',
+    warning: 'border-[#d6a84f] bg-[#d6a84f]/10 text-[var(--color-text)]',
+    accent: 'border-[#4f8f67] bg-[#4f8f67]/10 text-[var(--color-text)]',
+    muted: 'border-[var(--color-splitter)] bg-[var(--color-bg)] text-[var(--color-text)]',
+  };
+
+  return (
+    <div role="img" aria-label={config.nodes.map((node) => node.label).join(' → ')} className="mt-4 overflow-hidden rounded-md border border-[var(--color-splitter)] bg-[var(--color-cli-bg)] p-3">
+      <div className="flex flex-col items-stretch gap-2 sm:flex-row sm:items-center">
+        {config.nodes.map((node, index) => (
+          <Fragment key={`${kind}-${node.label}`}>
+            <div className={`min-w-0 flex-1 rounded-md border px-2.5 py-2 text-center ${toneClass[node.tone ?? 'muted']}`}>
+              <p className="font-mono text-[10px] font-bold leading-4">{node.label}</p>
+              {node.detail && <p className="mt-1 text-[9px] leading-4 opacity-70">{node.detail}</p>}
+            </div>
+            {index < config.nodes.length - 1 && (
+              <span aria-hidden="true" className="self-center font-bold text-[var(--color-text-muted)] sm:rotate-0 rotate-90">→</span>
+            )}
+          </Fragment>
+        ))}
+      </div>
+      {config.code && (
+        <div className="mt-3 border-t border-[var(--color-splitter)] pt-2.5">
+          <p className="text-[9px] font-bold uppercase tracking-wider text-[var(--color-text-muted)]">{ja ? '参照コード' : 'Code reference'}</p>
+          <code className="mt-1 block overflow-x-auto whitespace-nowrap font-mono text-[9px] leading-4 text-[var(--color-cli-text)]">{config.code}</code>
+        </div>
+      )}
+    </div>
+  );
+}
+
 function ProjectTechnicalDetailsPanel({ project, language }: {
   project: PortfolioProject;
   language: 'ja' | 'en';
@@ -1598,7 +1742,7 @@ function ProjectTechnicalDetailsPanel({ project, language }: {
                 <div className="grid gap-0 lg:grid-cols-2">
                   <div className={[
                     'border-b border-[var(--color-splitter)] px-4 py-4 sm:px-5 lg:border-b-0 lg:border-r',
-                    project.id === 'Codexion' && (index === 0 || index === 3)
+                    (project.id === 'Fly-in' || (project.id === 'Codexion' && (index === 0 || index === 3)))
                       ? 'lg:grid lg:grid-rows-[auto_1fr_auto]'
                       : '',
                   ].join(' ')}>
@@ -1615,10 +1759,13 @@ function ProjectTechnicalDetailsPanel({ project, language }: {
                     {item.challengeDiagram === 'codexion-log-interleaving' && (
                       <CodexionLogDiagram mode="interleaving" language={language} />
                     )}
+                    {item.challengeDiagram?.startsWith('flyin-') && (
+                      <FlyInDecisionDiagram kind={item.challengeDiagram} language={language} />
+                    )}
                   </div>
                   <div className={[
                     'px-4 py-4 sm:px-5',
-                    project.id === 'Codexion' && (index === 0 || index === 3)
+                    (project.id === 'Fly-in' || (project.id === 'Codexion' && (index === 0 || index === 3)))
                       ? 'lg:grid lg:grid-rows-[auto_1fr_auto]'
                       : '',
                   ].join(' ')}>
@@ -1656,6 +1803,9 @@ function ProjectTechnicalDetailsPanel({ project, language }: {
                     )}
                     {item.solutionDiagram === 'codexion-monitor-loop' && (
                       <CodexionMonitorDiagram language={language} />
+                    )}
+                    {item.solutionDiagram?.startsWith('flyin-') && (
+                      <FlyInDecisionDiagram kind={item.solutionDiagram} language={language} />
                     )}
                   </div>
                 </div>
