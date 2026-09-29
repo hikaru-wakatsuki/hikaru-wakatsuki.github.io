@@ -452,55 +452,57 @@ function ProjectVideoGuide({ project, language }: {
         <div id={contentId} className="border-t border-[var(--color-splitter)] px-5 py-4 sm:px-6">
           {project.id === 'Codexion' ? (
             <div className="grid gap-4">
-              <div className="grid gap-3 lg:grid-cols-2">
-                <section className="flex h-full flex-col overflow-hidden rounded-md border border-[var(--color-splitter)] bg-[var(--color-cli-bg)]">
-                  <h4 className="border-b border-[var(--color-splitter)] px-3 py-2 font-mono text-[11px] font-bold text-[var(--color-cli-text)]">Simulation</h4>
-                  <ul className="grid gap-1.5 p-3 font-mono text-[11px] leading-5 opacity-75">
-                    {guide.cues.map((cue) => {
-                      const [label, ...rest] = cue.split(':');
-                      return (
-                        <li key={cue} className="flex justify-between gap-3 border-b border-[var(--color-splitter)] pb-1.5 last:border-b-0 last:pb-0">
-                          <span className="opacity-65">{label}</span>
-                          <span className="text-right font-bold text-[var(--color-text)]">{rest.join(':').trim()}</span>
-                        </li>
-                      );
-                    })}
-                  </ul>
-                </section>
+              <div className="grid gap-3 lg:grid-cols-[0.95fr_1.05fr]">
+                <div className="grid content-start gap-3">
+                  <section className="overflow-hidden rounded-md border border-[var(--color-splitter)] bg-[var(--color-cli-bg)]">
+                    <h4 className="border-b border-[var(--color-splitter)] px-3 py-2 font-mono text-[11px] font-bold text-[var(--color-cli-text)]">Simulation</h4>
+                    <ul className="grid gap-1.5 p-3 font-mono text-[11px] leading-5 opacity-75">
+                      {guide.cues.map((cue) => {
+                        const [label, ...rest] = cue.split(':');
+                        return (
+                          <li key={cue} className="flex justify-between gap-3 border-b border-[var(--color-splitter)] pb-1.5 last:border-b-0 last:pb-0">
+                            <span className="opacity-65">{label}</span>
+                            <span className="text-right font-bold text-[var(--color-text)]">{rest.join(':').trim()}</span>
+                          </li>
+                        );
+                      })}
+                    </ul>
+                  </section>
 
-                <section className="flex h-full flex-col overflow-hidden rounded-md border border-[var(--color-splitter)] bg-[var(--color-cli-bg)]">
-                  <h4 className="border-b border-[var(--color-splitter)] px-3 py-2 font-mono text-[11px] font-bold text-[var(--color-cli-text)]">Status Guide</h4>
-                  <div className="flex flex-1 flex-col justify-center gap-3 p-3 text-[11px]">
-                    <div className="flex flex-wrap items-center gap-1.5">
-                      {status('WAITING')}
-                      <span aria-hidden="true">→</span>
-                      {status('COMPILING')}
-                      <span aria-hidden="true">→</span>
-                      {status('DEBUGGING')}
-                      <span aria-hidden="true">→</span>
-                      {status('REFACTORING')}
-                      <span aria-hidden="true">→</span>
-                      {status('WAITING')}
+                  <section className="overflow-hidden rounded-md border border-[var(--color-splitter)] bg-[var(--color-cli-bg)]">
+                    <h4 className="border-b border-[var(--color-splitter)] px-3 py-2 font-mono text-[11px] font-bold text-[var(--color-cli-text)]">Status Guide</h4>
+                    <div className="grid gap-3 p-3 text-[11px]">
+                      <div className="flex flex-wrap items-center gap-1.5">
+                        {status('WAITING')}
+                        <span aria-hidden="true">→</span>
+                        {status('COMPILING')}
+                        <span aria-hidden="true">→</span>
+                        {status('DEBUGGING')}
+                        <span aria-hidden="true">→</span>
+                        {status('REFACTORING')}
+                        <span aria-hidden="true">→</span>
+                        {status('WAITING')}
+                      </div>
+                      <div className="flex flex-wrap items-center gap-1.5 border-t border-[var(--color-splitter)] pt-3">
+                        {status('COMPILING')}
+                        <span aria-hidden="true">→</span>
+                        <span className="opacity-60">{language === 'ja' ? '目標回数に到達' : 'target reached'}</span>
+                        <span aria-hidden="true">→</span>
+                        {status('COMPLETE')}
+                      </div>
                     </div>
-                    <div className="flex flex-wrap items-center gap-1.5 border-t border-[var(--color-splitter)] pt-3">
-                      {status('COMPILING')}
-                      <span aria-hidden="true">→</span>
-                      <span className="opacity-60">{language === 'ja' ? '目標回数に到達' : 'target reached'}</span>
-                      <span aria-hidden="true">→</span>
-                      {status('COMPLETE')}
-                    </div>
+                  </section>
+                </div>
+
+                <section className="flex flex-col overflow-hidden rounded-md border border-[var(--color-splitter)] bg-[var(--color-cli-bg)]">
+                  <h4 className="border-b border-[var(--color-splitter)] px-3 py-2 font-mono text-[11px] font-bold text-[var(--color-cli-text)]">
+                    {language === 'ja' ? '共有資源の配置' : 'Shared resource layout'}
+                  </h4>
+                  <div className="flex flex-1 items-center justify-center p-2">
+                    <CodexionResourceDiagram language={language} />
                   </div>
                 </section>
               </div>
-
-              <section className="overflow-hidden rounded-md border border-[var(--color-splitter)] bg-[var(--color-cli-bg)]">
-                <h4 className="border-b border-[var(--color-splitter)] px-3 py-2 font-mono text-[11px] font-bold text-[var(--color-cli-text)]">
-                  {language === 'ja' ? '共有資源の配置' : 'Shared resource layout'}
-                </h4>
-                <div className="p-2">
-                  <CodexionResourceDiagram language={language} />
-                </div>
-              </section>
               {guide.overview && <p className="text-xs leading-5 opacity-70">{guide.overview}</p>}
             </div>
           ) : (
@@ -636,10 +638,7 @@ function CodexionResourceDiagram({ language }: { language: 'ja' | 'en' }) {
       <text x="180" y="154" textAnchor="middle" fill="var(--color-text)" fontSize="12" fontWeight="800">
         {language === 'ja' ? '左右のドングル2台が必要' : 'the 2 adjacent dongles'}
       </text>
-      <text x="180" y="170" textAnchor="middle" fill="var(--color-text-muted)" fontSize="9" fontWeight="700">
-        {language === 'ja' ? '（任意の2台ではない）' : '(not any 2 dongles)'}
-      </text>
-      <g transform="translate(126 187)">
+      <g transform="translate(126 174)">
         <circle cx="7" cy="7" r="6" fill="#1f2937" stroke="var(--color-cli-text)" />
         <text x="18" y="10" fill="var(--color-text-muted)" fontSize="9">Coder</text>
         <rect x="61" y="1" width="14" height="12" rx="2" fill="#facc15" stroke="#854d0e" />
