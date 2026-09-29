@@ -1416,7 +1416,12 @@ function ProjectTechnicalDetailsPanel({ project, language }: {
                   <h4 className="pt-0.5 text-sm font-bold sm:text-base">{item.title}</h4>
                 </header>
                 <div className="grid gap-0 lg:grid-cols-2">
-                  <div className="border-b border-[var(--color-splitter)] px-4 py-4 sm:px-5 lg:border-b-0 lg:border-r">
+                  <div className={[
+                    'border-b border-[var(--color-splitter)] px-4 py-4 sm:px-5 lg:border-b-0 lg:border-r',
+                    project.id === 'Codexion' && (index === 0 || index === 3)
+                      ? 'lg:grid lg:grid-rows-[auto_1fr_auto]'
+                      : '',
+                  ].join(' ')}>
                     <p className="font-mono text-[11px] font-bold uppercase tracking-wider text-[var(--color-text-muted)]">
                       {language === 'ja' ? '課題' : 'Challenge'}
                     </p>
@@ -1431,7 +1436,12 @@ function ProjectTechnicalDetailsPanel({ project, language }: {
                       <CodexionLogDiagram mode="interleaving" language={language} />
                     )}
                   </div>
-                  <div className="px-4 py-4 sm:px-5">
+                  <div className={[
+                    'px-4 py-4 sm:px-5',
+                    project.id === 'Codexion' && (index === 0 || index === 3)
+                      ? 'lg:grid lg:grid-rows-[auto_1fr_auto]'
+                      : '',
+                  ].join(' ')}>
                     <p className="font-mono text-[11px] font-bold uppercase tracking-wider text-[var(--color-cli-text)]">
                       {language === 'ja' ? '実装上の工夫' : 'Implementation'}
                     </p>
@@ -1753,8 +1763,17 @@ function ProjectDetailModal({ project, language, onClose }: {
         onClick={(event) => event.stopPropagation()}
       >
         <header className="sticky top-0 z-20 flex items-start justify-between gap-4 border-b border-[var(--color-splitter)] bg-[var(--color-cli-bg)]/95 p-5 backdrop-blur sm:p-6">
-          <div className="min-w-0">
-            <h2 className="text-xl font-bold leading-snug sm:text-3xl">{project.title}</h2>
+          <div className="min-w-0 flex-1">
+            <div className="flex flex-wrap items-center gap-x-3 gap-y-2">
+              <h2 className="text-xl font-bold leading-snug sm:text-3xl">{project.title}</h2>
+              <div className="flex flex-wrap gap-1.5">
+                {project.tags.map((tag) => (
+                  <span key={tag} className="rounded border border-[var(--color-splitter)] px-2 py-0.5 font-mono text-xs opacity-70">
+                    {tag}
+                  </span>
+                ))}
+              </div>
+            </div>
             {project.projectType && (
               <p className="mt-2 font-mono text-xs uppercase tracking-wider opacity-60">{project.projectType[language]}</p>
             )}
@@ -1799,14 +1818,7 @@ function ProjectDetailModal({ project, language, onClose }: {
 
           <ProjectTechnicalDetailsPanel project={project} language={language} />
 
-          <footer className="flex flex-wrap items-center justify-between gap-4 border-t border-[var(--color-splitter)] pt-5">
-            <div className="flex flex-wrap gap-1.5">
-              {project.tags.map((tag) => (
-                <span key={tag} className="rounded border border-[var(--color-splitter)] px-2 py-0.5 font-mono text-xs opacity-70">
-                  {tag}
-                </span>
-              ))}
-            </div>
+          <footer className="flex justify-end border-t border-[var(--color-splitter)] pt-5">
             <a
               href={project.githubUrl}
               target="_blank"
