@@ -25,25 +25,25 @@ const PROJECTS: PortfolioProject[] = [
     },
     "demoGuide": {
       "ja": {
-        "overview": "英語UIに表示される、入力から検証までのFunction Callingパイプラインを順に追えます。",
+        "overview": "自然言語の依頼を受け取り、関数の選択、JSON引数の生成、形式・型の検証を行うまでの処理を確認できます。",
         "cues": [
-          "Available functions：LLMが選択できる関数と、それぞれの引数",
-          "INPUT → FUNCTION → ARGUMENTS → VALIDATION：現在の処理段階",
-          "Function selected：入力内容から選択された関数",
-          "Generated arguments：関数定義に従って生成されるJSON引数",
-          "Schema validation：JSONの形式と引数型の検証結果",
-          "Overall progress：4件の入力に対する処理状況"
+          "Available functions：この実行でLLMが選択できる登録済み関数。関数定義を追加することで候補を拡張可能",
+          "Current request：現在処理しているユーザーの自然言語による依頼と、全4件中の処理位置",
+          "INPUT → FUNCTION → ARGUMENTS → VALIDATION：入力受付、関数選択、引数生成、検証のうち、現在進んでいる処理段階",
+          "Function selected：依頼内容からLLMが選択した関数",
+          "Generated arguments：選択した関数の定義に従って生成されるJSON引数",
+          "Schema validation：生成したJSONの形式と、引数名・引数型の検証結果"
         ]
       },
       "en": {
-        "overview": "Follow the complete function-calling pipeline from a natural-language request to validated output.",
+        "overview": "See how a natural-language request moves through function selection, JSON argument generation, and syntax and type validation.",
         "cues": [
-          "Available functions: functions the LLM can select and their arguments",
-          "INPUT → FUNCTION → ARGUMENTS → VALIDATION: the active pipeline stage",
-          "Function selected: the function chosen from the request",
-          "Generated arguments: JSON arguments generated from the function definition",
-          "Schema validation: JSON syntax and argument-type checks",
-          "Overall progress: processing status across four requests"
+          "Available functions: registered functions the LLM can select; adding definitions extends the candidates",
+          "Current request: the user's natural-language request being processed and its position among four requests",
+          "INPUT → FUNCTION → ARGUMENTS → VALIDATION: the active input, selection, generation, or validation stage",
+          "Function selected: the function the LLM chose from the request",
+          "Generated arguments: JSON arguments generated from the selected function definition",
+          "Schema validation: JSON syntax, argument-name, and argument-type checks"
         ]
       }
     },
