@@ -192,9 +192,10 @@ const PROJECTS: PortfolioProject[] = [
             "solutionDiagram": "codexion-atomic-pair"
           },
           {
-            "title": "競合時の取得順序をFIFO・EDFで制御",
-            "challenge": "同じドングルを複数のCoderが待つ場合、スレッドの実行タイミングだけに任せると取得順序が不安定になり、特定のCoderが繰り返し取得できない可能性がある。",
-            "solution": "各ドングルに待機要求を管理する優先度付きキューを実装。FIFOでは到着順、EDFではタイムアウトまでの期限が近い順に並べ、同順位の場合は到着順とCoder IDで順序を確定。バイナリmin-heapにより、要求の追加と取り出しをO(log n)で処理。"
+            "title": "FIFO・EDFの優先順序をmin-heapで再現",
+            "challenge": "同じDongleを待つ要求について、FIFOでは到着が早いCoder、EDFではタイムアウト期限が近いCoderを先頭に保つ必要がある。要求の追加・取り出し後も、選択した方式の優先順序を維持できるデータ構造が必要だった。",
+            "solution": "各Dongleの待機要求をバイナリmin-heapで管理。FIFOは到着順、EDFは期限を最初に比較し、同順位では到着順とCoder IDで順序を確定。要求追加時はshift-up、先頭取り出し後はshift-downで木を並べ直し、スケジューリング方式と資源取得処理を分離。",
+            "solutionDiagram": "codexion-priority-heap"
           },
           {
             "title": "共有状態ごとにmutexの責務を分離",
@@ -234,9 +235,10 @@ const PROJECTS: PortfolioProject[] = [
             "solutionDiagram": "codexion-atomic-pair"
           },
           {
-            "title": "Control acquisition order with FIFO and EDF",
-            "challenge": "When multiple coders wait for the same dongle, leaving acquisition order to thread timing alone makes results unstable and can repeatedly disadvantage one coder.",
-            "solution": "Each dongle owns a priority queue. FIFO orders requests by arrival; EDF first uses the timeout deadline, then arrival order and coder ID as tie-breakers. A binary min-heap provides O(log n) insertion and removal."
+            "title": "Reproduce FIFO and EDF priority with a min-heap",
+            "challenge": "For requests waiting on the same dongle, FIFO must keep the earliest arrival first while EDF must keep the nearest timeout deadline first. The selected order has to remain valid after every insertion and removal.",
+            "solution": "Each dongle stores requests in a binary min-heap. FIFO compares arrival order; EDF compares the deadline first, then arrival order and coder ID. Insertion restores order with shift-up and removal with shift-down, separating scheduling policy from resource acquisition.",
+            "solutionDiagram": "codexion-priority-heap"
           },
           {
             "title": "Separate mutex responsibility by shared state",
@@ -1025,6 +1027,65 @@ function CodexionAtomicPairDiagram({ language }: { language: 'ja' | 'en' }) {
   );
 }
 
+function CodexionPriorityHeapDiagram({ language }: { language: 'ja' | 'en' }) {
+  const HeapTree = ({ mode }: { mode: 'fifo' | 'edf' }) => {
+    const isFifo = mode === 'fifo';
+    const root = isFifo
+      ? { coder: 'C1', primary: language === 'ja' ? '到着 #1' : 'arrival #1', secondary: 'deadline 900' }
+      : { coder: 'C2', primary: 'deadline 600', secondary: language === 'ja' ? '到着 #2' : 'arrival #2' };
+    const child = isFifo
+      ? { coder: 'C2', primary: language === 'ja' ? '到着 #2' : 'arrival #2', secondary: 'deadline 600' }
+      : { coder: 'C1', primary: 'deadline 900', secondary: language === 'ja' ? '到着 #1' : 'arrival #1' };
+    return (
+      <section className="overflow-hidden rounded-md border border-[var(--color-splitter)] bg-[var(--color-cli-bg)]">
+        <h5 className="border-b border-[var(--color-splitter)] px-3 py-2 text-center text-[11px] font-bold">
+          {mode.toUpperCase()}：{isFifo ? (language === 'ja' ? '到着順を比較' : 'compare arrival') : (language === 'ja' ? '期限を先に比較' : 'compare deadline first')}
+        </h5>
+        <svg viewBox="0 0 220 174" className="h-auto w-full" aria-hidden="true">
+          <line x1="110" y1="66" x2="70" y2="125" stroke="var(--color-splitter)" strokeWidth="2" />
+          <rect x="64" y="24" width="92" height="54" rx="8" fill="var(--color-accent-soft)" stroke="var(--color-cli-text)" strokeWidth="2" />
+          <text x="110" y="43" textAnchor="middle" fill="var(--color-cli-text)" fontSize="10" fontWeight="800">root / next</text>
+          <text x="110" y="59" textAnchor="middle" fill="var(--color-text)" fontSize="12" fontWeight="800" fontFamily="ui-monospace, monospace">{root.coder}</text>
+          <text x="110" y="72" textAnchor="middle" fill="var(--color-text-muted)" fontSize="8.5">{root.primary} · {root.secondary}</text>
+          <rect x="24" y="116" width="92" height="46" rx="8" fill="var(--color-bg)" stroke="var(--color-splitter)" strokeWidth="2" />
+          <text x="70" y="136" textAnchor="middle" fill="var(--color-text)" fontSize="11" fontWeight="800" fontFamily="ui-monospace, monospace">{child.coder}</text>
+          <text x="70" y="151" textAnchor="middle" fill="var(--color-text-muted)" fontSize="8.5">{child.primary} · {child.secondary}</text>
+          <text x="168" y="132" textAnchor="middle" fill="var(--color-text-muted)" fontSize="9" fontWeight="700">
+            {language === 'ja' ? '同じ2件でも' : 'same requests'}
+          </text>
+          <text x="168" y="148" textAnchor="middle" fill="var(--color-cli-text)" fontSize="9" fontWeight="800">
+            {language === 'ja' ? 'rootが変わる' : 'different root'}
+          </text>
+        </svg>
+      </section>
+    );
+  };
+
+  return (
+    <div
+      role="img"
+      aria-label={language === 'ja' ? '同じ待機要求をFIFOでは到着順、EDFでは期限順に並べるバイナリmin-heapの比較' : 'Binary min-heaps ordering the same requests by arrival for FIFO and deadline for EDF'}
+      className="mt-4 grid gap-3"
+    >
+      <div className="grid gap-3 sm:grid-cols-2">
+        <HeapTree mode="fifo" />
+        <HeapTree mode="edf" />
+      </div>
+      <div className="grid gap-2 rounded-md border border-[var(--color-accent-border)] bg-[var(--color-accent-soft)] p-3 font-mono text-[10px] sm:grid-cols-2">
+        <p className="rounded border border-[var(--color-splitter)] bg-[var(--color-bg)] px-3 py-2 text-center">
+          push：{language === 'ja' ? '末尾へ追加' : 'append'} → <strong>shift-up</strong>
+        </p>
+        <p className="rounded border border-[var(--color-splitter)] bg-[var(--color-bg)] px-3 py-2 text-center">
+          pop：{language === 'ja' ? 'rootを取り出す' : 'remove root'} → <strong>shift-down</strong>
+        </p>
+      </div>
+      <p className="text-center text-[10px] leading-5 text-[var(--color-text-muted)]">
+        {language === 'ja' ? '模式例：比較関数を切り替え、同じheap実装でFIFOとEDFを表現' : 'Schematic: one heap implementation supports FIFO and EDF by switching the comparator.'}
+      </p>
+    </div>
+  );
+}
+
 function TechnicalCaseDiagram({
   kind,
   language,
@@ -1278,6 +1339,9 @@ function ProjectTechnicalDetailsPanel({ project, language }: {
                     )}
                     {item.solutionDiagram === 'codexion-atomic-pair' && (
                       <CodexionAtomicPairDiagram language={language} />
+                    )}
+                    {item.solutionDiagram === 'codexion-priority-heap' && (
+                      <CodexionPriorityHeapDiagram language={language} />
                     )}
                   </div>
                 </div>
