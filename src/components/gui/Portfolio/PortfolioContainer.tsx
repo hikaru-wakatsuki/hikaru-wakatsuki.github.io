@@ -50,8 +50,18 @@ const PROJECTS: PortfolioProject[] = [
         "caseStudies": [
           {
             "title": "登録済みの関数だけを確実に選択",
-            "challenge": "LLMに関数名を自由に生成させると、登録されていない関数名や、途中までしか一致しない名前を返す可能性がある。そのままでは後続処理を実行できない。",
-            "solution": "登録済みの関数名を、あらかじめトークンIDの列へ変換。生成済みの文字列と一致する候補だけを残し、次に選択できるトークンを候補内に限定した。関数名の末尾に改行を加え、同じ文字列から始まる関数も最後まで区別できる設計。",
+            "challenge": "LLMに関数名を自由に生成させると、登録されていない関数名や、途中までしか一致しない名前を返す可能性がある。",
+            "solution": "登録済みの候補だけから、共通部分を持つ関数名も最後まで区別して選択する仕組み。",
+            "solutionSteps": [
+              {
+                "title": "候補の制限",
+                "text": "登録済みの関数名を、あらかじめトークンIDの列へ変換。生成済みのID列と一致する候補だけを残し、次に選択できるトークンを候補内に限定。"
+              },
+              {
+                "title": "関数名の終端判定",
+                "text": "各関数名の末尾に改行トークンを追加。途中まで同じ名前でも、改行で短い関数名を確定するか、後続トークンを選んで長い関数名を生成するかを区別。"
+              }
+            ],
             "diagram": "function-selection"
           },
           {
@@ -85,6 +95,16 @@ const PROJECTS: PortfolioProject[] = [
             "title": "Prevent unregistered function names",
             "challenge": "Free-form generation can return an unregistered name or stop at a partial match.",
             "solution": "Registered names are encoded as newline-terminated token-ID sequences. After each generated token, only candidates matching the current prefix remain, and the model can choose only a next token that continues one of them.",
+            "solutionSteps": [
+              {
+                "title": "Constrain candidates",
+                "text": "Encode registered function names as token-ID sequences, keep only candidates matching the generated prefix, and allow only their next token IDs."
+              },
+              {
+                "title": "Detect the name boundary",
+                "text": "Append a newline token to every name so a short name can terminate even when another registered name continues from the same prefix."
+              }
+            ],
             "diagram": "function-selection"
           },
           {
@@ -448,23 +468,62 @@ function TechnicalCaseDiagram({
 
   if (kind === 'function-selection') {
     return (
-      <div role="img" aria-label={language === 'ja' ? '登録済み関数から次のトークンを制約して関数を選ぶ流れ' : 'Function selection constrained to registered token sequences'} className="grid gap-3 sm:grid-cols-[1fr_auto_1fr_auto_1fr] sm:items-center">
-        <div className="grid gap-1.5 rounded-md border border-[var(--color-splitter)] bg-[var(--color-cli-bg)] p-3 font-mono text-[11px] leading-5">
-          <span className="mb-1 font-sans text-xs font-bold text-[var(--color-text)]">{language === 'ja' ? '登録済み候補' : 'Registered candidates'}</span>
-          <span>fn_add_numbers↵</span>
-          <span>fn_greet↵</span>
-          <span className="text-[var(--color-cli-text)]">fn_create_user↵</span>
-        </div>
-        <div className="hidden sm:block"><DiagramArrow /></div>
-        <div className="rounded-md border border-[var(--color-accent-border)] bg-[var(--color-accent-soft)] p-3 text-center">
-          <span className="block text-xs font-bold">{language === 'ja' ? '接頭辞で候補を絞る' : 'Filter by prefix'}</span>
-          <span className="mt-1 block font-mono text-[11px] opacity-70">allowed next token IDs</span>
-        </div>
-        <div className="hidden sm:block"><DiagramArrow /></div>
-        <div className="rounded-md border border-[var(--color-cli-text)] bg-[var(--color-cli-text)] p-3 text-center text-[var(--color-cli-bg)]">
-          <span className="block text-xs font-bold">{language === 'ja' ? '選択結果' : 'Selected'}</span>
-          <span className="mt-1 block font-mono text-[11px]">fn_create_user</span>
-        </div>
+      <div role="img" aria-label={language === 'ja' ? '候補を登録済み関数へ制限し、改行トークンで共通部分を持つ関数名を区別する流れ' : 'Constrain candidates to registered functions and distinguish shared prefixes with a newline token'} className="grid gap-4">
+        <section className="overflow-hidden rounded-md border border-[var(--color-splitter)] bg-[var(--color-cli-bg)]">
+          <header className="flex items-center gap-2 border-b border-[var(--color-splitter)] px-3 py-2.5">
+            <span className="flex h-5 w-5 items-center justify-center rounded-full bg-[var(--color-accent-secondary)] font-mono text-[10px] font-bold text-[var(--color-cli-bg)]">1</span>
+            <span className="text-xs font-bold">{language === 'ja' ? '候補の制限' : 'Constrain candidates'}</span>
+          </header>
+          <div className="grid gap-3 p-3 md:grid-cols-[1fr_auto_1fr_auto_1fr] md:items-center">
+            <div className="grid gap-1.5 rounded border border-[var(--color-splitter)] p-3 font-mono text-[11px] leading-5">
+              <span className="font-sans text-xs font-bold text-[var(--color-text)]">{language === 'ja' ? '登録済み関数' : 'Registered functions'}</span>
+              <span>fn_add_numbers↵</span>
+              <span>fn_greet↵</span>
+              <span className="text-[var(--color-cli-text)]">fn_create↵</span>
+              <span className="text-[var(--color-cli-text)]">fn_create_user↵</span>
+            </div>
+            <div className="hidden md:block"><DiagramArrow /></div>
+            <div className="rounded border border-[var(--color-accent-border)] bg-[var(--color-accent-soft)] p-3 text-center">
+              <span className="block text-xs font-bold">{language === 'ja' ? 'トークンID列へ変換' : 'Encode as token IDs'}</span>
+              <span className="mt-2 block font-mono text-[11px]">[ ID-A ][ ID-B ] … [ ↵ ID ]</span>
+            </div>
+            <div className="hidden md:block"><DiagramArrow /></div>
+            <div className="rounded border border-[var(--color-cli-text)] bg-[var(--color-cli-text)] p-3 text-center text-[var(--color-cli-bg)]">
+              <span className="block text-xs font-bold">{language === 'ja' ? '次のIDを候補内に限定' : 'Allow candidate IDs only'}</span>
+              <span className="mt-2 block text-[11px] opacity-85">{language === 'ja' ? '未登録名につながるIDは選択不可' : 'IDs leading outside the list are blocked'}</span>
+            </div>
+          </div>
+        </section>
+
+        <section className="overflow-hidden rounded-md border border-[var(--color-accent-border)] bg-[var(--color-accent-soft)]">
+          <header className="flex items-center gap-2 border-b border-[var(--color-accent-border)] px-3 py-2.5">
+            <span className="flex h-5 w-5 items-center justify-center rounded-full bg-[var(--color-cli-text)] font-mono text-[10px] font-bold text-[var(--color-cli-bg)]">2</span>
+            <span className="text-xs font-bold">{language === 'ja' ? '関数名の終端判定' : 'Detect the name boundary'}</span>
+          </header>
+          <div className="grid gap-3 p-3 md:grid-cols-[0.8fr_auto_1.5fr_auto_0.8fr] md:items-center">
+            <div className="rounded border border-[var(--color-splitter)] bg-[var(--color-cli-bg)] p-3 text-center">
+              <span className="block text-[11px] opacity-65">{language === 'ja' ? '生成済み' : 'Generated'}</span>
+              <span className="mt-1 block font-mono text-xs font-bold">fn_create</span>
+            </div>
+            <div className="hidden md:block"><DiagramArrow /></div>
+            <div className="grid gap-2 font-mono text-[11px]">
+              <div className="flex items-center justify-between gap-3 rounded border border-[var(--color-splitter)] bg-[var(--color-cli-bg)] px-3 py-2">
+                <span>[ 改行ID ]</span>
+                <span className="text-right">→ fn_create {language === 'ja' ? 'で確定' : 'selected'}</span>
+              </div>
+              <div className="flex items-center justify-between gap-3 rounded border border-[var(--color-cli-text)] bg-[var(--color-bg)] px-3 py-2 font-bold text-[var(--color-cli-text)]">
+                <span>[ _userの後続ID ]</span>
+                <span className="text-right">→ fn_create_user {language === 'ja' ? 'を継続' : 'continues'}</span>
+              </div>
+            </div>
+            <div className="hidden md:block"><DiagramArrow /></div>
+            <div className="rounded border border-[var(--color-cli-text)] bg-[var(--color-cli-text)] p-3 text-center text-[var(--color-cli-bg)]">
+              <span className="block text-[11px] opacity-80">{language === 'ja' ? '選択結果' : 'Selected'}</span>
+              <span className="mt-1 block font-mono text-xs font-bold">fn_create_user↵</span>
+            </div>
+          </div>
+        </section>
+        <p className="font-mono text-[10px] opacity-55">{language === 'ja' ? '※ IDは仕組みを説明するための模式表現' : '* Token IDs are schematic for explanation.'}</p>
       </div>
     );
   }
@@ -565,7 +624,23 @@ function ProjectTechnicalDetailsPanel({ project, language }: {
                     <p className="font-mono text-[11px] font-bold uppercase tracking-wider text-[var(--color-cli-text)]">
                       {language === 'ja' ? '実装上の工夫' : 'Implementation'}
                     </p>
-                    <p className="mt-2 leading-7 text-[var(--color-text-muted)]">{item.solution}</p>
+                    {item.solutionSteps ? (
+                      <ol className="mt-2 grid gap-3">
+                        {item.solutionSteps.map((step, stepIndex) => (
+                          <li key={step.title} className="grid grid-cols-[auto_1fr] gap-2.5">
+                            <span className="mt-0.5 flex h-5 w-5 items-center justify-center rounded-full border border-[var(--color-cli-text)] font-mono text-[10px] font-bold text-[var(--color-cli-text)]">
+                              {stepIndex + 1}
+                            </span>
+                            <div>
+                              <p className="font-bold text-[var(--color-text)]">{step.title}</p>
+                              <p className="mt-1 leading-7 text-[var(--color-text-muted)]">{step.text}</p>
+                            </div>
+                          </li>
+                        ))}
+                      </ol>
+                    ) : (
+                      <p className="mt-2 leading-7 text-[var(--color-text-muted)]">{item.solution}</p>
+                    )}
                   </div>
                 </div>
                 {item.diagram && (

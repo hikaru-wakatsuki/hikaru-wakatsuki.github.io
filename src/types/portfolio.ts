@@ -20,6 +20,10 @@ export interface ProjectTechnicalCaseStudy {
   title: string;
   challenge: string;
   solution: string;
+  solutionSteps?: Array<{
+    title: string;
+    text: string;
+  }>;
   diagram?: 'function-selection' | 'json-generation' | 'recursive-schema' | 'precomputation';
 }
 
