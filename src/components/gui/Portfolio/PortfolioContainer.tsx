@@ -796,14 +796,11 @@ function CodexionDeadlockDiagram({
           </g>
         ))}
 
-        <text x="180" y="130" textAnchor="middle" fill="var(--color-cli-text)" fontSize="10" fontWeight="800">
-          {language === 'ja' ? '全Coderが小さいIDを先に取得' : 'Every coder locks the lower ID first'}
+        <text x="180" y="142" textAnchor="middle" fill="var(--color-text)" fontSize="11" fontWeight="800">
+          {language === 'ja' ? '全Coder：小さいIDから取得' : 'Every coder: lower ID first'}
         </text>
-        <text x="180" y="149" textAnchor="middle" fill="var(--color-text)" fontSize="12" fontWeight="800" fontFamily="ui-monospace, monospace">
-          {language === 'ja' ? 'C5もD5ではなくD1を先に取得' : 'C5 also locks D1 before D5'}
-        </text>
-        <text x="180" y="168" textAnchor="middle" fill="var(--color-text-muted)" fontSize="9.5" fontWeight="700">
-          {language === 'ja' ? 'D5 → D1のロック順序を作らず循環を防止' : 'No D5 → D1 lock order, so no cycle can form'}
+        <text x="180" y="162" textAnchor="middle" fill="var(--color-cli-text)" fontSize="12" fontWeight="800" fontFamily="ui-monospace, monospace">
+          C5：D1 → D5
         </text>
         <g transform="translate(91 270)">
           <line x1="0" y1="0" x2="24" y2="0" stroke="#4f8f67" strokeWidth="2.75" markerEnd="url(#arrow-lock-first)" />
@@ -920,10 +917,7 @@ function CodexionDeadlockDiagram({
 
 function CodexionPartialOwnershipDiagram({ language }: { language: 'ja' | 'en' }) {
   return (
-    <div className="mt-4 overflow-hidden rounded-md border border-[#ef6b73] bg-[var(--color-cli-bg)]">
-      <p className="border-b border-[#ef6b73]/50 px-3 py-2 text-center text-[11px] font-bold text-[#ef6b73]">
-        {language === 'ja' ? '片方ずつ所有する実装の場合' : 'If dongles are owned one at a time'}
-      </p>
+    <div className="mt-4 overflow-hidden rounded-md border border-[var(--color-splitter)] bg-[var(--color-cli-bg)]">
       <svg
         role="img"
         aria-label={language === 'ja' ? 'C1がD1を保有してD2を待つため、C5がD1を取得できずタイムアウトする例' : 'C1 holds D1 while waiting for D2, preventing C5 from acquiring D1 before its timeout'}
@@ -953,19 +947,15 @@ function CodexionPartialOwnershipDiagram({ language }: { language: 'ja' | 'en' }
         <text x="320" y="113" textAnchor="middle" fill="#fff" fontSize="10" fontWeight="800" fontFamily="ui-monospace, monospace">D2</text>
         <text x="320" y="137" textAnchor="middle" fill="#ef6b73" fontSize="9" fontWeight="700">{language === 'ja' ? '利用不可' : 'unavailable'}</text>
 
-        <text x="230" y="20" textAnchor="middle" fill="var(--color-text-muted)" fontSize="9.5" fontWeight="700">
-          {language === 'ja' ? 'D1を保有・D2待ち' : 'holds D1 · waits for D2'}
+        <text x="230" y="14" textAnchor="middle" fill="var(--color-text-muted)" fontSize="9.5" fontWeight="700">
+          {language === 'ja' ? 'D1を保有したまま' : 'holds D1 while'}
+        </text>
+        <text x="230" y="28" textAnchor="middle" fill="#ef6b73" fontSize="9.5" fontWeight="800">
+          {language === 'ja' ? 'D2を待機中…' : 'waiting for D2…'}
         </text>
         <text x="60" y="190" textAnchor="middle" fill="#ef6b73" fontSize="9.5" fontWeight="800">
           {language === 'ja' ? 'タイムアウトが近い' : 'earlier timeout'}
         </text>
-        <text x="195" y="151" textAnchor="middle" fill="#ef6b73" fontSize="9.5" fontWeight="700">
-          {language === 'ja' ? 'C1がD1を保有' : 'C1 owns D1'}
-        </text>
-        <text x="195" y="167" textAnchor="middle" fill="#ef6b73" fontSize="9.5" fontWeight="700">
-          {language === 'ja' ? 'C5はD1を取得できない' : 'C5 cannot acquire D1'}
-        </text>
-
         <g transform="translate(90 219)">
           <line x1="0" y1="0" x2="22" y2="0" stroke="#4f8f67" strokeWidth="4" strokeLinecap="round" />
           <text x="30" y="3" fill="var(--color-text-muted)" fontSize="9">{language === 'ja' ? '所有' : 'owned'}</text>
