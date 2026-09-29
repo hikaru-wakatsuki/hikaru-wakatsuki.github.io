@@ -71,9 +71,9 @@ const PROJECTS: PortfolioProject[] = [
             "diagram": "json-generation"
           },
           {
-            "title": "入れ子のオブジェクトと配列を共通処理で生成",
-            "challenge": "関数ごと、引数の構造ごとに専用の生成処理を追加すると、利用できる関数が増えるほどコードが複雑になり、変更箇所も増える。",
-            "solution": "引数型をpropertiesとitemsで再帰的に表現。同じ生成処理を入れ子の各階層へ適用し、文字列、数値、真偽値、オブジェクト、配列を組み合わせた関数定義に対応。関数ごとの専用コードを追加せず、定義の追加によって候補を拡張できる構成。",
+            "title": "オブジェクトと配列の入れ子を再帰処理で生成",
+            "challenge": "関数ごとに引数の構造が異なり、オブジェクトや配列が複数階層に入れ子になる。階層や構造を固定した処理では、新しい関数定義や異なる引数構造に共通して対応できない。",
+            "solution": "オブジェクトや配列の中身に対して同じ生成処理を再帰的に実行。文字列や数値などの値に到達した時点で、型に応じた値を生成することで、深さの異なる入れ子構造を共通の仕組みで処理。",
             "diagram": "recursive-schema"
           },
           {
@@ -114,9 +114,9 @@ const PROJECTS: PortfolioProject[] = [
             "diagram": "json-generation"
           },
           {
-            "title": "Support nested objects and arrays",
-            "challenge": "Adding custom generation code for every nested argument shape would not scale as function definitions grow.",
-            "solution": "Type definitions describe nested properties and array items recursively. The same generator can therefore descend through combinations of strings, numbers, booleans, objects and arrays.",
+            "title": "Generate nested objects and arrays recursively",
+            "challenge": "Each function can have a different argument structure, with objects and arrays nested to different depths. Logic tied to a fixed depth or shape cannot handle new definitions through the same path.",
+            "solution": "The same generation routine recursively processes the contents of objects and arrays. When it reaches a primitive value such as a string or number, it generates the value according to its type, allowing different nesting depths to use one common mechanism.",
             "diagram": "recursive-schema"
           },
           {
