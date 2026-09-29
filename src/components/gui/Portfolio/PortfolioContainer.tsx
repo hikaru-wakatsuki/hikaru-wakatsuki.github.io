@@ -7,7 +7,7 @@ const PROJECTS: PortfolioProject[] = [
     "id": "Call_Me_Maybe",
     "title": "Call Me Maybe",
     "description": {
-      "ja": "自然言語で書かれた依頼から、実行する関数を選び、必要な引数をJSON形式で生成するローカルLLMアプリ。登録済みの関数と引数型に基づいて生成内容を制限し、存在しない関数や型の異なる引数を抑止。",
+      "ja": "ローカルLLMを使い、自然言語で書かれた依頼から、呼び出す関数を選び、必要な引数をJSON形式で生成するFunction Callingツール。登録済みの関数と引数型に基づいて生成内容を制限し、未登録の関数や定義と異なる型の引数を抑止。",
       "en": "A local-LLM function-calling implementation that converts natural-language requests into an executable function name and typed JSON arguments. Function candidates and schemas constrain which next tokens the model can select during generation."
     },
     "tags": [
