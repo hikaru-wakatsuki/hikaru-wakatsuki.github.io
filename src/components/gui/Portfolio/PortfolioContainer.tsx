@@ -769,7 +769,6 @@ function CodexionDeadlockDiagram({
           const distance = Math.hypot(dx, dy);
           const endX = to.x - (dx / distance) * 18;
           const endY = to.y - (dy / distance) * 18;
-          const isC5 = coder === 'C5';
           return (
             <line
               key={`${coder}-${dongle}`}
@@ -778,7 +777,7 @@ function CodexionDeadlockDiagram({
               x2={endX}
               y2={endY}
               stroke="#4f8f67"
-              strokeWidth={isC5 ? 4 : 2.75}
+              strokeWidth="2.75"
               strokeLinecap="round"
               markerEnd="url(#arrow-lock-first)"
             />
