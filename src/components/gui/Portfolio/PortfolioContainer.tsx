@@ -199,7 +199,7 @@ const PROJECTS: PortfolioProject[] = [
           },
           {
             "title": "共有状態ごとにmutexの責務を分離",
-            "challenge": "コンパイル回数や終了状態などの共有データを複数のスレッドが同時に更新すると競合が発生する。ログも複数箇所から同時に出力されるため、行の順序が前後して実行の流れを追えなくなる可能性がある。",
+            "challenge": "コンパイル回数や終了状態などの共有データを複数のスレッドが同時に更新すると競合が発生する。ログも複数箇所から同時に出力されるため、内容が混ざって実行の流れを追えなくなる可能性がある。",
             "solution": "Dongleの所有状態、Coderの進捗、停止状態、完了人数を、それぞれ専用のmutexで保護。ログ出力にはlog_mutexを設け、1件の出力が完了してから次のスレッドが出力するように直列化。共有データごとにmutexの責務を分け、安全な更新と読み取れるログを両立。",
             "challengeDiagram": "codexion-log-interleaving",
             "solutionDiagram": "codexion-log-mutex"
@@ -238,7 +238,7 @@ const PROJECTS: PortfolioProject[] = [
           },
           {
             "title": "Separate mutex responsibility by shared state",
-            "challenge": "Shared values such as compile progress and stop state can race when several threads update them. Log lines emitted concurrently from different paths can also appear out of order and make execution difficult to follow.",
+            "challenge": "Shared values such as compile progress and stop state can race when several threads update them. Log output emitted concurrently from different paths can also become mixed and make execution difficult to follow.",
             "solution": "Dedicated mutexes protect dongle ownership, coder progress, stop state and completion count. A separate log_mutex serializes output so one line finishes before another thread prints. Assigning one responsibility to each mutex keeps updates safe and logs readable.",
             "challengeDiagram": "codexion-log-interleaving",
             "solutionDiagram": "codexion-log-mutex"
@@ -1090,7 +1090,7 @@ function CodexionLogDiagram({ mode, language }: { mode: 'interleaving' | 'mutex'
         role="img"
         aria-label={protectedOutput
           ? (language === 'ja' ? '複数スレッドのログをlog_mutexで1行ずつ出力する図' : 'log_mutex serializes log lines from multiple threads')
-          : (language === 'ja' ? '複数スレッドが同時に出力してログの順序が前後する図' : 'Concurrent threads produce out-of-order log lines')}
+          : (language === 'ja' ? '複数スレッドが同時に出力してログ内容が混ざる図' : 'Concurrent threads produce mixed log output')}
         viewBox="0 0 360 205"
         className="h-auto w-full"
       >
@@ -1123,15 +1123,15 @@ function CodexionLogDiagram({ mode, language }: { mode: 'interleaving' | 'mutex'
             <line x1="62" y1="58" x2="143" y2="92" stroke="#ef6b73" strokeWidth="2.5" markerEnd="url(#arrow-log-interleaving)" />
             <line x1="62" y1="144" x2="143" y2="110" stroke="#ef6b73" strokeWidth="2.5" markerEnd="url(#arrow-log-interleaving)" />
             <rect x="151" y="64" width="195" height="76" rx="7" fill="var(--color-bg)" stroke="#ef6b73" strokeWidth="2" />
-            <text x="248" y="84" textAnchor="middle" fill="#ef6b73" fontSize="9" fontWeight="800">{language === 'ja' ? '同時に出力を要求' : 'concurrent output requests'}</text>
-            <text x="248" y="108" textAnchor="middle" fill="#ef6b73" fontSize="8.5" fontFamily="ui-monospace, monospace">13 2 debugging　|　12 1 compiling</text>
-            <text x="248" y="128" textAnchor="middle" fill="var(--color-text-muted)" fontSize="9" fontWeight="700">{language === 'ja' ? 'どちらを先に出すか未確定' : 'output order is not controlled'}</text>
+            <text x="248" y="85" textAnchor="middle" fill="var(--color-text-muted)" fontSize="9" fontWeight="700">LOG</text>
+            <text x="248" y="108" textAnchor="middle" fill="#ef6b73" fontSize="8.5" fontFamily="ui-monospace, monospace">13 2 deb12 1 compuggingiling</text>
+            <text x="248" y="128" textAnchor="middle" fill="#ef6b73" fontSize="9" fontWeight="800">{language === 'ja' ? '2つの出力内容が混在' : 'two messages become mixed'}</text>
           </>
         )}
         <text x="180" y="187" textAnchor="middle" fill={protectedOutput ? '#4f8f67' : '#ef6b73'} fontSize="10" fontWeight="800">
           {protectedOutput
             ? (language === 'ja' ? '1行の出力完了後に、次のスレッドへ' : 'The next thread prints after the current line finishes')
-            : (language === 'ja' ? '同時出力では実行順序を追えない' : 'Concurrent output obscures execution order')}
+            : (language === 'ja' ? 'どのCoderのログか判別できない' : 'The source of each log becomes unclear')}
         </text>
       </svg>
     </div>
@@ -1160,7 +1160,7 @@ function CodexionMonitorDiagram({ language }: { language: 'ja' | 'en' }) {
         <text x="180" y="36" textAnchor="middle" fill="var(--color-cli-text)" fontSize="10.5" fontWeight="800">
           {language === 'ja' ? '監視専用スレッド' : 'Monitor thread'}
         </text>
-        <line x1="180" y1="49" x2="180" y2="69" stroke="var(--color-cli-text)" strokeWidth="2" markerEnd="url(#arrow-monitor)" />
+        <path d="M133 49 V63 H101 V69" fill="none" stroke="var(--color-cli-text)" strokeWidth="2" markerEnd="url(#arrow-monitor)" />
 
         <rect x="35" y="75" width="132" height="42" rx="8" fill="var(--color-bg)" stroke="var(--color-splitter)" strokeWidth="2" />
         <text x="101" y="93" textAnchor="middle" fill="var(--color-text)" fontSize="10" fontWeight="800">
@@ -1191,9 +1191,9 @@ function CodexionMonitorDiagram({ language }: { language: 'ja' | 'en' }) {
         </text>
         <text x="262" y="193" textAnchor="middle" fill="#ef6b73" fontSize="9" fontWeight="800">burned out</text>
 
-        <path d="M325 96 H342 V226 H180 V55" fill="none" stroke="var(--color-cli-text)" strokeWidth="2" markerEnd="url(#arrow-monitor)" />
-        <rect x="220" y="216" width="84" height="22" rx="11" fill="var(--color-bg)" stroke="var(--color-splitter)" />
-        <text x="262" y="231" textAnchor="middle" fill="var(--color-text-muted)" fontSize="8.5" fontWeight="700">
+        <path d="M325 96 H343 V32 H253" fill="none" stroke="var(--color-cli-text)" strokeWidth="2" markerEnd="url(#arrow-monitor)" />
+        <rect x="264" y="47" width="68" height="22" rx="11" fill="var(--color-bg)" stroke="var(--color-splitter)" />
+        <text x="298" y="62" textAnchor="middle" fill="var(--color-text-muted)" fontSize="8.5" fontWeight="700">
           {language === 'ja' ? 'NO：約1ms待機' : 'NO: wait ~1 ms'}
         </text>
       </svg>
