@@ -138,8 +138,8 @@ const PROJECTS: PortfolioProject[] = [
     "id": "Codexion",
     "title": "Codexion",
     "description": {
-      "ja": "複数のコーダーをPOSIXスレッドで動かし、2台のUSBドングルが必要なコンパイルを共有資源の競合下で制御するシミュレータ。デッドロッ回避、FIFO/EDFの優先度制御、完了・タイムアウト監視をCで実装しています。",
-      "en": "A C/POSIX-thread simulator in which multiple coders compete for two USB dongles required for each compile. It implements deadlock prevention, FIFO/EDF priority control, and completion or burnout monitoring under shared-resource contention."
+      "ja": "複数のコーダーがUSBドングル（共有資源）を取り合いながら、規定回数のコンパイル完了を目指す並行処理シミュレータ。各コーダーをPOSIXスレッドとして動かし、デッドロックの回避、FIFO・EDFによる実行順序の制御、完了とタイムアウトの監視をCで実装。",
+      "en": "A concurrent C simulator in which multiple coders compete for shared USB dongles while working toward a required compile count. Each coder runs as a POSIX thread, with deadlock prevention, FIFO/EDF execution ordering, and completion and timeout monitoring."
     },
     "tags": [
       "C",
@@ -156,23 +156,23 @@ const PROJECTS: PortfolioProject[] = [
     },
     "demoGuide": {
       "ja": {
-        "overview": "表の各1行が1人のCoderです。状態、保有中のドングル、現在のコンパイル数/目標数を見ると排他制御を追えます。",
+        "overview": "各行が1人のCoder。Donglesは保有数、Progressは現在のコンパイル数／目標数を表示。",
         "cues": [
-          "WAITING（白）：コンパイル可能で、ドングルを待つ状態",
-          "COMPILING（緑）：2台のドングルを同時保有して処理中",
-          "DEBUGGING（青）/ REFACTORING（シアン）：ドングルを解放し、次の実行に向けて処理中",
-          "COMPLETE（マゼンタ）：目標コンパイル数へ到達。各Coderが別々のタイミングで完了",
-          "Simulation欄：Coder数、ドングル数、1回に必要な2台、目標回数、EDFスケジューラ"
+          "Coders: 5",
+          "USB dongles: 5",
+          "Required per compile: 2",
+          "Goal per coder: 4 compiles",
+          "Scheduler: EDF"
         ]
       },
       "en": {
-        "overview": "Each row represents one coder. Follow the state, held dongles, and current/target compile count to see synchronization in action.",
+        "overview": "Each row represents one coder. Dongles shows the number held; Progress shows the current and target compile counts.",
         "cues": [
-          "WAITING (white): ready to compile and waiting for dongles",
-          "COMPILING (green): holds two dongles while compiling",
-          "DEBUGGING (blue) / REFACTORING (cyan): dongles released; temporarily unable to compile",
-          "COMPLETE (magenta): the coder reached the required compile count",
-          "Simulation: coder and dongle counts, two dongles per compile, target count and EDF scheduler"
+          "Coders: 5",
+          "USB dongles: 5",
+          "Required per compile: 2",
+          "Goal per coder: 4 compiles",
+          "Scheduler: EDF"
         ]
       }
     },
@@ -416,6 +416,21 @@ function ProjectVideoGuide({ project, language }: {
 
   if (!project.demoGuide) return null;
   const guide = project.demoGuide[language];
+  const statusStyle: Record<string, { background: string; color: string }> = {
+    WAITING: { background: '#eeeeee', color: '#111827' },
+    COMPILING: { background: '#00ff87', color: '#052e16' },
+    DEBUGGING: { background: '#5fafff', color: '#082f49' },
+    REFACTORING: { background: '#00ffff', color: '#083344' },
+    COMPLETE: { background: '#ff87ff', color: '#4a044e' },
+  };
+  const status = (name: keyof typeof statusStyle) => (
+    <span
+      className="rounded px-2 py-1 font-mono text-[10px] font-bold tracking-wide shadow-sm"
+      style={statusStyle[name]}
+    >
+      {name}
+    </span>
+  );
 
   return (
     <section className="overflow-hidden rounded-lg border border-[var(--color-splitter)] bg-[var(--color-bg)]">
@@ -437,15 +452,55 @@ function ProjectVideoGuide({ project, language }: {
       </button>
       {isOpen && (
         <div id={contentId} className="border-t border-[var(--color-splitter)] px-5 py-4 sm:px-6">
-          {guide.overview && <p className="text-sm leading-6 opacity-80">{guide.overview}</p>}
-          <ul className={`${guide.overview ? 'mt-3 ' : ''}grid gap-y-2 text-xs leading-5 opacity-70`}>
-            {guide.cues.map((cue) => (
-              <li key={cue} className="flex gap-2">
-                <span aria-hidden="true" className="text-[var(--color-cli-text)]">•</span>
-                <span>{cue}</span>
-              </li>
-            ))}
-          </ul>
+          {project.id === 'Codexion' ? (
+            <div className="grid gap-4">
+              <div className="grid gap-3 lg:grid-cols-[0.75fr_1.25fr]">
+                <section className="overflow-hidden rounded-md border border-[var(--color-splitter)] bg-[var(--color-cli-bg)]">
+                  <h4 className="border-b border-[var(--color-splitter)] px-3 py-2 font-mono text-[11px] font-bold text-[var(--color-cli-text)]">Simulation</h4>
+                  <ul className="grid gap-1.5 p-3 font-mono text-[11px] leading-5 opacity-75">
+                    {guide.cues.map((cue) => <li key={cue}>{cue}</li>)}
+                  </ul>
+                </section>
+
+                <section className="overflow-hidden rounded-md border border-[var(--color-splitter)] bg-[var(--color-cli-bg)]">
+                  <h4 className="border-b border-[var(--color-splitter)] px-3 py-2 font-mono text-[11px] font-bold text-[var(--color-cli-text)]">Status Guide</h4>
+                  <div className="grid gap-3 p-3 text-[11px]">
+                    <div className="flex flex-wrap items-center gap-1.5">
+                      {status('WAITING')}
+                      <span aria-hidden="true">→</span>
+                      {status('COMPILING')}
+                      <span aria-hidden="true">→</span>
+                      {status('DEBUGGING')}
+                      <span aria-hidden="true">→</span>
+                      {status('REFACTORING')}
+                      <span aria-hidden="true">→</span>
+                      {status('WAITING')}
+                    </div>
+                    <div className="flex flex-wrap items-center gap-1.5 border-t border-[var(--color-splitter)] pt-3">
+                      {status('COMPILING')}
+                      <span aria-hidden="true">→</span>
+                      <span className="opacity-60">{language === 'ja' ? '目標回数に到達' : 'target reached'}</span>
+                      <span aria-hidden="true">→</span>
+                      {status('COMPLETE')}
+                    </div>
+                  </div>
+                </section>
+              </div>
+              {guide.overview && <p className="text-xs leading-5 opacity-70">{guide.overview}</p>}
+            </div>
+          ) : (
+            <>
+              {guide.overview && <p className="text-sm leading-6 opacity-80">{guide.overview}</p>}
+              <ul className={`${guide.overview ? 'mt-3 ' : ''}grid gap-y-2 text-xs leading-5 opacity-70`}>
+                {guide.cues.map((cue) => (
+                  <li key={cue} className="flex gap-2">
+                    <span aria-hidden="true" className="text-[var(--color-cli-text)]">•</span>
+                    <span>{cue}</span>
+                  </li>
+                ))}
+              </ul>
+            </>
+          )}
         </div>
       )}
     </section>
