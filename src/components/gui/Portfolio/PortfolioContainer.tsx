@@ -210,15 +210,8 @@ const PROJECTS: PortfolioProject[] = [
             "solution": "Coderとは別に監視スレッドを用意し、全員の完了と各Coderの最終コンパイル時刻を定期的に確認。終了条件を満たした場合はmutexで保護された停止フラグを更新し、各Coderの待機処理も停止状態を確認して終了する構成。"
           }
         ],
-        "verification": [
-          "ブラックボックステストで、不正引数、1人時のタイムアウト、FIFO・EDFの完了数、1回のコンパイルごと2回の取得ログを検証",
-          "ログのタイムスタンプが単調非減少であることと出力形式を確認。収録動画では5人全員が目標4回へ段階的に到達",
-          "-Wall -Wextra -Werror -pthreadでビルド"
-        ],
-        "limitations": [
-          "FIFO/EDFは各ドングル内の優先度であり、あらゆるタイミング条件で飢餓を防ぐ形式的保証ではない",
-          "待機と監視に短いpolling sleepを用い、時刻はgettimeofdayに依存するためOSスケジューリングの影響を受ける"
-        ]
+        "verification": [],
+        "limitations": []
       },
       "en": {
         "caseStudies": [
@@ -255,8 +248,8 @@ const PROJECTS: PortfolioProject[] = [
             "solution": "A dedicated monitor thread checks the total completion count and each coder's last compile time. When a stopping condition is met, it updates a mutex-protected stop flag that coder loops and waits also observe."
           }
         ],
-        "verification": ["Black-box tests cover invalid arguments, single-coder timeout, FIFO/EDF completion counts, two dongle acquisitions per compile, and monotonic log timestamps.", "The recorded simulation shows five workers progressively reaching the target without deadlock.", "The project builds with -Wall -Wextra -Werror -pthread."],
-        "limitations": ["Per-dongle FIFO/EDF priority is not a formal starvation-freedom proof for every timing configuration.", "Polling and gettimeofday make timing dependent on the OS scheduler and timer resolution."]
+        "verification": [],
+        "limitations": []
       }
     }
   },
@@ -1037,7 +1030,7 @@ function CodexionPriorityHeapDiagram({ language }: { language: 'ja' | 'en' }) {
     return (
       <section className="overflow-hidden rounded-md border border-[var(--color-splitter)] bg-[var(--color-cli-bg)]">
         <h5 className="border-b border-[var(--color-splitter)] px-3 py-2 text-center text-[11px] font-bold">
-          {mode.toUpperCase()}：{isFifo ? (language === 'ja' ? '今回は到着順で比較' : 'compare arrival this time') : (language === 'ja' ? '今回は期限で比較' : 'compare deadline this time')}
+          {mode.toUpperCase()}：{isFifo ? (language === 'ja' ? '到着順で比較' : 'compare arrival') : (language === 'ja' ? '期限で比較' : 'compare deadline')}
         </h5>
         <svg viewBox="0 0 360 190" className="h-auto w-full" aria-hidden="true">
           <defs>
@@ -1079,13 +1072,10 @@ function CodexionPriorityHeapDiagram({ language }: { language: 'ja' | 'en' }) {
       aria-label={language === 'ja' ? '同じ待機要求をFIFOでは到着順、EDFでは期限順に並べるバイナリmin-heapの比較' : 'Binary min-heaps ordering the same requests by arrival for FIFO and deadline for EDF'}
       className="mt-4 grid gap-3"
     >
-      <div className="grid gap-3 sm:grid-cols-2">
+      <div className="grid gap-3">
         <PriorityFlow mode="fifo" />
         <PriorityFlow mode="edf" />
       </div>
-      <p className="text-center text-[10px] leading-5 text-[var(--color-text-muted)]">
-        {language === 'ja' ? '同じ待機要求でも、比較する条件によって先に選ばれるCoderが変わる' : 'The selected coder changes according to the comparison used for the same waiting requests.'}
-      </p>
     </div>
   );
 }
@@ -1422,18 +1412,20 @@ function ProjectTechnicalDetailsPanel({ project, language }: {
           </div>
         </section>
 
-        <section className="overflow-hidden rounded-lg border border-[var(--color-accent-border)] bg-[var(--color-bg)]">
-          <h3 className="border-b border-[var(--color-accent-border)] bg-[var(--color-accent-soft)] px-4 py-3 text-sm font-bold sm:px-5">
-            {language === 'ja' ? 'テスト・検証' : 'Tests and validation'}
-          </h3>
-          <ul className="px-4 py-2 text-[var(--color-text-muted)] sm:px-5">
-            {details.verification.map((item) => (
-              <li key={item} className="border-b border-[var(--color-splitter)] py-3 last:border-b-0">
-                <span className="block border-l-2 border-[var(--color-cli-text)] pl-3 leading-7">{item}</span>
-              </li>
-            ))}
-          </ul>
-        </section>
+        {details.verification.length > 0 && (
+          <section className="overflow-hidden rounded-lg border border-[var(--color-accent-border)] bg-[var(--color-bg)]">
+            <h3 className="border-b border-[var(--color-accent-border)] bg-[var(--color-accent-soft)] px-4 py-3 text-sm font-bold sm:px-5">
+              {language === 'ja' ? 'テスト・検証' : 'Tests and validation'}
+            </h3>
+            <ul className="px-4 py-2 text-[var(--color-text-muted)] sm:px-5">
+              {details.verification.map((item) => (
+                <li key={item} className="border-b border-[var(--color-splitter)] py-3 last:border-b-0">
+                  <span className="block border-l-2 border-[var(--color-cli-text)] pl-3 leading-7">{item}</span>
+                </li>
+              ))}
+            </ul>
+          </section>
+        )}
 
         {details.limitations && details.limitations.length > 0 && (
           <section className="overflow-hidden rounded-lg border border-[var(--color-splitter)] bg-[var(--color-bg)]">
