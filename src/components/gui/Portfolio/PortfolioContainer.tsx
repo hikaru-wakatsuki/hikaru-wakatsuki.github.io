@@ -259,8 +259,8 @@ const PROJECTS: PortfolioProject[] = [
     "id": "Fly-in",
     "title": "Fly-in",
     "description": {
-      "ja": "容量制約のある地図上で、複数ドローンの経路選択と移動順を制御するルーティングシミュレータ。入力をPydanticで検証してグラフ化し、特殊Zoneと現在の混雑を考慮した経路選択・再探索を実装。",
-      "en": "A routing simulator that coordinates route selection and turn-by-turn movement for multiple drones on a capacity-constrained map. Pydantic validates the input before graph construction, while zone behavior and current congestion drive routing and rerouting."
+      "ja": "複数のドローンが、地点と通路の利用上限を守りながら目的地へ移動する様子を可視化したシミュレーター。各ターンの移動、待機、通路の使用状況、全機の到着を画面で確認できる。",
+      "en": "A simulator that visualizes multiple drones moving to their destination while respecting usage limits for zones and connections. The screen shows movement, waiting, connection usage and arrivals for each turn."
     },
     "tags": [
       "Python",
@@ -278,20 +278,24 @@ const PROJECTS: PortfolioProject[] = [
     "demoGuide": {
       "ja": {
         "cues": [
-          "Turn / Arrived / Moving / Waiting：ターン数と全ドローンの進捗",
+          "Turn：現在のターン / 完了までの総ターン数",
+          "Arrived：Goalに到着したドローン数 / 全ドローン数",
+          "Moving：Connection上を移動しているドローン数",
+          "Waiting：Zoneで次の移動を待っているドローン数",
           "Zoneの「現在数 / 容量」とConnectionの「使用数 / 容量」：同時利用の上限",
           "明るいConnection：現在移動に使用中。暗いConnection：空き状態",
-          "Priority（黄）：同コスト時に優先 / Restricted（薄赤）：進入に2ターン / Blocked（赤×）：通行不可",
-          "Simulation Complete：到着数、完了ターン、容量違反数の最終結果"
+          "Priority（黄）：同コスト時に優先 / Restricted（薄赤）：進入に2ターン / Blocked（赤×）：通行不可"
         ]
       },
       "en": {
         "cues": [
-          "Turn / Arrived / Moving / Waiting: overall progress",
+          "Turn: current turn / total turns to completion",
+          "Arrived: drones at Goal / total drones",
+          "Moving: drones currently travelling on connections",
+          "Waiting: drones waiting in zones for their next move",
           "Zone and connection badges: current occupancy or usage / capacity",
           "Bright links are active; dark links are currently idle",
-          "Priority (yellow): tie-break preference; Restricted (light red): two-turn entry; Blocked (red with X): unavailable",
-          "Simulation Complete: arrivals, elapsed turns and capacity-violation count"
+          "Priority (yellow): tie-break preference; Restricted (light red): two-turn entry; Blocked (red with X): unavailable"
         ]
       }
     },
@@ -624,9 +628,23 @@ function ProjectVideoGuide({ project, language }: {
           ) : project.id === 'Fly-in' ? (
             <div className="grid gap-3 text-xs leading-5">
               <div className="grid gap-3 rounded-md border border-[var(--color-splitter)] bg-[var(--color-cli-bg)] p-3">
-                <div className="grid gap-1 sm:grid-cols-[minmax(12rem,auto)_1fr] sm:items-center sm:gap-4">
-                  <span className="font-mono font-bold text-[#4f8f67]">Turn / Arrived / Moving / Waiting</span>
-                  <span className="text-[var(--color-text-muted)]">{language === 'ja' ? 'ターン数と全Droneの進捗' : 'Turn count and progress for all drones'}</span>
+                <div className="grid gap-2 sm:grid-cols-2">
+                  <div className="rounded border border-[var(--color-splitter)] px-3 py-2">
+                    <strong className="font-mono text-[#4f8f67]">Turn</strong>
+                    <p className="mt-0.5 text-[var(--color-text-muted)]">{language === 'ja' ? '現在のターン / 完了までの総ターン数' : 'Current turn / total turns to completion'}</p>
+                  </div>
+                  <div className="rounded border border-[var(--color-splitter)] px-3 py-2">
+                    <strong className="font-mono text-[#4f8f67]">Arrived</strong>
+                    <p className="mt-0.5 text-[var(--color-text-muted)]">{language === 'ja' ? 'Goalに到着したドローン数 / 全ドローン数' : 'Drones at Goal / total drones'}</p>
+                  </div>
+                  <div className="rounded border border-[var(--color-splitter)] px-3 py-2">
+                    <strong className="font-mono text-[#4f8f67]">Moving</strong>
+                    <p className="mt-0.5 text-[var(--color-text-muted)]">{language === 'ja' ? 'Connection上を移動しているドローン数' : 'Drones currently travelling on connections'}</p>
+                  </div>
+                  <div className="rounded border border-[var(--color-splitter)] px-3 py-2">
+                    <strong className="font-mono text-[#4f8f67]">Waiting</strong>
+                    <p className="mt-0.5 text-[var(--color-text-muted)]">{language === 'ja' ? 'Zoneで次の移動を待っているドローン数' : 'Drones waiting in zones for their next move'}</p>
+                  </div>
                 </div>
                 <div className="grid gap-1 border-t border-[var(--color-splitter)] pt-3 sm:grid-cols-[minmax(12rem,auto)_1fr] sm:items-center sm:gap-4">
                   <span className="font-mono font-bold text-[#9faab8]">Zone 1 / 2　·　Connection 1 / 2</span>
@@ -671,10 +689,6 @@ function ProjectVideoGuide({ project, language }: {
                 </div>
               </div>
 
-              <div className="rounded-md border border-[#4f8f67]/50 bg-[var(--color-cli-bg)] px-3 py-2.5">
-                <strong className="font-mono text-[#4f8f67]">Simulation Complete</strong>
-                <span className="ml-3 text-[var(--color-text-muted)]">{language === 'ja' ? '到着数、完了ターン、容量違反数' : 'Arrivals, elapsed turns and capacity violations'}</span>
-              </div>
             </div>
           ) : project.id === 'Codexion' ? (
             <div className="grid gap-4">
