@@ -278,23 +278,19 @@ const PROJECTS: PortfolioProject[] = [
     "demoGuide": {
       "ja": {
         "cues": [
-          "Turn：現在のターン / 完了までの総ターン数",
-          "Arrived：Goalに到着したドローン数 / 全ドローン数",
-          "Moving：Connection上を移動しているドローン数",
-          "Waiting：Zoneで次の移動を待っているドローン数",
-          "Zoneの「現在数 / 容量」とConnectionの「使用数 / 容量」：同時利用の上限",
-          "明るいConnection：現在移動に使用中。暗いConnection：空き状態",
+          "Turn：現在 / 全ターン、Arrived：到着 / 全機、Moving：移動中、Waiting：待機中",
+          "Zoneの「1 / 2」：現在いるドローン数 / そのZoneに入れる上限",
+          "通路の「cap 2」：同時に移動できる上限。使用中は「1 / 2」で現在の移動数 / 上限を表示",
+          "緑の線：ドローンがその通路を移動中 / 黒い線：移動中のドローンなし",
           "Priority（黄）：同コスト時に優先 / Restricted（薄赤）：進入に2ターン / Blocked（赤×）：通行不可"
         ]
       },
       "en": {
         "cues": [
-          "Turn: current turn / total turns to completion",
-          "Arrived: drones at Goal / total drones",
-          "Moving: drones currently travelling on connections",
-          "Waiting: drones waiting in zones for their next move",
-          "Zone and connection badges: current occupancy or usage / capacity",
-          "Bright links are active; dark links are currently idle",
+          "Turn: current / total; Arrived: at Goal / total; Moving: in transit; Waiting: in a zone",
+          "Zone 1 / 2: drones currently present / zone limit",
+          "Link cap 2: simultaneous limit; while active, 1 / 2 means moving drones / limit",
+          "Green line: drones are moving on the link; dark line: no drone is moving on it",
           "Priority (yellow): tie-break preference; Restricted (light red): two-turn entry; Blocked (red with X): unavailable"
         ]
       }
@@ -628,36 +624,30 @@ function ProjectVideoGuide({ project, language }: {
           ) : project.id === 'Fly-in' ? (
             <div className="grid gap-3 text-xs leading-5">
               <div className="grid gap-3 rounded-md border border-[var(--color-splitter)] bg-[var(--color-cli-bg)] p-3">
-                <div className="grid gap-2 sm:grid-cols-2">
-                  <div className="rounded border border-[var(--color-splitter)] px-3 py-2">
-                    <strong className="font-mono text-[#4f8f67]">Turn</strong>
-                    <p className="mt-0.5 text-[var(--color-text-muted)]">{language === 'ja' ? '現在のターン / 完了までの総ターン数' : 'Current turn / total turns to completion'}</p>
-                  </div>
-                  <div className="rounded border border-[var(--color-splitter)] px-3 py-2">
-                    <strong className="font-mono text-[#4f8f67]">Arrived</strong>
-                    <p className="mt-0.5 text-[var(--color-text-muted)]">{language === 'ja' ? 'Goalに到着したドローン数 / 全ドローン数' : 'Drones at Goal / total drones'}</p>
-                  </div>
-                  <div className="rounded border border-[var(--color-splitter)] px-3 py-2">
-                    <strong className="font-mono text-[#4f8f67]">Moving</strong>
-                    <p className="mt-0.5 text-[var(--color-text-muted)]">{language === 'ja' ? 'Connection上を移動しているドローン数' : 'Drones currently travelling on connections'}</p>
-                  </div>
-                  <div className="rounded border border-[var(--color-splitter)] px-3 py-2">
-                    <strong className="font-mono text-[#4f8f67]">Waiting</strong>
-                    <p className="mt-0.5 text-[var(--color-text-muted)]">{language === 'ja' ? 'Zoneで次の移動を待っているドローン数' : 'Drones waiting in zones for their next move'}</p>
-                  </div>
+                <div className="flex flex-wrap items-center gap-x-5 gap-y-1 rounded border border-[var(--color-splitter)] px-3 py-2 text-[var(--color-text-muted)]">
+                  <span><strong className="font-mono text-[#4f8f67]">Turn</strong> {language === 'ja' ? '現在 / 全ターン' : 'current / total'}</span>
+                  <span><strong className="font-mono text-[#4f8f67]">Arrived</strong> {language === 'ja' ? '到着 / 全機' : 'at Goal / total'}</span>
+                  <span><strong className="font-mono text-[#4f8f67]">Moving</strong> {language === 'ja' ? '移動中' : 'in transit'}</span>
+                  <span><strong className="font-mono text-[#4f8f67]">Waiting</strong> {language === 'ja' ? '待機中' : 'in a zone'}</span>
                 </div>
-                <div className="grid gap-1 border-t border-[var(--color-splitter)] pt-3 sm:grid-cols-[minmax(12rem,auto)_1fr] sm:items-center sm:gap-4">
-                  <span className="font-mono font-bold text-[#9faab8]">Zone 1 / 2　·　Connection 1 / 2</span>
-                  <span className="text-[var(--color-text-muted)]">{language === 'ja' ? '現在の使用数 / 同時利用できる上限' : 'Current usage / simultaneous capacity'}</span>
+                <div className="grid gap-2 border-t border-[var(--color-splitter)] pt-3 sm:grid-cols-2">
+                  <div className="rounded border border-[var(--color-splitter)] px-3 py-2">
+                    <strong className="font-mono text-[#9faab8]">Zone　1 / 2</strong>
+                    <p className="mt-0.5 text-[var(--color-text-muted)]">{language === 'ja' ? '現在いるドローン数 / そのZoneに入れる上限' : 'Drones present / zone limit'}</p>
+                  </div>
+                  <div className="rounded border border-[var(--color-splitter)] px-3 py-2">
+                    <strong className="font-mono text-[#9faab8]">cap 2　→　1 / 2</strong>
+                    <p className="mt-0.5 text-[var(--color-text-muted)]">{language === 'ja' ? '通路の上限。使用中は現在の移動数 / 上限' : 'Link limit; while active, moving drones / limit'}</p>
+                  </div>
                 </div>
                 <div className="flex flex-wrap gap-x-5 gap-y-2 border-t border-[var(--color-splitter)] pt-3 text-[var(--color-text-muted)]">
                   <span className="inline-flex items-center gap-2">
                     <span className="h-1 w-8 rounded bg-[#4f8f67]" aria-hidden="true" />
-                    {language === 'ja' ? '明るいConnection：使用中' : 'Bright connection: active'}
+                    {language === 'ja' ? 'その通路をドローンが移動中' : 'Drones are moving on this link'}
                   </span>
                   <span className="inline-flex items-center gap-2">
                     <span className="h-0.5 w-8 rounded bg-[#414954]" aria-hidden="true" />
-                    {language === 'ja' ? '暗いConnection：空き' : 'Dark connection: idle'}
+                    {language === 'ja' ? 'その通路を移動中のドローンなし' : 'No drone is moving on this link'}
                   </span>
                 </div>
               </div>
