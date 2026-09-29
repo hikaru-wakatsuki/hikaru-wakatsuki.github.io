@@ -185,9 +185,9 @@ const PROJECTS: PortfolioProject[] = [
             "solutionDiagram": "codexion-lock-order"
           },
           {
-            "title": "2台の利用条件と所有権を一括して確定",
-            "challenge": "片方のDongleだけを所有したまま、もう片方が利用可能になるまで待つと、そのDongleを必要とするほかのCoderも処理を進められず、不要な待機が発生する。また、2台を別々に確認すると、確認の途中で共有状態が変化する可能性がある。",
-            "solution": "2台のmutexを取得した状態で、所有状況、クールダウン、待機順序をまとめて確認。両方を利用できる場合だけ2台を同じCoderへ割り当てる。条件を満たさない場合は1台も割り当てず、両mutexを解放して再試行することで、片方だけの所有と不要な待機を防止。",
+            "title": "片方だけの占有を防ぎ、不要なタイムアウトを抑制",
+            "challenge": "1台だけを確保したまま、もう1台が空くまで待つと、そのDongleを必要とするほかのCoderもコンパイルできない。処理できるはずのCoderまで待たされ、制限時間を超える可能性がある。",
+            "solution": "2台のmutexを取得して利用条件を確認し、両方を利用できる場合だけ2台を同じCoderへ割り当て。どちらかを利用できない場合は1台も割り当てず、両mutexを解放して再試行。片方だけを占有する状態を作らず、ほかのCoderが取得を試せる状態に戻す。",
             "solutionDiagram": "codexion-atomic-pair"
           },
           {
@@ -226,9 +226,9 @@ const PROJECTS: PortfolioProject[] = [
             "solutionDiagram": "codexion-lock-order"
           },
           {
-            "title": "Decide eligibility and assign both dongles as one operation",
-            "challenge": "Holding one dongle while waiting for the other would block coders that need the held resource and create avoidable waiting. Checking the resources separately would also allow shared state to change between checks.",
-            "solution": "With both mutexes held, the implementation checks ownership, cooldown and waiting priority for the pair. It assigns both dongles to the same coder only when every condition passes; otherwise it assigns neither, unlocks both mutexes and retries.",
+            "title": "Avoid partial ownership and unnecessary timeouts",
+            "challenge": "If a coder holds one dongle while waiting for the other, coders that need the held resource cannot compile. Even a coder that could otherwise proceed may wait long enough to exceed its time limit.",
+            "solution": "The implementation locks both mutexes and checks the pair. It assigns both dongles to the same coder only when both are eligible. If either is unavailable, it assigns neither, unlocks both mutexes and retries so another coder can attempt acquisition.",
             "solutionDiagram": "codexion-atomic-pair"
           },
           {
@@ -921,32 +921,53 @@ function CodexionAtomicPairDiagram({ language }: { language: 'ja' | 'en' }) {
   return (
     <div
       role="img"
-      aria-label={language === 'ja' ? '2台の利用条件を確認して一括割り当て、または両mutexを解放して再試行する流れ' : 'Check both dongles, then assign the pair or unlock both and retry'}
-      className="mt-4 grid gap-3 rounded-md border border-[var(--color-splitter)] bg-[var(--color-cli-bg)] p-3 text-center text-[11px]"
+      aria-label={language === 'ja' ? 'C1の隣接するD1とD2を確認し、片方が利用できなければ割り当てず、両方利用できる場合だけ2台を一括割り当てする図' : 'C1 assigns neither adjacent dongle when one is unavailable and assigns both only when D1 and D2 are available'}
+      className="mt-4 grid gap-3 sm:grid-cols-2"
     >
-      <div className="mx-auto rounded border border-[var(--color-accent-secondary)] bg-[var(--color-accent-secondary-soft)] px-3 py-2 font-bold">
-        {language === 'ja' ? '2台のmutexを取得' : 'Lock both mutexes'}
-      </div>
-      <span aria-hidden="true" className="font-bold text-[var(--color-accent-secondary)]">↓</span>
-      <div className="mx-auto rounded border border-[var(--color-splitter)] bg-[var(--color-bg)] px-3 py-2 leading-5">
-        {language === 'ja' ? '所有状況・クールダウン・待機順序を確認' : 'Check ownership, cooldown and waiting priority'}
-      </div>
-      <div className="grid gap-3 border-t border-[var(--color-splitter)] pt-3 sm:grid-cols-2">
-        <section className="grid content-start gap-2 rounded border border-[#4f8f67] bg-[var(--color-bg)] p-3">
-          <span className="font-mono text-[10px] font-bold text-[#4f8f67]">{language === 'ja' ? '両方利用可能' : 'Both available'}</span>
-          <span aria-hidden="true" className="font-bold text-[#4f8f67]">↓</span>
-          <strong>{language === 'ja' ? '2台を同じCoderへ一括割り当て' : 'Assign both to one coder'}</strong>
-          <span aria-hidden="true" className="font-bold text-[#4f8f67]">↓</span>
-          <span>{language === 'ja' ? 'mutexを解放' : 'Unlock mutexes'}</span>
+      <section className="overflow-hidden rounded-md border border-[#ef6b73] bg-[var(--color-cli-bg)]">
+        <h5 className="border-b border-[#ef6b73]/50 px-3 py-2 text-center text-[11px] font-bold text-[#ef6b73]">
+          {language === 'ja' ? 'どちらかを利用できない' : 'Either dongle unavailable'}
+        </h5>
+        <svg viewBox="0 0 220 145" className="h-auto w-full" aria-hidden="true">
+          <line x1="110" y1="35" x2="55" y2="102" stroke="var(--color-splitter)" strokeWidth="2" />
+          <line x1="110" y1="35" x2="165" y2="102" stroke="var(--color-splitter)" strokeWidth="2" />
+          <circle cx="110" cy="35" r="22" fill="#1f2937" stroke="var(--color-cli-text)" strokeWidth="2" />
+          <text x="110" y="39" textAnchor="middle" fill="#f8fafc" fontSize="12" fontWeight="800" fontFamily="ui-monospace, monospace">C1</text>
+          <rect x="39" y="92" width="32" height="22" rx="4" fill="#facc15" stroke="#854d0e" strokeWidth="2" />
+          <text x="55" y="107" textAnchor="middle" fill="#422006" fontSize="10" fontWeight="800" fontFamily="ui-monospace, monospace">D1</text>
+          <text x="55" y="130" textAnchor="middle" fill="#4f8f67" fontSize="9" fontWeight="700">{language === 'ja' ? '利用可' : 'available'}</text>
+          <rect x="149" y="92" width="32" height="22" rx="4" fill="#ef6b73" stroke="#991b1b" strokeWidth="2" />
+          <text x="165" y="107" textAnchor="middle" fill="#fff" fontSize="10" fontWeight="800" fontFamily="ui-monospace, monospace">D2</text>
+          <text x="165" y="130" textAnchor="middle" fill="#ef6b73" fontSize="9" fontWeight="700">{language === 'ja' ? '利用不可' : 'unavailable'}</text>
+          <circle cx="110" cy="82" r="13" fill="var(--color-bg)" stroke="#ef6b73" strokeWidth="2" />
+          <path d="M104 76 L116 88 M116 76 L104 88" stroke="#ef6b73" strokeWidth="3" strokeLinecap="round" />
+        </svg>
+        <div className="border-t border-[var(--color-splitter)] px-3 py-3 text-center text-[11px] leading-5">
+          <strong className="block text-[#ef6b73]">{language === 'ja' ? '1台も割り当てない' : 'Assign neither'}</strong>
+          <span className="text-[var(--color-text-muted)]">{language === 'ja' ? '両mutexを解放して再試行' : 'Unlock both mutexes and retry'}</span>
+        </div>
         </section>
-        <section className="grid content-start gap-2 rounded border border-[#ef6b73] bg-[var(--color-bg)] p-3">
-          <span className="font-mono text-[10px] font-bold text-[#ef6b73]">{language === 'ja' ? '条件を満たさない' : 'Condition fails'}</span>
-          <span aria-hidden="true" className="font-bold text-[#ef6b73]">↓</span>
-          <strong>{language === 'ja' ? '1台も割り当てない' : 'Assign neither'}</strong>
-          <span aria-hidden="true" className="font-bold text-[#ef6b73]">↓</span>
-          <span>{language === 'ja' ? '両mutexを解放して再試行' : 'Unlock both and retry'}</span>
+
+      <section className="overflow-hidden rounded-md border border-[#4f8f67] bg-[var(--color-cli-bg)]">
+        <h5 className="border-b border-[#4f8f67]/50 px-3 py-2 text-center text-[11px] font-bold text-[#4f8f67]">
+          {language === 'ja' ? '2台とも利用できる' : 'Both dongles available'}
+        </h5>
+        <svg viewBox="0 0 220 145" className="h-auto w-full" aria-hidden="true">
+          <line x1="110" y1="35" x2="55" y2="102" stroke="#4f8f67" strokeWidth="5" strokeLinecap="round" />
+          <line x1="110" y1="35" x2="165" y2="102" stroke="#4f8f67" strokeWidth="5" strokeLinecap="round" />
+          <circle cx="110" cy="35" r="22" fill="#4f8f67" stroke="#2f6b4a" strokeWidth="2" />
+          <text x="110" y="39" textAnchor="middle" fill="#f8fafc" fontSize="12" fontWeight="800" fontFamily="ui-monospace, monospace">C1</text>
+          <rect x="39" y="92" width="32" height="22" rx="4" fill="#4f8f67" stroke="#2f6b4a" strokeWidth="2" />
+          <text x="55" y="107" textAnchor="middle" fill="#f0fdf4" fontSize="10" fontWeight="800" fontFamily="ui-monospace, monospace">D1</text>
+          <rect x="149" y="92" width="32" height="22" rx="4" fill="#4f8f67" stroke="#2f6b4a" strokeWidth="2" />
+          <text x="165" y="107" textAnchor="middle" fill="#f0fdf4" fontSize="10" fontWeight="800" fontFamily="ui-monospace, monospace">D2</text>
+          <text x="110" y="132" textAnchor="middle" fill="#4f8f67" fontSize="9" fontWeight="800">{language === 'ja' ? '2台を同じCoderへ割り当て' : 'pair assigned to one coder'}</text>
+        </svg>
+        <div className="border-t border-[var(--color-splitter)] px-3 py-3 text-center text-[11px] leading-5">
+          <strong className="block text-[#4f8f67]">{language === 'ja' ? 'D1・D2をC1へ一括割り当て' : 'Assign D1 and D2 to C1'}</strong>
+          <span className="text-[var(--color-text-muted)]">{language === 'ja' ? 'mutexを解放してコンパイルへ' : 'Unlock mutexes, then compile'}</span>
+        </div>
         </section>
-      </div>
     </div>
   );
 }
