@@ -754,28 +754,34 @@ function PortfolioCard({
         </p>
       </div>
 
-      {/* ── Media area ── */}
-      <div
-        className="relative w-full overflow-hidden"
-        style={project.videoUrl
-          ? { aspectRatio: '16 / 9', background: '#050505' }
-          : { height: '3rem', background: 'var(--color-splitter)' }}
-      >
-        {project.imageUrl && !project.videoUrl ? (
-          <img
-            src={project.imageUrl}
-            alt={project.title}
-            className="absolute inset-0 w-full h-full object-cover"
-            loading="lazy"
-          />
-        ) : !project.videoUrl ? (
-          <div className="absolute inset-0 flex items-center justify-center font-mono text-sm opacity-30">
-            {project.title}
-          </div>
-        ) : null}
+      {project.demoGuide && (
+        <div className="border-b border-[var(--color-splitter)] p-4 sm:px-6">
+          <ProjectVideoGuide project={project} language={language} />
+        </div>
+      )}
 
-        {project.videoUrl && (
-          <>
+      {/* ── Media area ── */}
+      <div className="px-5 py-5 sm:px-6 sm:py-6">
+        <div
+          className="relative mx-auto w-full max-w-[52rem] overflow-hidden rounded-lg border border-[var(--color-splitter)]"
+          style={project.videoUrl
+            ? { aspectRatio: '16 / 9', background: '#050505' }
+            : { height: '3rem', background: 'var(--color-splitter)' }}
+        >
+          {project.imageUrl && !project.videoUrl ? (
+            <img
+              src={project.imageUrl}
+              alt={project.title}
+              className="absolute inset-0 h-full w-full object-cover"
+              loading="lazy"
+            />
+          ) : !project.videoUrl ? (
+            <div className="absolute inset-0 flex items-center justify-center font-mono text-sm opacity-30">
+              {project.title}
+            </div>
+          ) : null}
+
+          {project.videoUrl && (
             <video
               ref={videoRef}
               src={project.videoUrl}
@@ -787,15 +793,9 @@ function PortfolioCard({
               aria-label={`${project.title} video`}
               className="pointer-events-none absolute inset-0 h-full w-full object-contain"
             />
-          </>
-        )}
-      </div>
-
-      {project.demoGuide && (
-        <div className="border-b border-[var(--color-splitter)] p-4 sm:px-6">
-          <ProjectVideoGuide project={project} language={language} />
+          )}
         </div>
-      )}
+      </div>
 
       {/* ── Content ── */}
       <div className="flex flex-col gap-5 p-5 sm:p-6">
@@ -857,6 +857,8 @@ function ProjectDetailModal({ project, language, onClose }: {
             {project.description[language]}
           </p>
 
+          <ProjectVideoGuide project={project} language={language} />
+
           {project.videoUrl ? (
             <div className="overflow-hidden rounded-lg border border-[var(--color-splitter)] bg-black" style={{ aspectRatio: '16 / 9' }}>
               <video
@@ -876,8 +878,6 @@ function ProjectDetailModal({ project, language, onClose }: {
               className="w-full rounded-lg border border-[var(--color-splitter)] object-contain"
             />
           ) : null}
-
-          <ProjectVideoGuide project={project} language={language} />
 
           <ProjectTechnicalDetailsPanel project={project} language={language} />
 
