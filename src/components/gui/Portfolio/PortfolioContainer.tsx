@@ -514,7 +514,7 @@ function ProjectVideoGuide({ project, language }: {
                         <span aria-hidden="true">←</span>
                         {status('DEBUGGING')}
                       </div>
-                      <div className="flex flex-wrap items-center gap-1.5 border-t border-[var(--color-splitter)] pt-3">
+                      <div className="flex flex-wrap items-center justify-center gap-1.5 border-t border-[var(--color-splitter)] pt-3 text-center">
                         {status('COMPILING')}
                         <span aria-hidden="true">→</span>
                         <span className="opacity-60">{language === 'ja' ? '目標回数に到達' : 'target reached'}</span>
