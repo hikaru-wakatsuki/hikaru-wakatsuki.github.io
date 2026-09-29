@@ -160,9 +160,8 @@ const PROJECTS: PortfolioProject[] = [
         "cues": [
           "Coders（並行実行）: 5人",
           "USB dongles（共有資源）: 5台",
-          "Required per compile: 2台",
-          "Goal per coder: 4回",
-          "Scheduler: EDF"
+          "Required per compile（1回に必要なドングル）: 2台",
+          "Goal per coder（1人あたりの目標）: コンパイル4回"
         ]
       },
       "en": {
@@ -171,8 +170,7 @@ const PROJECTS: PortfolioProject[] = [
           "Coders: 5",
           "USB dongles: 5",
           "Required per compile: 2",
-          "Goal per coder: 4 compiles",
-          "Scheduler: EDF"
+          "Goal per coder: 4 compiles"
         ]
       }
     },
@@ -418,7 +416,7 @@ function ProjectVideoGuide({ project, language }: {
   const guide = project.demoGuide[language];
   const statusStyle: Record<string, { background: string; color: string }> = {
     WAITING: { background: '#eeeeee', color: '#111827' },
-    COMPILING: { background: '#00ff87', color: '#052e16' },
+    COMPILING: { background: '#4f8f67', color: '#f0fdf4' },
     DEBUGGING: { background: '#5fafff', color: '#082f49' },
     REFACTORING: { background: '#00ffff', color: '#083344' },
     COMPLETE: { background: '#ff87ff', color: '#4a044e' },
@@ -454,8 +452,8 @@ function ProjectVideoGuide({ project, language }: {
         <div id={contentId} className="border-t border-[var(--color-splitter)] px-5 py-4 sm:px-6">
           {project.id === 'Codexion' ? (
             <div className="grid gap-4">
-              <div className="grid gap-3 lg:grid-cols-[0.72fr_1.28fr]">
-                <section className="overflow-hidden rounded-md border border-[var(--color-splitter)] bg-[var(--color-cli-bg)]">
+              <div className="grid gap-3 lg:grid-cols-2">
+                <section className="flex h-full flex-col overflow-hidden rounded-md border border-[var(--color-splitter)] bg-[var(--color-cli-bg)]">
                   <h4 className="border-b border-[var(--color-splitter)] px-3 py-2 font-mono text-[11px] font-bold text-[var(--color-cli-text)]">Simulation</h4>
                   <ul className="grid gap-1.5 p-3 font-mono text-[11px] leading-5 opacity-75">
                     {guide.cues.map((cue) => {
@@ -470,9 +468,9 @@ function ProjectVideoGuide({ project, language }: {
                   </ul>
                 </section>
 
-                <section className="overflow-hidden rounded-md border border-[var(--color-splitter)] bg-[var(--color-cli-bg)]">
+                <section className="flex h-full flex-col overflow-hidden rounded-md border border-[var(--color-splitter)] bg-[var(--color-cli-bg)]">
                   <h4 className="border-b border-[var(--color-splitter)] px-3 py-2 font-mono text-[11px] font-bold text-[var(--color-cli-text)]">Status Guide</h4>
-                  <div className="grid gap-3 p-3 text-[11px]">
+                  <div className="flex flex-1 flex-col justify-center gap-3 p-3 text-[11px]">
                     <div className="flex flex-wrap items-center gap-1.5">
                       {status('WAITING')}
                       <span aria-hidden="true">→</span>
@@ -530,29 +528,29 @@ function DiagramArrow() {
 
 function CodexionResourceDiagram({ language }: { language: 'ja' | 'en' }) {
   const coders = [
-    { label: 'C1', x: 180, y: 34 },
-    { label: 'C2', x: 271, y: 100 },
-    { label: 'C3', x: 236, y: 208 },
-    { label: 'C4', x: 124, y: 208 },
-    { label: 'C5', x: 89, y: 100 },
+    { label: 'C1', x: 180, y: 54 },
+    { label: 'C2', x: 271, y: 120 },
+    { label: 'C3', x: 236, y: 228 },
+    { label: 'C4', x: 124, y: 228 },
+    { label: 'C5', x: 89, y: 120 },
   ];
   const dongles = [
-    { label: 'D1', x: 236, y: 56 },
-    { label: 'D2', x: 271, y: 159 },
-    { label: 'D3', x: 180, y: 222 },
-    { label: 'D4', x: 89, y: 159 },
-    { label: 'D5', x: 124, y: 56 },
+    { label: 'D1', x: 236, y: 76 },
+    { label: 'D2', x: 271, y: 179 },
+    { label: 'D3', x: 180, y: 242 },
+    { label: 'D4', x: 89, y: 179 },
+    { label: 'D5', x: 124, y: 76 },
   ];
   const ring = [
-    [180, 34], [236, 56], [271, 100], [271, 159], [236, 208],
-    [180, 222], [124, 208], [89, 159], [89, 100], [124, 56], [180, 34],
+    [180, 54], [236, 76], [271, 120], [271, 179], [236, 228],
+    [180, 242], [124, 228], [89, 179], [89, 120], [124, 76], [180, 54],
   ].map(([x, y]) => `${x},${y}`).join(' ');
 
   return (
     <svg
       role="img"
       aria-label={language === 'ja' ? '5人のCoderと5台のUSBドングルの円形配置' : 'Circular layout of five coders and five USB dongles'}
-      viewBox="0 0 360 256"
+      viewBox="0 0 360 276"
       className="mx-auto h-auto w-full max-w-[23rem]"
     >
       <title>
@@ -570,8 +568,11 @@ function CodexionResourceDiagram({ language }: { language: 'ja' | 'en' }) {
         strokeWidth="3"
         strokeLinejoin="round"
       />
-      <line x1="180" y1="34" x2="236" y2="56" stroke="#00ff87" strokeWidth="5" strokeLinecap="round" />
-      <line x1="180" y1="34" x2="124" y2="56" stroke="#00ff87" strokeWidth="5" strokeLinecap="round" />
+      <line x1="180" y1="54" x2="236" y2="76" stroke="#4f8f67" strokeWidth="5" strokeLinecap="round" />
+      <line x1="180" y1="54" x2="124" y2="76" stroke="#4f8f67" strokeWidth="5" strokeLinecap="round" />
+      <text x="180" y="15" textAnchor="middle" fill="#4f8f67" fontSize="11" fontWeight="800" fontFamily="ui-monospace, monospace">
+        C1: COMPILING
+      </text>
 
       {coders.map((coder) => {
         const isCompiling = coder.label === 'C1';
@@ -581,15 +582,15 @@ function CodexionResourceDiagram({ language }: { language: 'ja' | 'en' }) {
               cx={coder.x}
               cy={coder.y}
               r="22"
-              fill={isCompiling ? '#00ff87' : '#1f2937'}
-              stroke={isCompiling ? '#15803d' : 'var(--color-cli-text)'}
+              fill={isCompiling ? '#4f8f67' : '#1f2937'}
+              stroke={isCompiling ? '#2f6b4a' : 'var(--color-cli-text)'}
               strokeWidth="2"
             />
             <text
               x={coder.x}
               y={coder.y + 4}
               textAnchor="middle"
-              fill={isCompiling ? '#052e16' : '#f8fafc'}
+              fill="#f8fafc"
               fontSize="11"
               fontWeight="700"
               fontFamily="ui-monospace, monospace"
@@ -610,15 +611,15 @@ function CodexionResourceDiagram({ language }: { language: 'ja' | 'en' }) {
               width="28"
               height="20"
               rx="4"
-              fill={isHeld ? '#00ff87' : '#facc15'}
-              stroke={isHeld ? '#15803d' : '#854d0e'}
+              fill={isHeld ? '#4f8f67' : '#facc15'}
+              stroke={isHeld ? '#2f6b4a' : '#854d0e'}
               strokeWidth="2"
             />
             <text
               x={dongle.x}
               y={dongle.y + 4}
               textAnchor="middle"
-              fill={isHeld ? '#052e16' : '#422006'}
+              fill={isHeld ? '#f0fdf4' : '#422006'}
               fontSize="9"
               fontWeight="800"
               fontFamily="ui-monospace, monospace"
@@ -629,13 +630,13 @@ function CodexionResourceDiagram({ language }: { language: 'ja' | 'en' }) {
         );
       })}
 
-      <text x="180" y="117" textAnchor="middle" fill="var(--color-text-muted)" fontSize="10" fontWeight="700">
-        C1: COMPILING
+      <text x="180" y="137" textAnchor="middle" fill="var(--color-text-muted)" fontSize="10" fontWeight="700">
+        {language === 'ja' ? 'コンパイルには' : 'Compile requires'}
       </text>
-      <text x="180" y="134" textAnchor="middle" fill="var(--color-text)" fontSize="12" fontWeight="800">
-        {language === 'ja' ? 'D5・D1の2台を保有' : 'holding D5 + D1'}
+      <text x="180" y="154" textAnchor="middle" fill="var(--color-text)" fontSize="12" fontWeight="800">
+        {language === 'ja' ? 'ドングル2台が必要' : '2 adjacent dongles'}
       </text>
-      <g transform="translate(126 151)">
+      <g transform="translate(126 171)">
         <circle cx="7" cy="7" r="6" fill="#1f2937" stroke="var(--color-cli-text)" />
         <text x="18" y="10" fill="var(--color-text-muted)" fontSize="9">Coder</text>
         <rect x="61" y="1" width="14" height="12" rx="2" fill="#facc15" stroke="#854d0e" />
