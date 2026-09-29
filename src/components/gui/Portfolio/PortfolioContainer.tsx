@@ -474,23 +474,52 @@ function TechnicalCaseDiagram({
             <span className="flex h-5 w-5 items-center justify-center rounded-full bg-[var(--color-accent-secondary)] font-mono text-[10px] font-bold text-[var(--color-cli-bg)]">1</span>
             <span className="text-xs font-bold">{language === 'ja' ? '候補の制限' : 'Constrain candidates'}</span>
           </header>
-          <div className="grid gap-3 p-3 md:grid-cols-[1fr_auto_1fr_auto_1fr] md:items-center">
-            <div className="grid gap-1.5 rounded border border-[var(--color-splitter)] p-3 font-mono text-[11px] leading-5">
-              <span className="font-sans text-xs font-bold text-[var(--color-text)]">{language === 'ja' ? '登録済み関数' : 'Registered functions'}</span>
-              <span>fn_add_numbers↵</span>
-              <span>fn_greet↵</span>
-              <span className="text-[var(--color-cli-text)]">fn_create↵</span>
-              <span className="text-[var(--color-cli-text)]">fn_create_user↵</span>
+          <div className="grid gap-3 p-3">
+            <div className="grid gap-3 lg:grid-cols-[1.4fr_0.8fr]">
+              <div className="rounded border border-[var(--color-splitter)] p-3">
+                <p className="text-xs font-bold">{language === 'ja' ? '登録済み関数をトークンID列へ変換' : 'Encode registered functions as token-ID sequences'}</p>
+                <div className="mt-2 grid gap-1.5 font-mono text-[11px] leading-5">
+                  <div className="grid grid-cols-[minmax(0,1fr)_auto] gap-3"><span>fn_greet↵</span><span className="opacity-70">[ 10 ][ 31 ][ ↵ ]</span></div>
+                  <div className="grid grid-cols-[minmax(0,1fr)_auto] gap-3 text-[var(--color-cli-text)]"><span>fn_create↵</span><span>[ 10 ][ 42 ][ ↵ ]</span></div>
+                  <div className="grid grid-cols-[minmax(0,1fr)_auto] gap-3 text-[var(--color-cli-text)]"><span>fn_create_user↵</span><span>[ 10 ][ 42 ][ 58 ][ ↵ ]</span></div>
+                </div>
+              </div>
+              <div className="rounded border border-[var(--color-accent-border)] bg-[var(--color-accent-soft)] p-3 text-center">
+                <span className="block text-xs font-bold">{language === 'ja' ? '現在までに生成したID' : 'IDs generated so far'}</span>
+                <span className="mt-3 block font-mono text-sm font-bold">[ 10 ][ 42 ]</span>
+              </div>
             </div>
-            <div className="hidden md:block"><DiagramArrow /></div>
-            <div className="rounded border border-[var(--color-accent-border)] bg-[var(--color-accent-soft)] p-3 text-center">
-              <span className="block text-xs font-bold">{language === 'ja' ? 'トークンID列へ変換' : 'Encode as token IDs'}</span>
-              <span className="mt-2 block font-mono text-[11px]">[ ID-A ][ ID-B ] … [ ↵ ID ]</span>
+
+            <div className="flex justify-center text-[var(--color-accent-secondary)]" aria-hidden="true">↓</div>
+
+            <div className="rounded border border-[var(--color-splitter)] p-3">
+              <p className="text-xs font-bold">{language === 'ja' ? '生成済みID列と先頭から比較' : 'Compare each candidate with the generated prefix'}</p>
+              <div className="mt-2 grid gap-1.5 font-mono text-[11px] leading-5">
+                <div className="grid grid-cols-[minmax(0,1fr)_auto] gap-3 opacity-55"><span>fn_greet&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;[ 10 ][ 31 ][ ↵ ]</span><span>{language === 'ja' ? '× 不一致・除外' : '× mismatch · removed'}</span></div>
+                <div className="grid grid-cols-[minmax(0,1fr)_auto] gap-3 text-[var(--color-cli-text)]"><span>fn_create&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;[ 10 ][ 42 ][ ↵ ]</span><span>{language === 'ja' ? '○ 一致・残す' : '○ match · keep'}</span></div>
+                <div className="grid grid-cols-[minmax(0,1fr)_auto] gap-3 text-[var(--color-cli-text)]"><span>fn_create_user [ 10 ][ 42 ][ 58 ][ ↵ ]</span><span>{language === 'ja' ? '○ 一致・残す' : '○ match · keep'}</span></div>
+              </div>
             </div>
-            <div className="hidden md:block"><DiagramArrow /></div>
-            <div className="rounded border border-[var(--color-cli-text)] bg-[var(--color-cli-text)] p-3 text-center text-[var(--color-cli-bg)]">
-              <span className="block text-xs font-bold">{language === 'ja' ? '次のIDを候補内に限定' : 'Allow candidate IDs only'}</span>
-              <span className="mt-2 block text-[11px] opacity-85">{language === 'ja' ? '未登録名につながるIDは選択不可' : 'IDs leading outside the list are blocked'}</span>
+
+            <div className="flex justify-center text-[var(--color-accent-secondary)]" aria-hidden="true">↓</div>
+
+            <div className="grid gap-3 lg:grid-cols-[1fr_auto_1fr] lg:items-center">
+              <div className="rounded border border-[var(--color-accent-border)] bg-[var(--color-accent-soft)] p-3">
+                <p className="text-xs font-bold">{language === 'ja' ? '残った候補の「次のID」を取得' : 'Collect the next ID from remaining candidates'}</p>
+                <div className="mt-2 grid gap-1 font-mono text-[11px]">
+                  <span>fn_create → [ {language === 'ja' ? '改行ID' : 'newline ID'} ]</span>
+                  <span>fn_create_user → [ 58 ]</span>
+                </div>
+              </div>
+              <div className="hidden lg:block"><DiagramArrow /></div>
+              <div className="rounded border border-[var(--color-cli-text)] bg-[var(--color-cli-text)] p-3 text-[var(--color-cli-bg)]">
+                <p className="text-xs font-bold">{language === 'ja' ? '許可IDの中だけでLLMスコアを比較' : 'Compare LLM scores only among allowed IDs'}</p>
+                <div className="mt-2 grid gap-1 font-mono text-[11px]">
+                  <div className="flex justify-between gap-3"><span>[ {language === 'ja' ? '改行ID' : 'newline ID'} ]</span><span>2.1</span></div>
+                  <div className="flex justify-between gap-3 font-bold"><span>[ 58 ]</span><span>4.8 ← {language === 'ja' ? '選択' : 'selected'}</span></div>
+                  <span className="mt-1 border-t border-current/30 pt-1 opacity-80">{language === 'ja' ? 'その他の語彙IDは比較対象外' : 'All other vocabulary IDs are excluded'}</span>
+                </div>
+              </div>
             </div>
           </div>
         </section>
