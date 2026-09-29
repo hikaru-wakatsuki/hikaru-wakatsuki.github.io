@@ -565,18 +565,18 @@ function DiagramArrow() {
 
 function CodexionResourceDiagram({ language }: { language: 'ja' | 'en' }) {
   const coders = [
-    { label: 'C1', x: 271, y: 120 },
-    { label: 'C2', x: 236, y: 228 },
-    { label: 'C3', x: 124, y: 228 },
-    { label: 'C4', x: 89, y: 120 },
-    { label: 'C5', x: 180, y: 54 },
+    { label: 'C1', x: 180, y: 54 },
+    { label: 'C2', x: 271, y: 120 },
+    { label: 'C3', x: 236, y: 228 },
+    { label: 'C4', x: 124, y: 228 },
+    { label: 'C5', x: 89, y: 120 },
   ];
   const dongles = [
-    { label: 'D1', x: 236, y: 76 },
-    { label: 'D2', x: 271, y: 179 },
-    { label: 'D3', x: 180, y: 242 },
-    { label: 'D4', x: 89, y: 179 },
-    { label: 'D5', x: 124, y: 76 },
+    { label: 'D1', x: 124, y: 76 },
+    { label: 'D2', x: 236, y: 76 },
+    { label: 'D3', x: 271, y: 179 },
+    { label: 'D4', x: 180, y: 242 },
+    { label: 'D5', x: 89, y: 179 },
   ];
   const ring = [
     [180, 54], [236, 76], [271, 120], [271, 179], [236, 228],
@@ -605,9 +605,9 @@ function CodexionResourceDiagram({ language }: { language: 'ja' | 'en' }) {
         strokeWidth="3"
         strokeLinejoin="round"
       />
-      <line x1="271" y1="120" x2="236" y2="76" stroke="#4f8f67" strokeWidth="5" strokeLinecap="round" />
-      <line x1="271" y1="120" x2="271" y2="179" stroke="#4f8f67" strokeWidth="5" strokeLinecap="round" />
-      <text x="300" y="82" textAnchor="middle" fill="#4f8f67" fontSize="11" fontWeight="800" fontFamily="ui-monospace, monospace">
+      <line x1="180" y1="54" x2="124" y2="76" stroke="#4f8f67" strokeWidth="4" strokeLinecap="round" />
+      <line x1="180" y1="54" x2="236" y2="76" stroke="#4f8f67" strokeWidth="4" strokeLinecap="round" />
+      <text x="180" y="15" textAnchor="middle" fill="#4f8f67" fontSize="11" fontWeight="800" fontFamily="ui-monospace, monospace">
         C1: COMPILING
       </text>
 
@@ -691,18 +691,18 @@ function CodexionDeadlockDiagram({
   language: 'ja' | 'en';
 }) {
   const coders = [
-    { label: 'C1', x: 276, y: 115 },
-    { label: 'C2', x: 239, y: 225 },
-    { label: 'C3', x: 121, y: 225 },
-    { label: 'C4', x: 84, y: 115 },
-    { label: 'C5', x: 180, y: 45 },
+    { label: 'C1', x: 180, y: 45 },
+    { label: 'C2', x: 276, y: 115 },
+    { label: 'C3', x: 239, y: 225 },
+    { label: 'C4', x: 121, y: 225 },
+    { label: 'C5', x: 84, y: 115 },
   ];
   const dongles = [
-    { label: 'D1', x: 239, y: 69 },
-    { label: 'D2', x: 276, y: 178 },
-    { label: 'D3', x: 180, y: 245 },
-    { label: 'D4', x: 84, y: 178 },
-    { label: 'D5', x: 121, y: 69 },
+    { label: 'D1', x: 121, y: 69 },
+    { label: 'D2', x: 239, y: 69 },
+    { label: 'D3', x: 276, y: 178 },
+    { label: 'D4', x: 180, y: 245 },
+    { label: 'D5', x: 84, y: 178 },
   ];
   const heldPairs = [[0, 0], [1, 1], [2, 2], [3, 3], [4, 4]];
   const waitingPairs = [[0, 1], [1, 2], [2, 3], [3, 4], [4, 0]];
@@ -731,19 +731,19 @@ function CodexionDeadlockDiagram({
     >
       <title>{isLockOrder ? (language === 'ja' ? 'ID順で取得' : 'Acquire by ID order') : (language === 'ja' ? '循環待ち' : 'Circular wait')}</title>
       <defs>
-        <marker id={`arrow-${mode}`} markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto">
-          <path d="M0,0 L7,3.5 L0,7 Z" fill={isLockOrder ? '#4f8f67' : '#ef6b73'} />
+        <marker id={`arrow-${mode}`} markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto">
+          <path d="M0,0 L5,2.5 L0,5 Z" fill={isLockOrder ? '#4f8f67' : '#ef6b73'} />
         </marker>
       </defs>
 
       {isLockOrder ? (
         <>
-          <line x1="276" y1="115" x2="250" y2="83" stroke="#4f8f67" strokeWidth="5" strokeLinecap="round" markerEnd="url(#arrow-lock-order)" />
-          <line x1="276" y1="115" x2="276" y2="160" stroke="#4f8f67" strokeWidth="5" strokeLinecap="round" markerEnd="url(#arrow-lock-order)" />
-          <circle cx="263" cy="88" r="10" fill="#4f8f67" />
-          <text x="263" y="92" textAnchor="middle" fill="#fff" fontSize="10" fontWeight="800">1</text>
-          <circle cx="294" cy="143" r="10" fill="#4f8f67" />
-          <text x="294" y="147" textAnchor="middle" fill="#fff" fontSize="10" fontWeight="800">2</text>
+          <line x1="180" y1="45" x2="138" y2="62" stroke="#4f8f67" strokeWidth="3" strokeLinecap="round" markerEnd="url(#arrow-lock-order)" />
+          <line x1="180" y1="45" x2="222" y2="62" stroke="#4f8f67" strokeWidth="3" strokeLinecap="round" markerEnd="url(#arrow-lock-order)" />
+          <circle cx="151" cy="47" r="8" fill="#4f8f67" />
+          <text x="151" y="50.5" textAnchor="middle" fill="#fff" fontSize="9" fontWeight="800">1</text>
+          <circle cx="209" cy="47" r="8" fill="#4f8f67" />
+          <text x="209" y="50.5" textAnchor="middle" fill="#fff" fontSize="9" fontWeight="800">2</text>
         </>
       ) : (
         <>
@@ -755,7 +755,7 @@ function CodexionDeadlockDiagram({
               x2={dongles[dongleIndex].x}
               y2={dongles[dongleIndex].y}
               stroke="#4f8f67"
-              strokeWidth="5"
+              strokeWidth="3"
               strokeLinecap="round"
             />
           ))}
@@ -770,8 +770,7 @@ function CodexionDeadlockDiagram({
                   x2={end.x}
                   y2={end.y}
                   stroke="#ef6b73"
-                  strokeWidth="3"
-                  strokeDasharray="6 5"
+                  strokeWidth="2.5"
                   markerEnd="url(#arrow-circular-wait)"
                 />
               );
@@ -816,10 +815,10 @@ function CodexionDeadlockDiagram({
       )}
 
       <g transform="translate(92 270)" fontSize="9">
-        <line x1="0" y1="0" x2="22" y2="0" stroke="#4f8f67" strokeWidth="5" strokeLinecap="round" />
+        <line x1="0" y1="0" x2="22" y2="0" stroke="#4f8f67" strokeWidth="3" strokeLinecap="round" />
         <text x="29" y="3" fill="var(--color-text-muted)">{language === 'ja' ? '保持・取得' : 'held / acquire'}</text>
         {!isLockOrder && <>
-          <line x1="105" y1="0" x2="127" y2="0" stroke="#ef6b73" strokeWidth="3" strokeDasharray="5 4" />
+          <line x1="105" y1="0" x2="127" y2="0" stroke="#ef6b73" strokeWidth="2.5" />
           <text x="134" y="3" fill="var(--color-text-muted)">{language === 'ja' ? '待機' : 'waiting'}</text>
         </>}
       </g>
