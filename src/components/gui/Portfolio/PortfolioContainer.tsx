@@ -620,9 +620,11 @@ function TechnicalCaseDiagram({
         </header>
         <div className="grid gap-2 p-3 font-mono text-[11px]">
           <div className="flex flex-wrap items-center gap-2 rounded border border-[var(--color-accent-border)] bg-[var(--color-cli-bg)] px-3 py-2">
-            <span>{language === 'ja' ? '初回' : 'First use'}</span>
+            <span>{language === 'ja' ? '初回リクエスト' : 'First request'}</span>
             <span aria-hidden="true">→</span>
             <span>{language === 'ja' ? 'トークン変換' : 'encode'}</span>
+            <span aria-hidden="true">→</span>
+            <span>token IDs</span>
             <span aria-hidden="true">→</span>
             <span>{language === 'ja' ? '結果を保存' : 'save result'}</span>
           </div>
