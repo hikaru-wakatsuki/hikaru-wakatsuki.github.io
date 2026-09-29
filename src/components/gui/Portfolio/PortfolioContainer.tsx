@@ -178,9 +178,9 @@ const PROJECTS: PortfolioProject[] = [
       "ja": {
         "caseStudies": [
           {
-            "title": "2台のドングル取得時のデッドロックを防止",
-            "challenge": "各Coderは左右のドングル2台を取得する必要がある。複数のCoderがそれぞれ片方を取得したまま、もう片方の解放を待つと、互いに処理を進められない循環待ちが発生する。",
-            "solution": "各Coderスレッドは、自身の左右にある2台のドングルをID順に並べ、小さいIDから大きいIDの順にmutexを取得。全員のロック順序を統一して循環待ちを防止。2台をロックした状態で、空き状況、クールダウン、待機順序を確認し、条件を満たす場合だけ同じCoderへまとめて割り当て。",
+            "title": "2台のDongleを安全に取得し、デッドロックを防止",
+            "challenge": "各Coderは、コンパイル前に左右2台のDongleを取得する必要がある。Coderごとに異なる順序でmutexを取得すると循環待ちが発生する。また、片方だけを所有した状態でもう片方を待つ構成では、処理が停止する可能性がある。",
+            "solution": "各Coderが使用する2台のDongleをID順に並べ、すべてのCoderスレッドで小さいIDから大きいIDの順にmutexを取得。2台のmutexを取得した状態で、所有状況、クールダウン、待機順序を確認し、両方を利用できる場合だけ同じCoderへまとめて割り当て。条件を満たさない場合は両mutexを解放して再試行することで、循環待ちと片方だけの所有を防止。",
             "challengeDiagram": "codexion-circular-wait",
             "solutionDiagram": "codexion-lock-order"
           },
@@ -565,11 +565,11 @@ function DiagramArrow() {
 
 function CodexionResourceDiagram({ language }: { language: 'ja' | 'en' }) {
   const coders = [
-    { label: 'C1', x: 180, y: 54 },
-    { label: 'C2', x: 271, y: 120 },
-    { label: 'C3', x: 236, y: 228 },
-    { label: 'C4', x: 124, y: 228 },
-    { label: 'C5', x: 89, y: 120 },
+    { label: 'C1', x: 271, y: 120 },
+    { label: 'C2', x: 236, y: 228 },
+    { label: 'C3', x: 124, y: 228 },
+    { label: 'C4', x: 89, y: 120 },
+    { label: 'C5', x: 180, y: 54 },
   ];
   const dongles = [
     { label: 'D1', x: 236, y: 76 },
@@ -595,8 +595,8 @@ function CodexionResourceDiagram({ language }: { language: 'ja' | 'en' }) {
       </title>
       <desc>
         {language === 'ja'
-          ? 'Coderとドングルを交互に円形配置。C1が左右のD5とD1を取得してコンパイルしている例'
-          : 'Coders and dongles alternate around a ring. C1 is shown compiling while holding adjacent dongles D5 and D1.'}
+          ? 'Coderとドングルを交互に円形配置。C1が左右のD1とD2を取得してコンパイルしている例'
+          : 'Coders and dongles alternate around a ring. C1 is shown compiling while holding adjacent dongles D1 and D2.'}
       </desc>
       <polyline
         points={ring}
@@ -605,9 +605,9 @@ function CodexionResourceDiagram({ language }: { language: 'ja' | 'en' }) {
         strokeWidth="3"
         strokeLinejoin="round"
       />
-      <line x1="180" y1="54" x2="236" y2="76" stroke="#4f8f67" strokeWidth="5" strokeLinecap="round" />
-      <line x1="180" y1="54" x2="124" y2="76" stroke="#4f8f67" strokeWidth="5" strokeLinecap="round" />
-      <text x="180" y="15" textAnchor="middle" fill="#4f8f67" fontSize="11" fontWeight="800" fontFamily="ui-monospace, monospace">
+      <line x1="271" y1="120" x2="236" y2="76" stroke="#4f8f67" strokeWidth="5" strokeLinecap="round" />
+      <line x1="271" y1="120" x2="271" y2="179" stroke="#4f8f67" strokeWidth="5" strokeLinecap="round" />
+      <text x="300" y="82" textAnchor="middle" fill="#4f8f67" fontSize="11" fontWeight="800" fontFamily="ui-monospace, monospace">
         C1: COMPILING
       </text>
 
@@ -639,7 +639,7 @@ function CodexionResourceDiagram({ language }: { language: 'ja' | 'en' }) {
       })}
 
       {dongles.map((dongle) => {
-        const isHeld = dongle.label === 'D1' || dongle.label === 'D5';
+        const isHeld = dongle.label === 'D1' || dongle.label === 'D2';
         return (
           <g key={dongle.label}>
             <rect
@@ -691,11 +691,11 @@ function CodexionDeadlockDiagram({
   language: 'ja' | 'en';
 }) {
   const coders = [
-    { label: 'C1', x: 180, y: 45 },
-    { label: 'C2', x: 276, y: 115 },
-    { label: 'C3', x: 239, y: 225 },
-    { label: 'C4', x: 121, y: 225 },
-    { label: 'C5', x: 84, y: 115 },
+    { label: 'C1', x: 276, y: 115 },
+    { label: 'C2', x: 239, y: 225 },
+    { label: 'C3', x: 121, y: 225 },
+    { label: 'C4', x: 84, y: 115 },
+    { label: 'C5', x: 180, y: 45 },
   ];
   const dongles = [
     { label: 'D1', x: 239, y: 69 },
@@ -705,7 +705,7 @@ function CodexionDeadlockDiagram({
     { label: 'D5', x: 121, y: 69 },
   ];
   const heldPairs = [[0, 0], [1, 1], [2, 2], [3, 3], [4, 4]];
-  const waitingPairs = [[0, 4], [1, 0], [2, 1], [3, 2], [4, 3]];
+  const waitingPairs = [[0, 1], [1, 2], [2, 3], [3, 4], [4, 0]];
   const isLockOrder = mode === 'lock-order';
   const stopBeforeDongle = (coderIndex: number, dongleIndex: number) => {
     const coder = coders[coderIndex];
@@ -724,7 +724,7 @@ function CodexionDeadlockDiagram({
     <svg
       role="img"
       aria-label={isLockOrder
-        ? (language === 'ja' ? 'C1が小さいIDのD1から大きいIDのD5の順に取得する図' : 'C1 acquires lower-ID D1 before higher-ID D5')
+        ? (language === 'ja' ? 'C1が小さいIDのD1から大きいIDのD2の順に取得する図' : 'C1 acquires lower-ID D1 before higher-ID D2')
         : (language === 'ja' ? '各Coderが片方のドングルを保持してもう片方を待つ循環待ちの図' : 'Circular wait where each coder holds one dongle and waits for another')}
       viewBox="0 0 360 286"
       className="mx-auto mt-4 h-auto w-full max-w-[22rem]"
@@ -738,12 +738,12 @@ function CodexionDeadlockDiagram({
 
       {isLockOrder ? (
         <>
-          <line x1="180" y1="45" x2="222" y2="62" stroke="#4f8f67" strokeWidth="5" strokeLinecap="round" markerEnd="url(#arrow-lock-order)" />
-          <path d="M 223 78 Q 180 126 137 78" fill="none" stroke="#4f8f67" strokeWidth="5" strokeLinecap="round" markerEnd="url(#arrow-lock-order)" />
-          <circle cx="207" cy="45" r="10" fill="#4f8f67" />
-          <text x="207" y="49" textAnchor="middle" fill="#fff" fontSize="10" fontWeight="800">1</text>
-          <circle cx="180" cy="115" r="10" fill="#4f8f67" />
-          <text x="180" y="119" textAnchor="middle" fill="#fff" fontSize="10" fontWeight="800">2</text>
+          <line x1="276" y1="115" x2="250" y2="83" stroke="#4f8f67" strokeWidth="5" strokeLinecap="round" markerEnd="url(#arrow-lock-order)" />
+          <line x1="276" y1="115" x2="276" y2="160" stroke="#4f8f67" strokeWidth="5" strokeLinecap="round" markerEnd="url(#arrow-lock-order)" />
+          <circle cx="263" cy="88" r="10" fill="#4f8f67" />
+          <text x="263" y="92" textAnchor="middle" fill="#fff" fontSize="10" fontWeight="800">1</text>
+          <circle cx="294" cy="143" r="10" fill="#4f8f67" />
+          <text x="294" y="147" textAnchor="middle" fill="#fff" fontSize="10" fontWeight="800">2</text>
         </>
       ) : (
         <>
@@ -790,7 +790,7 @@ function CodexionDeadlockDiagram({
         );
       })}
       {dongles.map((dongle) => {
-        const active = !isLockOrder || dongle.label === 'D1' || dongle.label === 'D5';
+        const active = !isLockOrder || dongle.label === 'D1' || dongle.label === 'D2';
         return (
           <g key={dongle.label} opacity={active ? 1 : 0.38}>
             <rect x={dongle.x - 14} y={dongle.y - 10} width="28" height="20" rx="4" fill={active ? '#facc15' : 'var(--color-bg)'} stroke={active ? '#854d0e' : 'var(--color-text-muted)'} strokeWidth="2" />
@@ -805,7 +805,7 @@ function CodexionDeadlockDiagram({
           <text x="180" y="163" textAnchor="middle" fill="var(--color-text-muted)" fontSize="10" fontWeight="700">
             {language === 'ja' ? '各Coderが左右2台をID順に取得' : 'Each coder locks its pair by ID'}
           </text>
-          <text x="180" y="182" textAnchor="middle" fill="var(--color-text)" fontSize="13" fontWeight="800" fontFamily="ui-monospace, monospace">D1 → D5</text>
+          <text x="180" y="182" textAnchor="middle" fill="var(--color-text)" fontSize="13" fontWeight="800" fontFamily="ui-monospace, monospace">D1 → D2</text>
         </g>
       ) : (
         <g>
