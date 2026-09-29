@@ -379,7 +379,7 @@ function ProjectVideoGuide({ project, language }: {
       {isOpen && (
         <div id={contentId} className="border-t border-[var(--color-splitter)] px-5 py-4 sm:px-6">
           {guide.overview && <p className="text-sm leading-6 opacity-80">{guide.overview}</p>}
-          <ul className={`${guide.overview ? 'mt-3 ' : ''}grid gap-x-8 gap-y-1.5 text-xs leading-5 opacity-70 xl:grid-cols-2`}>
+          <ul className={`${guide.overview ? 'mt-3 ' : ''}grid gap-y-2 text-xs leading-5 opacity-70`}>
             {guide.cues.map((cue) => (
               <li key={cue} className="flex gap-2">
                 <span aria-hidden="true" className="text-[var(--color-cli-text)]">•</span>
