@@ -1,4 +1,4 @@
-import { useRef, useCallback, useEffect, useState } from 'react';
+import { useRef, useCallback, useEffect, useId, useState } from 'react';
 import type { PortfolioProject } from '../../../types/portfolio';
 import { useAppState } from '../../../context/AppStateContext';
 
@@ -354,23 +354,43 @@ function ProjectVideoGuide({ project, language }: {
   project: PortfolioProject;
   language: 'ja' | 'en';
 }) {
+  const [isOpen, setIsOpen] = useState(false);
+  const contentId = useId();
+
   if (!project.demoGuide) return null;
   const guide = project.demoGuide[language];
 
   return (
-    <section className="rounded-lg border border-[var(--color-splitter)] bg-[var(--color-bg)] px-5 py-4 sm:px-6">
-      <h3 className="font-mono text-xs font-bold uppercase tracking-wide text-[var(--color-cli-text)]">
-        {language === 'ja' ? '動画で確認できること' : 'What the video shows'}
-      </h3>
-      <p className="mt-2 text-sm leading-6 opacity-80">{guide.overview}</p>
-      <ul className="mt-3 grid gap-x-8 gap-y-1.5 text-xs leading-5 opacity-70 xl:grid-cols-2">
-        {guide.cues.map((cue) => (
-          <li key={cue} className="flex gap-2">
-            <span aria-hidden="true" className="text-[var(--color-cli-text)]">•</span>
-            <span>{cue}</span>
-          </li>
-        ))}
-      </ul>
+    <section className="overflow-hidden rounded-lg border border-[var(--color-splitter)] bg-[var(--color-bg)]">
+      <button
+        type="button"
+        onClick={() => setIsOpen((current) => !current)}
+        aria-expanded={isOpen}
+        aria-controls={contentId}
+        className="flex w-full items-center justify-between gap-4 px-5 py-4 text-left transition-colors hover:bg-[var(--color-accent-soft)] focus-visible:outline-2 focus-visible:outline-offset-[-2px] sm:px-6"
+      >
+        <span className="font-mono text-xs font-bold tracking-wide text-[var(--color-cli-text)]">
+          {language === 'ja' ? '動画内の表示内容' : 'On-screen guide'}
+        </span>
+        <span className="shrink-0 font-mono text-xs opacity-70">
+          {isOpen
+            ? (language === 'ja' ? '非表示 −' : 'Hide −')
+            : (language === 'ja' ? '表示 ＋' : 'Show +')}
+        </span>
+      </button>
+      {isOpen && (
+        <div id={contentId} className="border-t border-[var(--color-splitter)] px-5 py-4 sm:px-6">
+          <p className="text-sm leading-6 opacity-80">{guide.overview}</p>
+          <ul className="mt-3 grid gap-x-8 gap-y-1.5 text-xs leading-5 opacity-70 xl:grid-cols-2">
+            {guide.cues.map((cue) => (
+              <li key={cue} className="flex gap-2">
+                <span aria-hidden="true" className="text-[var(--color-cli-text)]">•</span>
+                <span>{cue}</span>
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
     </section>
   );
 }
@@ -494,6 +514,12 @@ function PortfolioCard({
           </p>
         </div>
       </div>
+
+      {project.demoGuide && (
+        <div className="border-b border-[var(--color-splitter)] p-4 sm:px-6">
+          <ProjectVideoGuide project={project} language={language} />
+        </div>
+      )}
 
       {/* ── Media area ── */}
       <div
