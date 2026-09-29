@@ -26,9 +26,9 @@ export interface ProjectTechnicalCaseStudy {
   }>;
   diagram?: 'function-selection' | 'json-generation' | 'recursive-schema' | 'precomputation';
   challengeDiagram?: 'codexion-circular-wait' | 'codexion-partial-ownership' | 'codexion-log-interleaving'
-    | 'flyin-capacity-race' | 'flyin-instant-restricted' | 'flyin-blocked-route';
+    | 'flyin-blocked-route';
   solutionDiagram?: 'codexion-lock-order' | 'codexion-atomic-pair' | 'codexion-priority-heap' | 'codexion-log-mutex' | 'codexion-monitor-loop'
-    | 'flyin-weighted-route' | 'flyin-reservation' | 'flyin-two-turn' | 'flyin-reroute';
+    | 'flyin-weighted-route' | 'flyin-capacity-state' | 'flyin-reroute';
 }
 
 export interface ProjectDemoGuide {

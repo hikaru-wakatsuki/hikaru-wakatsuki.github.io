@@ -324,18 +324,20 @@ const PROJECTS: PortfolioProject[] = [
             "solutionDiagram": "flyin-weighted-route"
           },
           {
-            "title": "次ターンの予約を含めて容量超過を防止",
-            "challenge": "複数のDroneが同じターンに同じZoneやConnectionへ進もうとすると、現在の占有数だけでは、移動中のDroneが次に入るZoneの容量を超える可能性がある。",
-            "solution": "現在のZone占有数、Connection使用数、次ターンにZoneへ入るDroneの予約数を分けて管理。Droneをターン内で順番に判定し、現在数と予約数の合計がZone容量未満か、Connectionに空きがある場合だけ移動を確定。",
-            "challengeDiagram": "flyin-capacity-race",
-            "solutionDiagram": "flyin-reservation"
-          },
-          {
-            "title": "Restrictedへの移動を2ターンの状態遷移で管理",
-            "challenge": "Restrictedへの進入には2ターン必要なため、通常のZoneと同じ1回の位置更新では、移動中のConnection占有と到着先の予約を表現できない。",
-            "solution": "Droneにin_transitとtransit_toを持たせ、1ターン目に出発Zoneを離れてConnectionを占有し、到着先を予約。次のターンにConnectionと予約を解放してRestrictedへ進入する2段階の状態遷移として実装。",
-            "challengeDiagram": "flyin-instant-restricted",
-            "solutionDiagram": "flyin-two-turn"
+            "title": "現在の占有と移動予約を分けて容量超過を防止",
+            "challenge": "複数のDroneを同じターン内で移動させる場合、現在のZone占有数だけでは、すでに確定した移動や次ターンに到着するDroneを容量判定へ反映できない。特にRestricted Zoneへの移動は2ターンかかるため、移動中のConnection使用と到着先の予約を、現在位置とは別に管理する必要があった。",
+            "solution": "Zone占有数、Connection使用数、Restricted Zoneへの次ターン予約数を分け、移動時間に応じて各状態を更新する構成にした。",
+            "solutionSteps": [
+              {
+                "title": "用途ごとに3種類の状態を管理",
+                "text": "Zoneの現在占有数、Connectionの使用数、次ターンにRestricted Zoneへ到着するDroneの予約数を分けて管理。移動前に「現在の占有数＋予約数」がZone容量未満であり、Connectionにも空きがあることを確認した。"
+              },
+              {
+                "title": "移動時間に合わせて状態を更新",
+                "text": "Normal Zoneへの移動は、同じターン中に出発元と到着先の占有数を更新し、使用したConnectionをターン終了時に解放。Restricted Zoneへの移動は、1ターン目にConnectionを使用して到着先を予約し、Droneにin_transitとtransit_toを保持。次のターンにConnectionと予約を解放し、到着先の占有数へ反映した。"
+              }
+            ],
+            "solutionDiagram": "flyin-capacity-state"
           },
           {
             "title": "混雑時に現在地から経路を再計算",
@@ -383,18 +385,20 @@ const PROJECTS: PortfolioProject[] = [
             "solutionDiagram": "flyin-weighted-route"
           },
           {
-            "title": "Prevent over-capacity moves with next-turn reservations",
-            "challenge": "Several drones may target the same zone or connection in one turn. Current occupancy alone cannot account for drones already in transit to that zone.",
-            "solution": "The scheduler tracks current zone occupancy, connection usage and next-turn reservations separately. It evaluates drones sequentially and commits a move only when current occupancy plus reservations and link usage remain within capacity.",
-            "challengeDiagram": "flyin-capacity-race",
-            "solutionDiagram": "flyin-reservation"
-          },
-          {
-            "title": "Model restricted entry as a two-turn transition",
-            "challenge": "Entering a restricted zone takes two turns, so a single position update cannot represent an occupied connection and a reserved destination.",
-            "solution": "Each drone stores in_transit and transit_to. On the first turn it leaves the source, occupies the connection and reserves the destination; on the next turn it releases both and enters the restricted zone.",
-            "challengeDiagram": "flyin-instant-restricted",
-            "solutionDiagram": "flyin-two-turn"
+            "title": "Separate current occupancy from movement reservations to prevent capacity overflow",
+            "challenge": "When several drones move in the same turn, current Zone occupancy alone cannot represent moves already committed or drones arriving on the next turn. Restricted movement takes two turns, so Connection usage and the destination reservation must be tracked separately from the drone's current position.",
+            "solution": "Zone occupancy, Connection usage and next-turn Restricted reservations are stored separately and updated according to the movement duration.",
+            "solutionSteps": [
+              {
+                "title": "Track three states for separate responsibilities",
+                "text": "The scheduler stores current Zone occupancy, Connection usage and reservations for drones reaching a Restricted Zone on the next turn. Before committing a move, it checks that current occupancy plus reservations stays below the Zone capacity and that the Connection has space."
+              },
+              {
+                "title": "Update state according to movement duration",
+                "text": "A Normal move updates source and destination occupancy in the same turn and releases its Connection at turn end. A Restricted move occupies the Connection, reserves the destination and stores in_transit and transit_to on the first turn; the next turn releases the Connection and reservation and adds the drone to destination occupancy."
+              }
+            ],
+            "solutionDiagram": "flyin-capacity-state"
           },
           {
             "title": "Recalculate a route when congestion blocks the next move",
@@ -1694,39 +1698,83 @@ function FlyInDecisionDiagram({ kind, language }: { kind: string; language: 'ja'
     );
   }
 
+  if (kind === 'flyin-capacity-state') {
+    const stateBoxClass = 'rounded-md border border-[var(--color-splitter)] bg-[var(--color-bg)] px-2.5 py-2 text-center';
+    return (
+      <div
+        role="img"
+        aria-label={ja
+          ? 'Zone占有数、Connection使用数、次ターン予約数を使った容量判定と、Normal・Restricted移動の状態更新'
+          : 'Capacity checks using Zone occupancy, Connection usage and next-turn reservations, followed by Normal and Restricted state updates'}
+        className="mt-4 overflow-hidden rounded-md border border-[var(--color-splitter)] bg-[var(--color-cli-bg)] p-3"
+      >
+        <p className="font-mono text-[10px] font-bold text-[var(--color-text)]">
+          {ja ? '移動前の共通判定' : 'Shared checks before movement'}
+        </p>
+        <div className="mt-2 grid gap-2 sm:grid-cols-2">
+          <div className={`${stateBoxClass} border-[#4f8f67] bg-[#4f8f67]/10`}>
+            <p className="font-mono text-[9px] font-bold text-[var(--color-cli-text)]">Zone</p>
+            <p className="mt-1 text-[10px] text-[var(--color-text)]">
+              {ja ? '現在占有数＋予約数＜容量' : 'occupancy + reservations < capacity'}
+            </p>
+          </div>
+          <div className={`${stateBoxClass} border-[#4f8f67] bg-[#4f8f67]/10`}>
+            <p className="font-mono text-[9px] font-bold text-[var(--color-cli-text)]">Connection</p>
+            <p className="mt-1 text-[10px] text-[var(--color-text)]">
+              {ja ? '使用数＜容量' : 'usage < capacity'}
+            </p>
+          </div>
+        </div>
+
+        <div aria-hidden="true" className="py-1.5 text-center font-bold text-[var(--color-cli-text)]">↓</div>
+
+        <div className="grid gap-2.5 sm:grid-cols-2">
+          <section className="rounded-md border border-[var(--color-splitter)] bg-[var(--color-bg)] p-2.5">
+            <div className="flex items-center justify-between gap-2">
+              <p className="font-mono text-[10px] font-bold text-[var(--color-text)]">Normal Zone</p>
+              <span className="rounded-full border border-[var(--color-splitter)] px-2 py-0.5 font-mono text-[8px] text-[var(--color-text-muted)]">
+                {ja ? '同じターン' : 'same turn'}
+              </span>
+            </div>
+            <div className="mt-2 grid gap-1.5 text-[9px] leading-4 text-[var(--color-text-muted)]">
+              <p className="rounded border border-[var(--color-splitter)] px-2 py-1.5">
+                {ja ? '出発Zoneの占有数 −1' : 'source occupancy −1'}
+              </p>
+              <p className="rounded border border-[#4f8f67] bg-[#4f8f67]/10 px-2 py-1.5">
+                {ja ? '到着Zoneの占有数 ＋1' : 'destination occupancy +1'}
+              </p>
+              <p className="rounded border border-[var(--color-splitter)] px-2 py-1.5">
+                {ja ? 'Connectionを使用 → ターン終了時に解放' : 'use Connection → release at turn end'}
+              </p>
+            </div>
+          </section>
+
+          <section className="rounded-md border border-[#d6a84f] bg-[#d6a84f]/5 p-2.5">
+            <p className="font-mono text-[10px] font-bold text-[var(--color-text)]">Restricted Zone</p>
+            <div className="mt-2 grid grid-cols-[1fr_auto_1fr] items-stretch gap-1.5">
+              <div className="rounded border border-[#d6a84f] bg-[#d6a84f]/10 px-2 py-1.5 text-[9px] leading-4 text-[var(--color-text-muted)]">
+                <p className="font-mono font-bold text-[var(--color-text)]">Turn N</p>
+                <p className="mt-1">{ja ? '出発Zone −1' : 'source −1'}</p>
+                <p>{ja ? 'Connection ＋1' : 'Connection +1'}</p>
+                <p>{ja ? '予約 ＋1' : 'reservation +1'}</p>
+                <p className="font-mono">in_transit = true</p>
+              </div>
+              <span aria-hidden="true" className="self-center font-bold text-[var(--color-text-muted)]">→</span>
+              <div className="rounded border border-[#4f8f67] bg-[#4f8f67]/10 px-2 py-1.5 text-[9px] leading-4 text-[var(--color-text-muted)]">
+                <p className="font-mono font-bold text-[var(--color-text)]">Turn N + 1</p>
+                <p className="mt-1">{ja ? 'Connection −1' : 'Connection −1'}</p>
+                <p>{ja ? '予約 −1' : 'reservation −1'}</p>
+                <p>{ja ? '到着Zone ＋1' : 'destination +1'}</p>
+                <p className="font-mono">in_transit = false</p>
+              </div>
+            </div>
+          </section>
+        </div>
+      </div>
+    );
+  }
+
   const diagrams: Record<string, DiagramConfig> = {
-    'flyin-capacity-race': {
-      nodes: [
-        { label: 'Zone  1 / 2', detail: ja ? '空きは1' : 'one slot open', tone: 'muted' },
-        { label: ja ? 'D1・D2' : 'D1 / D2', detail: ja ? '同じ空きを確認' : 'both see the same slot', tone: 'warning' },
-        { label: ja ? '2台とも移動' : 'Both move', tone: 'warning' },
-        { label: 'Zone  3 / 2', detail: ja ? '上限超過' : 'over capacity', tone: 'danger' },
-      ],
-    },
-    'flyin-reservation': {
-      nodes: [
-        { label: 'occupancy 1 + reserved 0', tone: 'muted' },
-        { label: 'D1', detail: ja ? '移動前にreserved +1' : 'reserve before moving', tone: 'accent' },
-        { label: 'D2', detail: '1 + 1 ≥ 2', tone: 'warning' },
-        { label: ja ? 'このターンは待機' : 'Wait this turn', tone: 'accent' },
-      ],
-    },
-    'flyin-instant-restricted': {
-      nodes: [
-        { label: 'Turn N', detail: 'Zone A', tone: 'muted' },
-        { label: ja ? '1回で位置を更新' : 'One-step position update', tone: 'warning' },
-        { label: 'Restricted', tone: 'warning' },
-        { label: ja ? '移動中と予約を表せない' : 'Transit and reservation disappear', tone: 'danger' },
-      ],
-    },
-    'flyin-two-turn': {
-      nodes: [
-        { label: 'Turn N', detail: ja ? '出発Zoneを離れる' : 'leave source zone', tone: 'muted' },
-        { label: 'in_transit = True', detail: ja ? '通路を使用・到着先を予約' : 'occupy link and reserve destination', tone: 'accent' },
-        { label: 'Turn N + 1', detail: ja ? '通路と予約を解放' : 'release link and reservation', tone: 'accent' },
-        { label: 'Restricted', detail: ja ? '進入完了' : 'arrival complete', tone: 'accent' },
-      ],
-    },
     'flyin-blocked-route': {
       nodes: [
         { label: ja ? '予定経路 A' : 'Planned route A', tone: 'muted' },
