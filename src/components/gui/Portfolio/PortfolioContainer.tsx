@@ -1853,6 +1853,13 @@ function PortfolioCard({
               </p>
             )}
           </div>
+          <button
+            type="button"
+            onClick={() => onOpenDetails(project)}
+            className="w-full shrink-0 rounded border border-[var(--color-cli-text)] bg-[var(--color-cli-text)] px-4 py-2 text-center font-mono text-xs font-bold text-[var(--color-cli-bg)] hover:opacity-80 focus-visible:outline-2 focus-visible:outline-offset-2 sm:w-auto"
+          >
+            {language === 'ja' ? '技術課題と実装の工夫を見る' : 'View engineering decisions'}
+          </button>
         </div>
         <p className="mt-3 max-w-3xl text-sm leading-6 opacity-75">
           {project.description[language]}
@@ -1902,20 +1909,6 @@ function PortfolioCard({
         </div>
       </div>
 
-      {/* ── Content ── */}
-      <div className="flex flex-col gap-5 p-5 sm:p-6">
-        <div className="flex justify-end">
-          <div className="flex flex-wrap items-center gap-3">
-            <button
-              type="button"
-              onClick={() => onOpenDetails(project)}
-              className="rounded border border-[var(--color-cli-text)] bg-[var(--color-cli-text)] px-4 py-2 font-mono text-xs font-bold text-[var(--color-cli-bg)] hover:opacity-80 focus-visible:outline-2 focus-visible:outline-offset-2"
-            >
-              {language === 'ja' ? '技術課題と実装の工夫を見る' : 'View engineering decisions'}
-            </button>
-          </div>
-        </div>
-      </div>
     </article>
   );
 }
