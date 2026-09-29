@@ -84,9 +84,9 @@ const PROJECTS: PortfolioProject[] = [
           }
         ],
         "verification": [
-          "Qwen3-0.6Bの実モデルを使い、数値・文字列・真偽値・入れ子のオブジェクト・配列について、関数選択から引数生成までをIntegration Testで確認",
-          "共通の接頭辞を持つ関数名と改行による終端判定、数値トークンの絞り込み、再帰スキーマ、カスタムトークナイザを決定的なUnit Testで検証",
-          "ファイル欠損、不正JSON、不正な関数定義、空の入力、未知のモデル名などのエラー処理を確認。flake8とmypyも実行"
+          "実モデルによる一連動作：Qwen3-0.6Bを使い、自然言語の入力から関数選択、JSON引数の生成までを検証。文字列、数値、真偽値、入れ子のオブジェクト、配列で期待する結果を確認。",
+          "個別機能の検証：共通部分を持つ関数名の選択、改行による名前の確定、数値用トークンの絞り込み、再帰的な引数生成、独自トークナイザを個別に検証。",
+          "異常系とコード品質：ファイル欠損、不正JSON、関数定義の不備、空のプロンプト、存在しないモデル名を検知。対象と原因をエラーメッセージに示し、不正な状態では終了コード1で停止。flake8とmypyも実行。"
         ]
       },
       "en": {
@@ -127,9 +127,9 @@ const PROJECTS: PortfolioProject[] = [
           }
         ],
         "verification": [
-          "Real-model integration tests with Qwen3-0.6B cover function selection and argument generation for numbers, strings, booleans, nested objects and arrays.",
-          "Deterministic unit tests cover shared prefixes, newline termination, numeric-token filtering, recursive schemas and the custom tokenizer.",
-          "Error cases include missing files, invalid JSON and function definitions, empty input, and unknown model names; flake8 and mypy are also run."
+          "End-to-end behavior with a real model: Qwen3-0.6B is used to verify the complete path from natural-language input through function selection and JSON argument generation across strings, numbers, booleans, nested objects and arrays.",
+          "Individual behavior: tests isolate function names with shared prefixes, newline termination, numeric-token filtering, recursive argument generation and the custom tokenizer.",
+          "Errors and code quality: missing files, invalid JSON, invalid function definitions, empty prompts and unknown model names are detected. Messages identify the affected target and cause, and invalid states terminate with exit code 1. flake8 and mypy are also run."
         ]
       }
     }
