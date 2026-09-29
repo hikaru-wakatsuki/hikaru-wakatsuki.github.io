@@ -304,20 +304,16 @@ const PROJECTS: PortfolioProject[] = [
             "solution": "入力をモデル化して段階的に検証し、実際に移動可能な地図だけを後続処理へ渡す構成にした。",
             "solutionSteps": [
               {
-                "title": "入力を役割ごとのモデルへ変換",
-                "text": "Zone、Connection、地図全体を表すDronesNetworkをPydanticモデルとして定義。Zoneの種類はZoneTypeで管理し、文字列のまま後続処理へ渡さない構成にした。"
+                "title": "入力を型付きモデルへ変換して検証",
+                "text": "入力文字列をZone、Connection、地図全体を表すDronesNetworkへ変換。Zoneの種類はZoneTypeで管理し、座標・容量の型、メタデータ、必須項目の不足や重複を解析時に検証。失敗した行と原因をエラーメッセージへ含め、不正な値を後続処理へ渡さない構成にした。"
               },
               {
-                "title": "入力行の書式と値を検証",
-                "text": "座標・容量の型、Zone種別、メタデータ、不明な項目、必須項目の不足や重複を解析時に確認。失敗した行と原因をエラーメッセージへ含めた。"
+                "title": "地図全体の矛盾を検出",
+                "text": "個別の入力行だけでは判定できない、Zone名・座標の重複、存在しないZoneへの接続、向きを入れ替えただけの重複通路、Blockedに設定されたStart・GoalをDronesNetworkで検出。問題の種類と対象をエラーメッセージへ含めた。"
               },
               {
-                "title": "地図全体の矛盾を検証",
-                "text": "Zone名・座標の重複、存在しないZoneへの接続、向きを入れ替えただけの重複通路、Blockedに設定されたStart・GoalをDronesNetworkで検出した。"
-              },
-              {
-                "title": "実際に移動可能な地図か確認",
-                "text": "検証済みモデルから双方向の隣接リストを構築し、Blocked Zoneにつながる通路を除外。DFSでStartからGoalへ到達できる場合だけシミュレーションを開始した。"
+                "title": "実際に移動できる地図か確認",
+                "text": "検証済みの地図から双方向の隣接リストを構築し、Blocked Zoneにつながる通路を除外。その状態でDFSを使ってStartからGoalへの到達可能性を確認し、到達できる場合だけシミュレーションを開始した。"
               }
             ]
           },
@@ -368,20 +364,16 @@ const PROJECTS: PortfolioProject[] = [
             "solution": "The input is modelled and validated in stages so only an executable map reaches scheduling.",
             "solutionSteps": [
               {
-                "title": "Convert input into role-specific models",
-                "text": "Pydantic models represent Zone, Connection and the full DronesNetwork. ZoneType carries the zone category so raw strings do not pass into later processing."
+                "title": "Convert input into typed models and validate it",
+                "text": "The parser converts input text into Zone, Connection and the full DronesNetwork. ZoneType represents each category, while coordinate and capacity types, metadata, and missing or duplicate required fields are checked before invalid values can reach later processing. Errors include the failing line and cause when available."
               },
               {
-                "title": "Validate line format and values",
-                "text": "Parsing checks coordinate and capacity types, zone categories, metadata, unknown fields and missing or duplicate required fields, then reports the failing line and cause."
+                "title": "Detect whole-map contradictions",
+                "text": "DronesNetwork catches conflicts that cannot be judged from one line alone: duplicate zone names or coordinates, connections to unknown zones, reversed duplicate links, and blocked Start or Goal zones. Error messages identify the problem type and affected value."
               },
               {
-                "title": "Validate whole-map consistency",
-                "text": "DronesNetwork rejects duplicate names or coordinates, unknown endpoints, reversed duplicate connections and blocked Start or Goal zones."
-              },
-              {
-                "title": "Confirm that the map is executable",
-                "text": "The program builds an undirected adjacency list, excludes links touching blocked zones and runs DFS from Start to Goal before simulation begins."
+                "title": "Confirm that drones can actually reach Goal",
+                "text": "The program builds an undirected adjacency list, removes connections touching Blocked zones, and uses DFS to confirm a route from Start to Goal. Simulation starts only when that check succeeds."
               }
             ]
           },
@@ -1790,16 +1782,23 @@ function ProjectTechnicalDetailsPanel({ project, language }: {
                     </p>
                     {item.solutionSteps ? (
                       <ol className="mt-2 grid gap-3">
-                        {item.solutionSteps.map((step, stepIndex) => (
-                          <li key={step.title} className="grid grid-cols-[auto_1fr] gap-2.5">
-                            <span className="mt-0.5 flex h-5 w-5 items-center justify-center rounded-full border border-[var(--color-cli-text)] font-mono text-[10px] font-bold text-[var(--color-cli-text)]">
-                              {stepIndex + 1}
-                            </span>
-                            <div>
-                              <p className="font-bold text-[var(--color-text)]">{step.title}</p>
-                              <p className="mt-1 leading-7 text-[var(--color-text-muted)]">{step.text}</p>
-                            </div>
-                          </li>
+                        {item.solutionSteps.map((step, stepIndex, steps) => (
+                          <Fragment key={step.title}>
+                            <li className="grid grid-cols-[auto_1fr] gap-2.5">
+                              <span className="mt-0.5 flex h-5 w-5 items-center justify-center rounded-full border border-[var(--color-cli-text)] font-mono text-[10px] font-bold text-[var(--color-cli-text)]">
+                                {stepIndex + 1}
+                              </span>
+                              <div>
+                                <p className="font-bold text-[var(--color-text)]">{step.title}</p>
+                                <p className="mt-1 leading-7 text-[var(--color-text-muted)]">{step.text}</p>
+                              </div>
+                            </li>
+                            {project.id === 'Fly-in' && index === 0 && stepIndex < steps.length - 1 && (
+                              <li aria-hidden="true" className="ml-1.5 -my-1 font-mono text-base leading-none text-[var(--color-cli-text)]">
+                                ↓
+                              </li>
+                            )}
+                          </Fragment>
                         ))}
                       </ol>
                     ) : (
