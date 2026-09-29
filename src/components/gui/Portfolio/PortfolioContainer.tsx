@@ -7,7 +7,7 @@ const PROJECTS: PortfolioProject[] = [
     "id": "Call_Me_Maybe",
     "title": "Call Me Maybe",
     "description": {
-      "ja": "自然言語の依頼を、ローカルLLMで実行可能な関数名と型付きJSON引数へ変換するFunction Calling実装。関数候補とスキーマから、生成中にLLMが選べる次トークンを制約します。",
+      "ja": "自然言語で書かれた依頼から、実行する関数を選び、必要な引数をJSON形式で生成するローカルLLMアプリ。登録済みの関数と引数型に基づいて生成内容を制限し、存在しない関数や型の異なる引数を抑止。",
       "en": "A local-LLM function-calling implementation that converts natural-language requests into an executable function name and typed JSON arguments. Function candidates and schemas constrain which next tokens the model can select during generation."
     },
     "tags": [
@@ -27,21 +27,23 @@ const PROJECTS: PortfolioProject[] = [
       "ja": {
         "overview": "英語UIに表示される、入力から検証までのFunction Callingパイプラインを順に追えます。",
         "cues": [
-          "AVAILABLE FUNCTIONS：LLMが選択できる関数名と引数型",
+          "Available functions：LLMが選択できる関数と、それぞれの引数",
           "INPUT → FUNCTION → ARGUMENTS → VALIDATION：現在の処理段階",
-          "FUNCTION SELECTED：自然言語から選ばれた関数",
-          "GENERATED ARGUMENTS：スキーマに従って逐次生成されるJSON",
-          "SCHEMA VALIDATION / Overall progress：型検証の結果と4件全体の進捗"
+          "Function selected：入力内容から選択された関数",
+          "Generated arguments：関数定義に従って生成されるJSON引数",
+          "Schema validation：JSONの形式と引数型の検証結果",
+          "Overall progress：4件の入力に対する処理状況"
         ]
       },
       "en": {
         "overview": "Follow the complete function-calling pipeline from a natural-language request to validated output.",
         "cues": [
-          "AVAILABLE FUNCTIONS: candidate names and typed signatures",
+          "Available functions: functions the LLM can select and their arguments",
           "INPUT → FUNCTION → ARGUMENTS → VALIDATION: the active pipeline stage",
-          "FUNCTION SELECTED: the function chosen from the request",
-          "GENERATED ARGUMENTS: JSON streamed under schema constraints",
-          "SCHEMA VALIDATION / Overall progress: type checks and progress across four requests"
+          "Function selected: the function chosen from the request",
+          "Generated arguments: JSON arguments generated from the function definition",
+          "Schema validation: JSON syntax and argument-type checks",
+          "Overall progress: processing status across four requests"
         ]
       }
     },
@@ -358,7 +360,7 @@ function ProjectVideoGuide({ project, language }: {
   return (
     <section className="rounded-lg border border-[var(--color-splitter)] bg-[var(--color-bg)] px-5 py-4 sm:px-6">
       <h3 className="font-mono text-xs font-bold uppercase tracking-wide text-[var(--color-cli-text)]">
-        {language === 'ja' ? '動画の見方' : 'Video guide'}
+        {language === 'ja' ? '動画で確認できること' : 'What the video shows'}
       </h3>
       <p className="mt-2 text-sm leading-6 opacity-80">{guide.overview}</p>
       <ul className="mt-3 grid gap-x-8 gap-y-1.5 text-xs leading-5 opacity-70 xl:grid-cols-2">
