@@ -737,16 +737,11 @@ function CodexionDeadlockDiagram({
   if (isLockOrder) {
     const nodes = [...coders, ...dongles];
     const lockEdges = [
-      { coder: 'C1', dongle: 'D1', step: 1 },
-      { coder: 'C1', dongle: 'D2', step: 2 },
-      { coder: 'C2', dongle: 'D2', step: 1 },
-      { coder: 'C2', dongle: 'D3', step: 2 },
-      { coder: 'C3', dongle: 'D3', step: 1 },
-      { coder: 'C3', dongle: 'D4', step: 2 },
-      { coder: 'C4', dongle: 'D4', step: 1 },
-      { coder: 'C4', dongle: 'D5', step: 2 },
-      { coder: 'C5', dongle: 'D1', step: 1 },
-      { coder: 'C5', dongle: 'D5', step: 2 },
+      { coder: 'C1', dongle: 'D1' },
+      { coder: 'C2', dongle: 'D2' },
+      { coder: 'C3', dongle: 'D3' },
+      { coder: 'C4', dongle: 'D4' },
+      { coder: 'C5', dongle: 'D1' },
     ];
     return (
       <svg
@@ -760,14 +755,11 @@ function CodexionDeadlockDiagram({
         <title>{language === 'ja' ? '全Coder共通のmutex取得方向' : 'One mutex acquisition direction for every coder'}</title>
         <defs>
           <marker id="arrow-lock-first" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto">
-            <path d="M0,0 L5,2.5 L0,5 Z" fill="#5fafff" />
-          </marker>
-          <marker id="arrow-lock-second" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto">
             <path d="M0,0 L5,2.5 L0,5 Z" fill="#4f8f67" />
           </marker>
         </defs>
 
-        {lockEdges.map(({ coder, dongle, step }) => {
+        {lockEdges.map(({ coder, dongle }) => {
           const from = nodes.find((node) => node.label === coder)!;
           const to = nodes.find((node) => node.label === dongle)!;
           const dx = to.x - from.x;
@@ -776,7 +768,6 @@ function CodexionDeadlockDiagram({
           const endX = to.x - (dx / distance) * 18;
           const endY = to.y - (dy / distance) * 18;
           const isC5 = coder === 'C5';
-          const color = step === 1 ? '#5fafff' : '#4f8f67';
           return (
             <line
               key={`${coder}-${dongle}`}
@@ -784,10 +775,10 @@ function CodexionDeadlockDiagram({
               y1={from.y}
               x2={endX}
               y2={endY}
-              stroke={color}
+              stroke="#4f8f67"
               strokeWidth={isC5 ? 4 : 2.75}
               strokeLinecap="round"
-              markerEnd={step === 1 ? 'url(#arrow-lock-first)' : 'url(#arrow-lock-second)'}
+              markerEnd="url(#arrow-lock-first)"
             />
           );
         })}
@@ -806,19 +797,17 @@ function CodexionDeadlockDiagram({
         ))}
 
         <text x="180" y="130" textAnchor="middle" fill="var(--color-cli-text)" fontSize="10" fontWeight="800">
-          {language === 'ja' ? 'C5が循環を切るポイント' : 'C5 breaks the cycle'}
+          {language === 'ja' ? '全Coderが小さいIDを先に取得' : 'Every coder locks the lower ID first'}
         </text>
         <text x="180" y="149" textAnchor="middle" fill="var(--color-text)" fontSize="12" fontWeight="800" fontFamily="ui-monospace, monospace">
-          ① D1 → ② D5
+          {language === 'ja' ? 'C5もD5ではなくD1を先に取得' : 'C5 also locks D1 before D5'}
         </text>
         <text x="180" y="168" textAnchor="middle" fill="var(--color-text-muted)" fontSize="9.5" fontWeight="700">
-          {language === 'ja' ? 'D5 → D1を作らず循環待ちを防止' : 'No D5 → D1 edge, so no circular wait'}
+          {language === 'ja' ? 'D5 → D1のロック順序を作らず循環を防止' : 'No D5 → D1 lock order, so no cycle can form'}
         </text>
-        <g transform="translate(42 270)">
-          <line x1="0" y1="0" x2="22" y2="0" stroke="#5fafff" strokeWidth="2.75" markerEnd="url(#arrow-lock-first)" />
-          <text x="31" y="3" fill="var(--color-text-muted)" fontSize="9">{language === 'ja' ? '① 先：小さいID' : '① first: lower ID'}</text>
-          <line x1="158" y1="0" x2="180" y2="0" stroke="#4f8f67" strokeWidth="2.75" markerEnd="url(#arrow-lock-second)" />
-          <text x="189" y="3" fill="var(--color-text-muted)" fontSize="9">{language === 'ja' ? '② 後：大きいID' : '② second: higher ID'}</text>
+        <g transform="translate(91 270)">
+          <line x1="0" y1="0" x2="24" y2="0" stroke="#4f8f67" strokeWidth="2.75" markerEnd="url(#arrow-lock-first)" />
+          <text x="34" y="3" fill="var(--color-text-muted)" fontSize="9">{language === 'ja' ? '先に取得する小さいID' : 'lower ID acquired first'}</text>
         </g>
       </svg>
     );
@@ -937,8 +926,8 @@ function CodexionPartialOwnershipDiagram({ language }: { language: 'ja' | 'en' }
       </p>
       <svg
         role="img"
-        aria-label={language === 'ja' ? 'C1がD1を保有してD2を待つため、D5を保有するC5がD1を取得できずタイムアウトする例' : 'C1 holds D1 while waiting for D2, preventing C5 from acquiring D1 before its timeout'}
-        viewBox="0 0 360 242"
+        aria-label={language === 'ja' ? 'C1がD1を保有してD2を待つため、C5がD1を取得できずタイムアウトする例' : 'C1 holds D1 while waiting for D2, preventing C5 from acquiring D1 before its timeout'}
+        viewBox="0 0 360 270"
         className="h-auto w-full"
       >
         <defs>
@@ -947,43 +936,43 @@ function CodexionPartialOwnershipDiagram({ language }: { language: 'ja' | 'en' }
           </marker>
         </defs>
 
-        <path d="M45 184 Q78 124 126 91 Q180 51 238 64 Q293 77 326 119" fill="none" stroke="var(--color-splitter)" strokeWidth="2" />
+        <path d="M60 150 Q100 112 145 88 Q185 50 230 55 Q282 70 320 108" fill="none" stroke="var(--color-splitter)" strokeWidth="2" />
 
-        <line x1="225" y1="61" x2="147" y2="85" stroke="#4f8f67" strokeWidth="4" strokeLinecap="round" />
-        <line x1="225" y1="61" x2="299" y2="104" stroke="#ef6b73" strokeWidth="2.5" strokeLinecap="round" markerEnd="url(#arrow-partial-wait)" />
-        <line x1="94" y1="125" x2="59" y2="166" stroke="#4f8f67" strokeWidth="4" strokeLinecap="round" />
-        <line x1="94" y1="125" x2="126" y2="100" stroke="#ef6b73" strokeWidth="3.5" strokeLinecap="round" markerEnd="url(#arrow-partial-wait)" />
+        <line x1="230" y1="55" x2="160" y2="82" stroke="#4f8f67" strokeWidth="4" strokeLinecap="round" />
+        <line x1="230" y1="55" x2="302" y2="98" stroke="#ef6b73" strokeWidth="2.5" strokeLinecap="round" markerEnd="url(#arrow-partial-wait)" />
+        <line x1="60" y1="150" x2="127" y2="98" stroke="#ef6b73" strokeWidth="3.5" strokeLinecap="round" markerEnd="url(#arrow-partial-wait)" />
 
-        <circle cx="225" cy="61" r="21" fill="#1f2937" stroke="var(--color-text-muted)" strokeWidth="2" />
-        <text x="225" y="65" textAnchor="middle" fill="#fff" fontSize="11" fontWeight="800" fontFamily="ui-monospace, monospace">C1</text>
-        <circle cx="94" cy="125" r="21" fill="#1f2937" stroke="#ef6b73" strokeWidth="3" />
-        <text x="94" y="129" textAnchor="middle" fill="#fff" fontSize="11" fontWeight="800" fontFamily="ui-monospace, monospace">C5</text>
+        <circle cx="230" cy="55" r="21" fill="#1f2937" stroke="var(--color-text-muted)" strokeWidth="2" />
+        <text x="230" y="59" textAnchor="middle" fill="#fff" fontSize="11" fontWeight="800" fontFamily="ui-monospace, monospace">C1</text>
+        <circle cx="60" cy="150" r="21" fill="#1f2937" stroke="#ef6b73" strokeWidth="3" />
+        <text x="60" y="154" textAnchor="middle" fill="#fff" fontSize="11" fontWeight="800" fontFamily="ui-monospace, monospace">C5</text>
 
-        <rect x="126" y="78" width="34" height="23" rx="4" fill="#4f8f67" stroke="#2f6b4a" strokeWidth="2" />
-        <text x="143" y="94" textAnchor="middle" fill="#fff" fontSize="10" fontWeight="800" fontFamily="ui-monospace, monospace">D1</text>
-        <rect x="299" y="104" width="34" height="23" rx="4" fill="#ef6b73" stroke="#991b1b" strokeWidth="2" />
-        <text x="316" y="120" textAnchor="middle" fill="#fff" fontSize="10" fontWeight="800" fontFamily="ui-monospace, monospace">D2</text>
-        <text x="316" y="142" textAnchor="middle" fill="#ef6b73" fontSize="9" fontWeight="700">{language === 'ja' ? '利用不可' : 'unavailable'}</text>
-        <rect x="42" y="166" width="34" height="23" rx="4" fill="#4f8f67" stroke="#2f6b4a" strokeWidth="2" />
-        <text x="59" y="182" textAnchor="middle" fill="#fff" fontSize="10" fontWeight="800" fontFamily="ui-monospace, monospace">D5</text>
+        <rect x="128" y="77" width="34" height="23" rx="4" fill="#4f8f67" stroke="#2f6b4a" strokeWidth="2" />
+        <text x="145" y="93" textAnchor="middle" fill="#fff" fontSize="10" fontWeight="800" fontFamily="ui-monospace, monospace">D1</text>
+        <rect x="303" y="97" width="34" height="23" rx="4" fill="#ef6b73" stroke="#991b1b" strokeWidth="2" />
+        <text x="320" y="113" textAnchor="middle" fill="#fff" fontSize="10" fontWeight="800" fontFamily="ui-monospace, monospace">D2</text>
+        <text x="320" y="137" textAnchor="middle" fill="#ef6b73" fontSize="9" fontWeight="700">{language === 'ja' ? '利用不可' : 'unavailable'}</text>
 
-        <text x="226" y="24" textAnchor="middle" fill="var(--color-text-muted)" fontSize="9.5" fontWeight="700">
+        <text x="230" y="20" textAnchor="middle" fill="var(--color-text-muted)" fontSize="9.5" fontWeight="700">
           {language === 'ja' ? 'D1を保有・D2待ち' : 'holds D1 · waits for D2'}
         </text>
-        <text x="95" y="91" textAnchor="middle" fill="#ef6b73" fontSize="9.5" fontWeight="800">
+        <text x="60" y="190" textAnchor="middle" fill="#ef6b73" fontSize="9.5" fontWeight="800">
           {language === 'ja' ? 'タイムアウトが近い' : 'earlier timeout'}
         </text>
-        <text x="184" y="132" textAnchor="middle" fill="#ef6b73" fontSize="9.5" fontWeight="700">
-          {language === 'ja' ? 'C1が保有中のためD1を取得できない' : 'cannot acquire D1 while C1 owns it'}
+        <text x="195" y="151" textAnchor="middle" fill="#ef6b73" fontSize="9.5" fontWeight="700">
+          {language === 'ja' ? 'C1がD1を保有' : 'C1 owns D1'}
+        </text>
+        <text x="195" y="167" textAnchor="middle" fill="#ef6b73" fontSize="9.5" fontWeight="700">
+          {language === 'ja' ? 'C5はD1を取得できない' : 'C5 cannot acquire D1'}
         </text>
 
-        <g transform="translate(81 211)">
+        <g transform="translate(90 219)">
           <line x1="0" y1="0" x2="22" y2="0" stroke="#4f8f67" strokeWidth="4" strokeLinecap="round" />
           <text x="30" y="3" fill="var(--color-text-muted)" fontSize="9">{language === 'ja' ? '所有' : 'owned'}</text>
           <line x1="104" y1="0" x2="126" y2="0" stroke="#ef6b73" strokeWidth="2.5" markerEnd="url(#arrow-partial-wait)" />
           <text x="135" y="3" fill="var(--color-text-muted)" fontSize="9">{language === 'ja' ? '取得待ち' : 'waiting'}</text>
         </g>
-        <text x="180" y="235" textAnchor="middle" fill="#ef6b73" fontSize="10" fontWeight="800">
+        <text x="180" y="255" textAnchor="middle" fill="#ef6b73" fontSize="10" fontWeight="800">
           {language === 'ja' ? 'C5はコンパイルできず、制限時間を超過' : 'C5 cannot compile before its deadline'}
         </text>
       </svg>
