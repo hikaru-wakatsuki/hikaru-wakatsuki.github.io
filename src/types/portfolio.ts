@@ -9,10 +9,18 @@ export interface ProjectTag {
 }
 
 export interface ProjectTechnicalDetails {
-  challenge: string;
-  design: string[];
+  challenge?: string;
+  design?: string[];
   verification: string[];
-  limitations: string[];
+  limitations?: string[];
+  caseStudies?: ProjectTechnicalCaseStudy[];
+}
+
+export interface ProjectTechnicalCaseStudy {
+  title: string;
+  challenge: string;
+  solution: string;
+  diagram?: 'function-selection' | 'json-generation' | 'recursive-schema' | 'precomputation';
 }
 
 export interface ProjectDemoGuide {

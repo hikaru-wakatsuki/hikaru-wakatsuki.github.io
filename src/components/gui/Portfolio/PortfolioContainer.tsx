@@ -1,5 +1,5 @@
 import { useRef, useCallback, useEffect, useId, useState } from 'react';
-import type { PortfolioProject } from '../../../types/portfolio';
+import type { PortfolioProject, ProjectTechnicalCaseStudy } from '../../../types/portfolio';
 import { useAppState } from '../../../context/AppStateContext';
 
 const PROJECTS: PortfolioProject[] = [
@@ -47,31 +47,70 @@ const PROJECTS: PortfolioProject[] = [
     },
     "technicalDetails": {
       "ja": {
-        "challenge": "LLMの任意出力を許すと、存在しない関数名、壊れたJSON、スキーマと異なる引数型が生成されます。関数候補と型の制約を生成時点で適用する必要がありました。",
-        "design": [
-          "関数選択と引数生成を2段階に分離し、入力読み込み・スキーマ・選択・生成の責務をモジュール化",
-          "関数名をトークン列の候補として保持し、候補を継続できる次トークンだけを許可。共通接頭を持つ関数名は改行で終端を判定",
-          "オブジェクト・配列・文字列・数値・真偽値の再帰スキーマからJSONを組み立て、キーと区切り記号はプログラム側で確定",
-          "カスタムトークナイザとlru_cache付きエンコーダを実装。Promptと関数定義はPydanticで入力検証し、生成JSONはjson.loadsと選択済みスキーマに対する型照合後にFunctionCallとして返却"
+        "caseStudies": [
+          {
+            "title": "未登録の関数名を生成させない",
+            "challenge": "LLMに関数名を自由生成させると、登録されていない名前や、途中までしか一致しない名前を返す可能性があります。",
+            "solution": "登録済みの関数名を改行付きのトークンID列へ変換。生成済みの接頭辞と一致する候補だけを残し、その候補を継続できる次のトークンIDに選択肢を限定しました。許可された候補の中から、LLMが最も高い確率を付けたトークンを選びます。",
+            "diagram": "function-selection"
+          },
+          {
+            "title": "JSONの構造と引数型を崩さない",
+            "challenge": "JSON全体を自由生成させると、波括弧やカンマの欠落、誤った引数名、型と異なる値が混ざる可能性があります。",
+            "solution": "波括弧、引数名、コロン、カンマなどの構造はプログラム側で挿入し、LLMには値の生成を担当させました。文字列は引用符で囲み、数値は数値用トークン、真偽値はtrue / falseだけに候補を制限しています。生成後はjson.loadsで構文を確認します。",
+            "diagram": "json-generation"
+          },
+          {
+            "title": "入れ子のオブジェクトと配列に対応する",
+            "challenge": "引数にオブジェクトや配列が含まれるたびに専用処理を追加する設計では、関数定義が増えるほど実装が複雑になります。",
+            "solution": "型定義をpropertiesとitemsで再帰的に表現し、同じ生成処理を入れ子の各階層へ適用しました。文字列、数値、真偽値、オブジェクト、配列を組み合わせた関数定義を扱えます。",
+            "diagram": "recursive-schema"
+          },
+          {
+            "title": "繰り返す変換処理を減らす",
+            "challenge": "関数名やJSON記号をリクエストごとに再エンコードし、数値として許可する語彙を生成のたびに走査すると、同じ計算が繰り返されます。",
+            "solution": "関数名のトークン列と数値生成に使えるトークンIDを起動時に計算。固定文字列のエンコード結果はlru_cacheで再利用し、各リクエストでは制約付き生成そのものに処理を集中させました。LLMの応答結果をキャッシュする仕組みではありません。",
+            "diagram": "precomputation"
+          }
         ],
         "verification": [
-          "Qwen3-0.6Bの実モデルを使い、数値・文字列・真偽値・ネストオブジェクト・配列の関数選択と引数生成をIntegration Test",
-          "共通接頭の関数名、数値トークンフィルタ、再帰スキーマ、トークナイザ、不正入力を決定的なUnit Testで検証"
-        ],
-        "limitations": [
-          "数値制約はJSON数値文法全体の状態機械ではなく、最終的なjson.loadsも構文確認に使用",
-          "文字列の任意なエスケープやバッチ生成、任意の外部API実行は対象外"
+          "Qwen3-0.6Bの実モデルを使い、数値・文字列・真偽値・入れ子のオブジェクト・配列について、関数選択から引数生成までをIntegration Testで確認",
+          "共通の接頭辞を持つ関数名と改行による終端判定、数値トークンの絞り込み、再帰スキーマ、カスタムトークナイザを決定的なUnit Testで検証",
+          "ファイル欠損、不正JSON、不正な関数定義、空の入力、未知のモデル名などのエラー処理を確認。flake8とmypyも実行"
         ]
       },
       "en": {
-        "challenge": "Post-generation validation alone cannot prevent malformed JSON or schema-incompatible argument types during generation.",
-        "design": [
-          "Separated function selection from argument generation to keep responsibilities explicit",
-          "Constrained token generation according to the selected function schema",
-          "Validated prompt and function definitions with Pydantic, parsed generated JSON, and checked parameter names and types against the selected schema"
+        "caseStudies": [
+          {
+            "title": "Prevent unregistered function names",
+            "challenge": "Free-form generation can return an unregistered name or stop at a partial match.",
+            "solution": "Registered names are encoded as newline-terminated token-ID sequences. After each generated token, only candidates matching the current prefix remain, and the model can choose only a next token that continues one of them.",
+            "diagram": "function-selection"
+          },
+          {
+            "title": "Keep JSON structure and value types valid",
+            "challenge": "Generating an entire JSON object freely can omit delimiters, invent parameter names, or produce values of the wrong type.",
+            "solution": "The program inserts braces, parameter names, colons and commas. The model generates values through type-specific paths: quoted strings, numeric-token filtering, and true/false candidate selection. json.loads checks the completed syntax.",
+            "diagram": "json-generation"
+          },
+          {
+            "title": "Support nested objects and arrays",
+            "challenge": "Adding custom generation code for every nested argument shape would not scale as function definitions grow.",
+            "solution": "Type definitions describe nested properties and array items recursively. The same generator can therefore descend through combinations of strings, numbers, booleans, objects and arrays.",
+            "diagram": "recursive-schema"
+          },
+          {
+            "title": "Avoid repeated conversion work",
+            "challenge": "Re-encoding function names and JSON syntax, or rescanning the vocabulary for numeric tokens on every request, repeats fixed work.",
+            "solution": "Function-name token sequences and numeric token IDs are computed once. An lru_cache-backed encoder reuses fixed-string encodings across requests; model responses themselves are not cached.",
+            "diagram": "precomputation"
+          }
         ],
-        "verification": ["Real-model integration tests cover strings, numbers, booleans, nested objects and arrays.", "Deterministic unit tests cover shared prefixes, numeric filtering, recursive schemas, tokenization and input errors."],
-        "limitations": ["Numeric filtering is not a complete JSON-number state machine; json.loads performs the final syntax check.", "Arbitrary string escaping, batched generation and execution of external APIs are outside the scope."]
+        "verification": [
+          "Real-model integration tests with Qwen3-0.6B cover function selection and argument generation for numbers, strings, booleans, nested objects and arrays.",
+          "Deterministic unit tests cover shared prefixes, newline termination, numeric-token filtering, recursive schemas and the custom tokenizer.",
+          "Error cases include missing files, invalid JSON and function definitions, empty input, and unknown model names; flake8 and mypy are also run."
+        ]
       }
     }
   },
@@ -393,12 +432,167 @@ function ProjectVideoGuide({ project, language }: {
   );
 }
 
+function DiagramArrow() {
+  return <span aria-hidden="true" className="shrink-0 text-base font-bold text-[var(--color-accent-secondary)]">→</span>;
+}
+
+function TechnicalCaseDiagram({
+  kind,
+  language,
+}: {
+  kind: NonNullable<ProjectTechnicalCaseStudy['diagram']>;
+  language: 'ja' | 'en';
+}) {
+  const fixedLabel = language === 'ja' ? 'プログラムが固定' : 'Program-defined';
+  const generatedLabel = language === 'ja' ? 'LLMが生成' : 'LLM-generated';
+
+  if (kind === 'function-selection') {
+    return (
+      <div role="img" aria-label={language === 'ja' ? '登録済み関数から次のトークンを制約して関数を選ぶ流れ' : 'Function selection constrained to registered token sequences'} className="grid gap-3 sm:grid-cols-[1fr_auto_1fr_auto_1fr] sm:items-center">
+        <div className="grid gap-1.5 rounded-md border border-[var(--color-splitter)] bg-[var(--color-cli-bg)] p-3 font-mono text-[11px] leading-5">
+          <span className="mb-1 font-sans text-xs font-bold text-[var(--color-text)]">{language === 'ja' ? '登録済み候補' : 'Registered candidates'}</span>
+          <span>fn_add_numbers↵</span>
+          <span>fn_greet↵</span>
+          <span className="text-[var(--color-cli-text)]">fn_create_user↵</span>
+        </div>
+        <div className="hidden sm:block"><DiagramArrow /></div>
+        <div className="rounded-md border border-[var(--color-accent-border)] bg-[var(--color-accent-soft)] p-3 text-center">
+          <span className="block text-xs font-bold">{language === 'ja' ? '接頭辞で候補を絞る' : 'Filter by prefix'}</span>
+          <span className="mt-1 block font-mono text-[11px] opacity-70">allowed next token IDs</span>
+        </div>
+        <div className="hidden sm:block"><DiagramArrow /></div>
+        <div className="rounded-md border border-[var(--color-cli-text)] bg-[var(--color-cli-text)] p-3 text-center text-[var(--color-cli-bg)]">
+          <span className="block text-xs font-bold">{language === 'ja' ? '選択結果' : 'Selected'}</span>
+          <span className="mt-1 block font-mono text-[11px]">fn_create_user</span>
+        </div>
+      </div>
+    );
+  }
+
+  if (kind === 'json-generation') {
+    return (
+      <div role="img" aria-label={language === 'ja' ? 'JSONの構造をプログラムが固定し値をLLMが生成する例' : 'JSON structure fixed by the program with values generated by the LLM'} className="grid gap-3">
+        <div className="flex flex-wrap items-center gap-1.5 rounded-md border border-[var(--color-splitter)] bg-[var(--color-cli-bg)] p-3 font-mono text-xs leading-6">
+          <span className="rounded bg-[var(--color-accent-secondary-soft)] px-1.5 text-[var(--color-accent-secondary)]">&#123; &quot;name&quot;: </span>
+          <span className="rounded bg-[var(--color-accent-soft)] px-1.5 font-bold text-[var(--color-cli-text)]">&quot;Hikaru&quot;</span>
+          <span className="rounded bg-[var(--color-accent-secondary-soft)] px-1.5 text-[var(--color-accent-secondary)]">, &quot;age&quot;: </span>
+          <span className="rounded bg-[var(--color-accent-soft)] px-1.5 font-bold text-[var(--color-cli-text)]">29</span>
+          <span className="rounded bg-[var(--color-accent-secondary-soft)] px-1.5 text-[var(--color-accent-secondary)]">&#125;</span>
+        </div>
+        <div className="flex flex-wrap gap-x-5 gap-y-2 text-[11px]">
+          <span className="flex items-center gap-2"><i className="h-2.5 w-2.5 rounded-sm bg-[var(--color-accent-secondary-soft)] ring-1 ring-[var(--color-accent-secondary)]" />{fixedLabel}</span>
+          <span className="flex items-center gap-2"><i className="h-2.5 w-2.5 rounded-sm bg-[var(--color-accent-soft)] ring-1 ring-[var(--color-cli-text)]" />{generatedLabel}</span>
+        </div>
+      </div>
+    );
+  }
+
+  if (kind === 'recursive-schema') {
+    return (
+      <div role="img" aria-label={language === 'ja' ? '再帰スキーマで入れ子のオブジェクトと配列を生成する流れ' : 'Recursive schema generation for nested objects and arrays'} className="grid gap-3 sm:grid-cols-[1fr_auto_1fr] sm:items-center">
+        <div className="rounded-md border border-[var(--color-splitter)] bg-[var(--color-cli-bg)] p-3 font-mono text-[11px] leading-5">
+          <p className="font-bold text-[var(--color-text)]">user: object</p>
+          <p className="pl-3">├─ name: string</p>
+          <p className="pl-3">└─ tags: array</p>
+          <p className="pl-6">└─ item: string</p>
+        </div>
+        <div className="hidden sm:block"><DiagramArrow /></div>
+        <pre className="overflow-x-auto rounded-md border border-[var(--color-accent-border)] bg-[var(--color-accent-soft)] p-3 font-mono text-[11px] leading-5 text-[var(--color-text)]">{`{
+  "user": {
+    "name": "Hikaru",
+    "tags": ["Python", "LLM"]
+  }
+}`}</pre>
+      </div>
+    );
+  }
+
+  return (
+    <div role="img" aria-label={language === 'ja' ? '起動時の事前計算とリクエストごとの再利用' : 'Startup precomputation reused across requests'} className="grid gap-3 sm:grid-cols-[1fr_auto_1fr] sm:items-center">
+      <div className="rounded-md border border-[var(--color-splitter)] bg-[var(--color-cli-bg)] p-3">
+        <span className="block text-xs font-bold">{language === 'ja' ? '起動時に1回' : 'Once at startup'}</span>
+        <ul className="mt-2 grid gap-1 font-mono text-[11px] leading-5 opacity-75">
+          <li>function name → token IDs</li>
+          <li>vocabulary → numeric token IDs</li>
+          <li>fixed text → lru_cache</li>
+        </ul>
+      </div>
+      <div className="hidden sm:block"><DiagramArrow /></div>
+      <div className="rounded-md border border-[var(--color-accent-border)] bg-[var(--color-accent-soft)] p-3 text-center">
+        <span className="block text-xs font-bold">{language === 'ja' ? '各リクエストで再利用' : 'Reused per request'}</span>
+        <span className="mt-1 block text-[11px] opacity-70">{language === 'ja' ? '固定処理の再計算を回避' : 'Avoid repeated fixed work'}</span>
+      </div>
+    </div>
+  );
+}
+
 function ProjectTechnicalDetailsPanel({ project, language }: {
   project: PortfolioProject;
   language: 'ja' | 'en';
 }) {
   if (!project.technicalDetails) return null;
   const details = project.technicalDetails[language];
+
+  if (details.caseStudies) {
+    return (
+      <div className="grid gap-5 text-sm leading-relaxed">
+        <section>
+          <div className="mb-3">
+            <p className="font-mono text-[11px] font-bold uppercase tracking-[0.14em] text-[var(--color-cli-text)]">
+              {language === 'ja' ? 'Engineering decisions' : 'Engineering decisions'}
+            </p>
+            <h3 className="mt-1 text-lg font-bold">
+              {language === 'ja' ? '技術課題と実装上の工夫' : 'Challenges and implementation decisions'}
+            </h3>
+          </div>
+          <div className="grid gap-4">
+            {details.caseStudies.map((item, index) => (
+              <article key={item.title} className="overflow-hidden rounded-lg border border-[var(--color-splitter)] bg-[var(--color-bg)]">
+                <header className="flex items-start gap-3 border-b border-[var(--color-splitter)] bg-[var(--color-accent-secondary-soft)] px-4 py-3 sm:px-5">
+                  <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full border border-[var(--color-accent-secondary)] font-mono text-xs font-bold text-[var(--color-accent-secondary)]">
+                    {index + 1}
+                  </span>
+                  <h4 className="pt-0.5 text-sm font-bold sm:text-base">{item.title}</h4>
+                </header>
+                <div className="grid gap-0 lg:grid-cols-2">
+                  <div className="border-b border-[var(--color-splitter)] px-4 py-4 sm:px-5 lg:border-b-0 lg:border-r">
+                    <p className="font-mono text-[11px] font-bold uppercase tracking-wider text-[var(--color-text-muted)]">
+                      {language === 'ja' ? '課題' : 'Challenge'}
+                    </p>
+                    <p className="mt-2 leading-7 text-[var(--color-text-muted)]">{item.challenge}</p>
+                  </div>
+                  <div className="px-4 py-4 sm:px-5">
+                    <p className="font-mono text-[11px] font-bold uppercase tracking-wider text-[var(--color-cli-text)]">
+                      {language === 'ja' ? '実装上の工夫' : 'Implementation'}
+                    </p>
+                    <p className="mt-2 leading-7 text-[var(--color-text-muted)]">{item.solution}</p>
+                  </div>
+                </div>
+                {item.diagram && (
+                  <div className="border-t border-[var(--color-splitter)] bg-[var(--color-cli-bg)]/40 px-4 py-4 sm:px-5">
+                    <TechnicalCaseDiagram kind={item.diagram} language={language} />
+                  </div>
+                )}
+              </article>
+            ))}
+          </div>
+        </section>
+
+        <section className="overflow-hidden rounded-lg border border-[var(--color-accent-border)] bg-[var(--color-bg)]">
+          <h3 className="border-b border-[var(--color-accent-border)] bg-[var(--color-accent-soft)] px-4 py-3 text-sm font-bold sm:px-5">
+            {language === 'ja' ? 'テスト・検証' : 'Tests and validation'}
+          </h3>
+          <ul className="px-4 py-2 text-[var(--color-text-muted)] sm:px-5">
+            {details.verification.map((item) => (
+              <li key={item} className="border-b border-[var(--color-splitter)] py-3 last:border-b-0">
+                <span className="block border-l-2 border-[var(--color-cli-text)] pl-3 leading-7">{item}</span>
+              </li>
+            ))}
+          </ul>
+        </section>
+      </div>
+    );
+  }
 
   return (
     <div className="grid gap-4 text-sm leading-relaxed">
@@ -414,7 +608,7 @@ function ProjectTechnicalDetailsPanel({ project, language }: {
           {language === 'ja' ? '設計判断と実装' : 'Design decisions & implementation'}
         </h3>
         <ul className="px-4 py-2 text-[var(--color-text-muted)] sm:px-5">
-          {details.design.map((item) => (
+          {details.design?.map((item) => (
             <li key={item} className="border-b border-[var(--color-splitter)] py-3 last:border-b-0">
               <span className="block border-l-2 border-[var(--color-accent-secondary)] pl-3 leading-7">{item}</span>
             </li>
@@ -441,7 +635,7 @@ function ProjectTechnicalDetailsPanel({ project, language }: {
             {language === 'ja' ? '設計上の制約' : 'Design boundaries'}
           </h3>
           <ul className="px-4 py-2 text-[var(--color-text-muted)] sm:px-5">
-            {details.limitations.map((item) => (
+            {details.limitations?.map((item) => (
               <li key={item} className="border-b border-[var(--color-splitter)] py-3 last:border-b-0">
                 <span className="block border-l-2 border-[var(--color-accent-secondary)] pl-3 leading-7">{item}</span>
               </li>
