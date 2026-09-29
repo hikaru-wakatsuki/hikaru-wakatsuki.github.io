@@ -77,9 +77,9 @@ const PROJECTS: PortfolioProject[] = [
             "diagram": "recursive-schema"
           },
           {
-            "title": "固定処理の事前計算と再利用",
-            "challenge": "関数名やJSON記号をリクエストごとにトークンへ変換し、数値として利用できる語彙を生成のたびに調べると、同じ計算が繰り返される。",
-            "solution": "関数名のトークン列と、数値生成に使用できるトークンIDを起動時に計算。波括弧や引数名など、繰り返し使う文字列の変換結果はlru_cacheで再利用する構成。LLMの回答をキャッシュせず、入力ごとの推論は維持。",
+            "title": "繰り返し発生するトークン変換を省略",
+            "challenge": "波括弧や引数名、関数名など、同じ文字列をリクエストごとにトークンIDへ変換すると、同一の処理が繰り返される。数値生成に使用できるトークンの抽出も、毎回実行する必要がない。",
+            "solution": "関数名のトークン列と、数値生成に使用できるトークンIDを起動時に計算。波括弧や引数名などの固定文字列は、初回の変換結果をキャッシュし、次回以降に再利用。LLMの生成結果はキャッシュせず、入力ごとの推論は毎回実行する構成。",
             "diagram": "precomputation"
           }
         ],
@@ -120,9 +120,9 @@ const PROJECTS: PortfolioProject[] = [
             "diagram": "recursive-schema"
           },
           {
-            "title": "Avoid repeated conversion work",
-            "challenge": "Re-encoding function names and JSON syntax, or rescanning the vocabulary for numeric tokens on every request, repeats fixed work.",
-            "solution": "Function-name token sequences and numeric token IDs are computed once. An lru_cache-backed encoder reuses fixed-string encodings across requests; model responses themselves are not cached.",
+            "title": "Avoid repeated token conversion",
+            "challenge": "Converting the same braces, parameter names and function names into token IDs for every request repeats identical work. Numeric-compatible tokens also do not need to be extracted from the vocabulary each time.",
+            "solution": "Function-name token sequences and numeric-compatible token IDs are computed at startup. Encoded fixed strings are cached after their first conversion and reused on later requests. Model output is not cached, so inference still runs for every input.",
             "diagram": "precomputation"
           }
         ],
@@ -596,20 +596,46 @@ function TechnicalCaseDiagram({
   }
 
   return (
-    <div role="img" aria-label={language === 'ja' ? '起動時の事前計算とリクエストごとの再利用' : 'Startup precomputation reused across requests'} className="grid gap-3 sm:grid-cols-[1fr_auto_1fr] sm:items-center">
-      <div className="rounded-md border border-[var(--color-splitter)] bg-[var(--color-cli-bg)] p-3">
-        <span className="block text-xs font-bold">{language === 'ja' ? '起動時に1回' : 'Once at startup'}</span>
-        <ul className="mt-2 grid gap-1 font-mono text-[11px] leading-5 opacity-75">
-          <li>function name → token IDs</li>
-          <li>vocabulary → numeric token IDs</li>
-          <li>fixed text → lru_cache</li>
-        </ul>
-      </div>
-      <div className="hidden sm:block"><DiagramArrow /></div>
-      <div className="rounded-md border border-[var(--color-accent-border)] bg-[var(--color-accent-soft)] p-3 text-center">
-        <span className="block text-xs font-bold">{language === 'ja' ? '各リクエストで再利用' : 'Reused per request'}</span>
-        <span className="mt-1 block text-[11px] opacity-70">{language === 'ja' ? '固定処理の再計算を回避' : 'Avoid repeated fixed work'}</span>
-      </div>
+    <div role="img" aria-label={language === 'ja' ? '固定文字列を毎回変換する場合とキャッシュから再利用する場合の比較' : 'Comparison of repeated fixed-string conversion and cached reuse'} className="grid gap-3 md:grid-cols-2">
+      <section className="overflow-hidden rounded-md border border-[var(--color-splitter)] bg-[var(--color-cli-bg)]">
+        <header className="border-b border-[var(--color-splitter)] px-3 py-2 text-xs font-bold opacity-70">
+          {language === 'ja' ? 'キャッシュなし' : 'Without cache'}
+        </header>
+        <div className="grid gap-2 p-3 font-mono text-[11px]">
+          {[1, 2, 3].map((request) => (
+            <div key={request} className="flex flex-wrap items-center gap-2 rounded border border-[var(--color-splitter)] px-3 py-2">
+              <span>{language === 'ja' ? `リクエスト${request}` : `Request ${request}`}</span>
+              <span aria-hidden="true">→</span>
+              <span>{language === 'ja' ? 'トークン変換' : 'encode'}</span>
+              <span aria-hidden="true">→</span>
+              <span>token IDs</span>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      <section className="overflow-hidden rounded-md border border-[var(--color-accent-border)] bg-[var(--color-accent-soft)]">
+        <header className="border-b border-[var(--color-accent-border)] px-3 py-2 text-xs font-bold">
+          {language === 'ja' ? 'キャッシュあり' : 'With cache'}
+        </header>
+        <div className="grid gap-2 p-3 font-mono text-[11px]">
+          <div className="flex flex-wrap items-center gap-2 rounded border border-[var(--color-accent-border)] bg-[var(--color-cli-bg)] px-3 py-2">
+            <span>{language === 'ja' ? '初回' : 'First use'}</span>
+            <span aria-hidden="true">→</span>
+            <span>{language === 'ja' ? 'トークン変換' : 'encode'}</span>
+            <span aria-hidden="true">→</span>
+            <span>{language === 'ja' ? '結果を保存' : 'save result'}</span>
+          </div>
+          <div className="flex flex-wrap items-center gap-2 rounded border border-[var(--color-cli-text)] bg-[var(--color-cli-text)] px-3 py-2 font-bold text-[var(--color-cli-bg)]">
+            <span>{language === 'ja' ? '次回以降' : 'Later requests'}</span>
+            <span aria-hidden="true">→</span>
+            <span>{language === 'ja' ? '保存済みのtoken IDsを再利用' : 'reuse saved token IDs'}</span>
+          </div>
+        </div>
+      </section>
+      <p className="text-[10px] opacity-55 md:col-span-2">
+        {language === 'ja' ? '※ キャッシュ対象は固定文字列の変換結果。LLMの生成結果は毎回新しく取得' : '* Only fixed-string encodings are cached; model output is generated for every request.'}
+      </p>
     </div>
   );
 }
