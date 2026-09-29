@@ -158,11 +158,11 @@ const PROJECTS: PortfolioProject[] = [
       "ja": {
         "overview": "各行が1人のCoder。Donglesは保有数、Progressは現在のコンパイル数／目標数を表示。",
         "cues": [
-          "Coders: 5",
-          "USB dongles: 5",
-          "Required per compile: 2",
-          "Goal per coder: 4 compiles",
-          "Scheduler: EDF"
+          "コーダー: 5人",
+          "USBドングル: 5台",
+          "1回のコンパイルに必要: 2台",
+          "1人あたりの目標: 4回",
+          "実行順序: EDF"
         ]
       },
       "en": {
@@ -454,16 +454,38 @@ function ProjectVideoGuide({ project, language }: {
         <div id={contentId} className="border-t border-[var(--color-splitter)] px-5 py-4 sm:px-6">
           {project.id === 'Codexion' ? (
             <div className="grid gap-4">
-              <div className="grid gap-3 lg:grid-cols-[0.75fr_1.25fr]">
+              <div className="grid gap-3 lg:grid-cols-[0.72fr_1.28fr]">
                 <section className="overflow-hidden rounded-md border border-[var(--color-splitter)] bg-[var(--color-cli-bg)]">
-                  <h4 className="border-b border-[var(--color-splitter)] px-3 py-2 font-mono text-[11px] font-bold text-[var(--color-cli-text)]">Simulation</h4>
+                  <h4 className="border-b border-[var(--color-splitter)] px-3 py-2 font-mono text-[11px] font-bold text-[var(--color-cli-text)]">
+                    {language === 'ja' ? '実行条件' : 'Simulation'}
+                  </h4>
                   <ul className="grid gap-1.5 p-3 font-mono text-[11px] leading-5 opacity-75">
-                    {guide.cues.map((cue) => <li key={cue}>{cue}</li>)}
+                    {guide.cues.map((cue) => {
+                      const [label, ...rest] = cue.split(':');
+                      return (
+                        <li key={cue} className="flex justify-between gap-3 border-b border-[var(--color-splitter)] pb-1.5 last:border-b-0 last:pb-0">
+                          <span className="opacity-65">{label}</span>
+                          <span className="text-right font-bold text-[var(--color-text)]">{rest.join(':').trim()}</span>
+                        </li>
+                      );
+                    })}
                   </ul>
                 </section>
 
                 <section className="overflow-hidden rounded-md border border-[var(--color-splitter)] bg-[var(--color-cli-bg)]">
-                  <h4 className="border-b border-[var(--color-splitter)] px-3 py-2 font-mono text-[11px] font-bold text-[var(--color-cli-text)]">Status Guide</h4>
+                  <h4 className="border-b border-[var(--color-splitter)] px-3 py-2 font-mono text-[11px] font-bold text-[var(--color-cli-text)]">
+                    {language === 'ja' ? '共有資源の配置' : 'Shared resource layout'}
+                  </h4>
+                  <div className="p-2">
+                    <CodexionResourceDiagram language={language} />
+                  </div>
+                </section>
+              </div>
+
+              <section className="overflow-hidden rounded-md border border-[var(--color-splitter)] bg-[var(--color-cli-bg)]">
+                <h4 className="border-b border-[var(--color-splitter)] px-3 py-2 font-mono text-[11px] font-bold text-[var(--color-cli-text)]">
+                  {language === 'ja' ? '状態遷移' : 'Status Guide'}
+                </h4>
                   <div className="grid gap-3 p-3 text-[11px]">
                     <div className="flex flex-wrap items-center gap-1.5">
                       {status('WAITING')}
@@ -484,8 +506,7 @@ function ProjectVideoGuide({ project, language }: {
                       {status('COMPLETE')}
                     </div>
                   </div>
-                </section>
-              </div>
+              </section>
               {guide.overview && <p className="text-xs leading-5 opacity-70">{guide.overview}</p>}
             </div>
           ) : (
@@ -509,6 +530,115 @@ function ProjectVideoGuide({ project, language }: {
 
 function DiagramArrow() {
   return <span aria-hidden="true" className="shrink-0 text-base font-bold text-[var(--color-accent-secondary)]">→</span>;
+}
+
+function CodexionResourceDiagram({ language }: { language: 'ja' | 'en' }) {
+  const coders = [
+    { label: 'C1', x: 180, y: 34 },
+    { label: 'C2', x: 271, y: 100 },
+    { label: 'C3', x: 236, y: 208 },
+    { label: 'C4', x: 124, y: 208 },
+    { label: 'C5', x: 89, y: 100 },
+  ];
+  const dongles = [
+    { label: 'D1', x: 236, y: 56 },
+    { label: 'D2', x: 271, y: 159 },
+    { label: 'D3', x: 180, y: 222 },
+    { label: 'D4', x: 89, y: 159 },
+    { label: 'D5', x: 124, y: 56 },
+  ];
+  const ring = [
+    [180, 34], [236, 56], [271, 100], [271, 159], [236, 208],
+    [180, 222], [124, 208], [89, 159], [89, 100], [124, 56], [180, 34],
+  ].map(([x, y]) => `${x},${y}`).join(' ');
+
+  return (
+    <svg
+      role="img"
+      aria-label={language === 'ja' ? '5人のCoderと5台のUSBドングルの円形配置' : 'Circular layout of five coders and five USB dongles'}
+      viewBox="0 0 360 256"
+      className="mx-auto h-auto w-full max-w-[23rem]"
+    >
+      <title>
+        {language === 'ja' ? '5人のCoderと5台のUSBドングルの配置' : 'Layout of five coders and five USB dongles'}
+      </title>
+      <desc>
+        {language === 'ja'
+          ? 'Coderとドングルを交互に円形配置し、各Coderが左右の2台を共有する構成'
+          : 'Coders and dongles alternate around a ring; each coder shares the two adjacent dongles.'}
+      </desc>
+      <polyline
+        points={ring}
+        fill="none"
+        stroke="var(--color-splitter)"
+        strokeWidth="3"
+        strokeLinejoin="round"
+      />
+
+      {coders.map((coder) => (
+        <g key={coder.label}>
+          <circle
+            cx={coder.x}
+            cy={coder.y}
+            r="22"
+            fill="var(--color-accent-soft)"
+            stroke="var(--color-cli-text)"
+            strokeWidth="2"
+          />
+          <text
+            x={coder.x}
+            y={coder.y + 4}
+            textAnchor="middle"
+            fill="var(--color-text)"
+            fontSize="11"
+            fontWeight="700"
+            fontFamily="ui-monospace, monospace"
+          >
+            {coder.label}
+          </text>
+        </g>
+      ))}
+
+      {dongles.map((dongle) => (
+        <g key={dongle.label}>
+          <rect
+            x={dongle.x - 14}
+            y={dongle.y - 10}
+            width="28"
+            height="20"
+            rx="4"
+            fill="#facc15"
+            stroke="#854d0e"
+            strokeWidth="2"
+          />
+          <text
+            x={dongle.x}
+            y={dongle.y + 4}
+            textAnchor="middle"
+            fill="#422006"
+            fontSize="9"
+            fontWeight="800"
+            fontFamily="ui-monospace, monospace"
+          >
+            {dongle.label}
+          </text>
+        </g>
+      ))}
+
+      <text x="180" y="117" textAnchor="middle" fill="var(--color-text-muted)" fontSize="10" fontWeight="700">
+        {language === 'ja' ? '左右の2台を取得して' : 'Compile requires'}
+      </text>
+      <text x="180" y="134" textAnchor="middle" fill="var(--color-text)" fontSize="12" fontWeight="800">
+        {language === 'ja' ? 'コンパイル' : '2 adjacent dongles'}
+      </text>
+      <g transform="translate(126 151)">
+        <circle cx="7" cy="7" r="6" fill="var(--color-accent-soft)" stroke="var(--color-cli-text)" />
+        <text x="18" y="10" fill="var(--color-text-muted)" fontSize="9">Coder</text>
+        <rect x="61" y="1" width="14" height="12" rx="2" fill="#facc15" stroke="#854d0e" />
+        <text x="81" y="10" fill="var(--color-text-muted)" fontSize="9">Dongle</text>
+      </g>
+    </svg>
+  );
 }
 
 function TechnicalCaseDiagram({
