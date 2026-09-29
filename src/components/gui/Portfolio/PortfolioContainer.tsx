@@ -1,4 +1,4 @@
-import { useRef, useCallback, useEffect, useId, useState } from 'react';
+import { Fragment, useRef, useCallback, useEffect, useId, useState } from 'react';
 import type { PortfolioProject, ProjectTechnicalCaseStudy } from '../../../types/portfolio';
 import { useAppState } from '../../../context/AppStateContext';
 
@@ -178,11 +178,17 @@ const PROJECTS: PortfolioProject[] = [
       "ja": {
         "caseStudies": [
           {
-            "title": "2台のDongleを安全に取得し、デッドロックを防止",
-            "challenge": "各Coderは、コンパイル前に左右2台のDongleを取得する必要がある。Coderごとに異なる順序でmutexを取得すると循環待ちが発生する。また、片方だけを所有した状態でもう片方を待つ構成では、処理が停止する可能性がある。",
-            "solution": "各Coderが使用する2台のDongleをID順に並べ、すべてのCoderスレッドで小さいIDから大きいIDの順にmutexを取得。2台のmutexを取得した状態で、所有状況、クールダウン、待機順序を確認し、両方を利用できる場合だけ同じCoderへまとめて割り当て。条件を満たさない場合は両mutexを解放して再試行することで、循環待ちと片方だけの所有を防止。",
+            "title": "mutexの取得順序を統一して循環待ちを防止",
+            "challenge": "Coderごとに異なる順序で2つのmutexを取得すると、各スレッドが1つ目を保持したまま2つ目を待ち、循環待ちが発生する可能性がある。",
+            "solution": "各Coderが使用する2台のDongleをID順に並べ、必ず小さいIDから大きいIDの順にmutexを取得。すべてのCoderでロック方向を統一し、mutex同士の循環待ちを防止。",
             "challengeDiagram": "codexion-circular-wait",
             "solutionDiagram": "codexion-lock-order"
+          },
+          {
+            "title": "2台の利用条件と所有権を一括して確定",
+            "challenge": "片方のDongleだけを所有したまま、もう片方が利用可能になるまで待つと、そのDongleを必要とするほかのCoderも処理を進められず、不要な待機が発生する。また、2台を別々に確認すると、確認の途中で共有状態が変化する可能性がある。",
+            "solution": "2台のmutexを取得した状態で、所有状況、クールダウン、待機順序をまとめて確認。両方を利用できる場合だけ2台を同じCoderへ割り当てる。条件を満たさない場合は1台も割り当てず、両mutexを解放して再試行することで、片方だけの所有と不要な待機を防止。",
+            "solutionDiagram": "codexion-atomic-pair"
           },
           {
             "title": "競合時の取得順序をFIFO・EDFで制御",
@@ -213,11 +219,17 @@ const PROJECTS: PortfolioProject[] = [
       "en": {
         "caseStudies": [
           {
-            "title": "Prevent deadlock while acquiring two dongles",
-            "challenge": "Every coder needs both adjacent dongles. If multiple coders each hold one dongle while waiting for the other, they can enter a circular wait and stop making progress.",
-            "solution": "Each coder thread sorts its own two adjacent dongles by ID and locks the lower ID before the higher ID. With both mutexes held, the implementation checks availability, cooldown and waiting priority, then assigns the pair to one coder only when all conditions pass.",
+            "title": "Prevent circular wait with one mutex order",
+            "challenge": "If coder threads lock their two mutexes in different orders, each thread can hold its first lock while waiting for the second and form a circular wait.",
+            "solution": "Each coder sorts its two adjacent dongles by ID and always locks the lower ID before the higher ID. A single lock direction across all coder threads removes the circular-wait condition.",
             "challengeDiagram": "codexion-circular-wait",
             "solutionDiagram": "codexion-lock-order"
+          },
+          {
+            "title": "Decide eligibility and assign both dongles as one operation",
+            "challenge": "Holding one dongle while waiting for the other would block coders that need the held resource and create avoidable waiting. Checking the resources separately would also allow shared state to change between checks.",
+            "solution": "With both mutexes held, the implementation checks ownership, cooldown and waiting priority for the pair. It assigns both dongles to the same coder only when every condition passes; otherwise it assigns neither, unlocks both mutexes and retries.",
+            "solutionDiagram": "codexion-atomic-pair"
           },
           {
             "title": "Control acquisition order with FIFO and EDF",
@@ -720,6 +732,54 @@ function CodexionDeadlockDiagram({
     };
   };
 
+  if (isLockOrder) {
+    const pairOrders = [
+      ['C1', 'D1', 'D2'],
+      ['C2', 'D2', 'D3'],
+      ['C3', 'D3', 'D4'],
+      ['C4', 'D4', 'D5'],
+      ['C5', 'D1', 'D5'],
+    ];
+    return (
+      <div
+        role="img"
+        aria-label={language === 'ja'
+          ? 'すべてのCoderが小さいDongle IDから大きいDongle IDへmutexを取得する図'
+          : 'Every coder locks the lower dongle ID before the higher dongle ID'}
+        className="mt-4 grid gap-3 rounded-md border border-[var(--color-accent-border)] bg-[var(--color-accent-soft)] p-3"
+      >
+        <p className="text-center text-xs font-bold">
+          {language === 'ja' ? '全Coder共通のロック方向' : 'One lock direction for every coder'}
+        </p>
+        <div className="overflow-x-auto">
+          <div className="mx-auto flex min-w-[19rem] items-center justify-center gap-1.5 font-mono text-[11px] font-bold">
+            {['D1', 'D2', 'D3', 'D4', 'D5'].map((dongle, index) => (
+              <Fragment key={dongle}>
+                {index > 0 && <span className="text-[var(--color-accent-secondary)]">→</span>}
+                <span className="rounded border border-[#854d0e] bg-[#facc15] px-2 py-1 text-[#422006]">{dongle}</span>
+              </Fragment>
+            ))}
+          </div>
+        </div>
+        <div className="grid grid-cols-2 gap-2 font-mono text-[10px] sm:grid-cols-3">
+          {pairOrders.map(([coder, first, second]) => (
+            <div key={coder} className={`rounded border px-2 py-2 text-center ${coder === 'C5' ? 'border-[var(--color-cli-text)] bg-[var(--color-bg)] font-bold text-[var(--color-cli-text)]' : 'border-[var(--color-splitter)] bg-[var(--color-cli-bg)]'}`}>
+              <span className="mr-1.5">{coder}</span>
+              <span>{first}</span>
+              <span className="mx-1 text-[var(--color-accent-secondary)]">→</span>
+              <span>{second}</span>
+            </div>
+          ))}
+        </div>
+        <p className="text-center text-[10px] leading-5 text-[var(--color-text-muted)]">
+          {language === 'ja'
+            ? 'C5もD5 → D1ではなくD1 → D5。矢印が小さいIDから大きいIDへだけ進むため循環しない'
+            : 'C5 also locks D1 → D5, not D5 → D1. Every edge points from a lower ID to a higher ID, so no cycle can form.'}
+        </p>
+      </div>
+    );
+  }
+
   return (
     <svg
       role="img"
@@ -810,19 +870,53 @@ function CodexionDeadlockDiagram({
         <g>
           <circle cx="180" cy="143" r="47" fill="var(--color-bg)" stroke="#ef6b73" strokeWidth="2" />
           <text x="180" y="139" textAnchor="middle" fill="#ef6b73" fontSize="12" fontWeight="800">{language === 'ja' ? '循環待ち' : 'CIRCULAR WAIT'}</text>
-          <text x="180" y="156" textAnchor="middle" fill="var(--color-text-muted)" fontSize="10">{language === 'ja' ? '全員が解放待ち' : 'everyone waits'}</text>
+          <text x="180" y="156" textAnchor="middle" fill="var(--color-text-muted)" fontSize="10">{language === 'ja' ? '全スレッドが次のmutex待ち' : 'every thread waits for the next mutex'}</text>
         </g>
       )}
 
       <g transform="translate(92 270)" fontSize="9">
         <line x1="0" y1="0" x2="22" y2="0" stroke="#4f8f67" strokeWidth="3" strokeLinecap="round" />
-        <text x="29" y="3" fill="var(--color-text-muted)">{language === 'ja' ? '保持・取得' : 'held / acquire'}</text>
+        <text x="29" y="3" fill="var(--color-text-muted)">{language === 'ja' ? 'mutexを保持' : 'mutex held'}</text>
         {!isLockOrder && <>
           <line x1="105" y1="0" x2="127" y2="0" stroke="#ef6b73" strokeWidth="2.5" />
-          <text x="134" y="3" fill="var(--color-text-muted)">{language === 'ja' ? '待機' : 'waiting'}</text>
+          <text x="134" y="3" fill="var(--color-text-muted)">{language === 'ja' ? 'mutexを待機' : 'mutex waiting'}</text>
         </>}
       </g>
     </svg>
+  );
+}
+
+function CodexionAtomicPairDiagram({ language }: { language: 'ja' | 'en' }) {
+  return (
+    <div
+      role="img"
+      aria-label={language === 'ja' ? '2台の利用条件を確認して一括割り当て、または両mutexを解放して再試行する流れ' : 'Check both dongles, then assign the pair or unlock both and retry'}
+      className="mt-4 grid gap-3 rounded-md border border-[var(--color-splitter)] bg-[var(--color-cli-bg)] p-3 text-center text-[11px]"
+    >
+      <div className="mx-auto rounded border border-[var(--color-accent-secondary)] bg-[var(--color-accent-secondary-soft)] px-3 py-2 font-bold">
+        {language === 'ja' ? '2台のmutexを取得' : 'Lock both mutexes'}
+      </div>
+      <span aria-hidden="true" className="font-bold text-[var(--color-accent-secondary)]">↓</span>
+      <div className="mx-auto rounded border border-[var(--color-splitter)] bg-[var(--color-bg)] px-3 py-2 leading-5">
+        {language === 'ja' ? '所有状況・クールダウン・待機順序を確認' : 'Check ownership, cooldown and waiting priority'}
+      </div>
+      <div className="grid gap-3 border-t border-[var(--color-splitter)] pt-3 sm:grid-cols-2">
+        <section className="grid content-start gap-2 rounded border border-[#4f8f67] bg-[var(--color-bg)] p-3">
+          <span className="font-mono text-[10px] font-bold text-[#4f8f67]">{language === 'ja' ? '両方利用可能' : 'Both available'}</span>
+          <span aria-hidden="true" className="font-bold text-[#4f8f67]">↓</span>
+          <strong>{language === 'ja' ? '2台を同じCoderへ一括割り当て' : 'Assign both to one coder'}</strong>
+          <span aria-hidden="true" className="font-bold text-[#4f8f67]">↓</span>
+          <span>{language === 'ja' ? 'mutexを解放' : 'Unlock mutexes'}</span>
+        </section>
+        <section className="grid content-start gap-2 rounded border border-[#ef6b73] bg-[var(--color-bg)] p-3">
+          <span className="font-mono text-[10px] font-bold text-[#ef6b73]">{language === 'ja' ? '条件を満たさない' : 'Condition fails'}</span>
+          <span aria-hidden="true" className="font-bold text-[#ef6b73]">↓</span>
+          <strong>{language === 'ja' ? '1台も割り当てない' : 'Assign neither'}</strong>
+          <span aria-hidden="true" className="font-bold text-[#ef6b73]">↓</span>
+          <span>{language === 'ja' ? '両mutexを解放して再試行' : 'Unlock both and retry'}</span>
+        </section>
+      </div>
+    </div>
   );
 }
 
@@ -1073,6 +1167,9 @@ function ProjectTechnicalDetailsPanel({ project, language }: {
                     )}
                     {item.solutionDiagram === 'codexion-lock-order' && (
                       <CodexionDeadlockDiagram mode="lock-order" language={language} />
+                    )}
+                    {item.solutionDiagram === 'codexion-atomic-pair' && (
+                      <CodexionAtomicPairDiagram language={language} />
                     )}
                   </div>
                 </div>
