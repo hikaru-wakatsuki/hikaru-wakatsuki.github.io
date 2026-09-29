@@ -1163,7 +1163,7 @@ function CodexionMonitorDiagram({ language }: { language: 'ja' | 'en' }) {
         <text x="180" y="68" textAnchor="middle" fill="var(--color-text-muted)" fontSize="9" fontWeight="700">
           {language === 'ja' ? '約1ms間隔で確認' : 'check about every 1 ms'}
         </text>
-        <path d="M145 49 V77 H101 V84" fill="none" stroke="var(--color-cli-text)" strokeWidth="2" markerEnd="url(#arrow-monitor)" />
+        <path d="M111 32 H18 V111 H29" fill="none" stroke="var(--color-cli-text)" strokeWidth="2" markerEnd="url(#arrow-monitor)" />
 
         <rect x="35" y="90" width="132" height="42" rx="8" fill="var(--color-bg)" stroke="var(--color-splitter)" strokeWidth="2" />
         <text x="101" y="108" textAnchor="middle" fill="var(--color-text)" fontSize="10" fontWeight="800">
@@ -1622,59 +1622,60 @@ function PortfolioCard({
       onMouseLeave={handleMouseLeave}
     >
       <div className="border-b border-[var(--color-splitter)] p-5 sm:p-6">
-        <div className="flex flex-wrap items-start justify-between gap-x-6 gap-y-3">
-          <div className="min-w-0">
-            <h3 className="text-xl font-bold leading-snug sm:text-2xl">
-              <a
-                href={project.githubUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-flex items-baseline gap-1.5 hover:text-[var(--color-cli-text)] hover:underline focus-visible:outline-2 focus-visible:outline-offset-2"
-                aria-label={language === 'ja' ? `${project.title}のGitHubを開く` : `Open ${project.title} on GitHub`}
-              >
-                {project.title}
-                <span aria-hidden="true" className="font-mono text-xs opacity-60">↗</span>
-              </a>
-            </h3>
+        <div className="flex flex-wrap items-start gap-x-6 gap-y-3">
+          <div className="min-w-0 flex-1">
+            <div className="flex flex-wrap items-center gap-x-3 gap-y-2">
+              <h3 className="text-xl font-bold leading-snug sm:text-2xl">
+                <a
+                  href={project.githubUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-baseline gap-1.5 hover:text-[var(--color-cli-text)] hover:underline focus-visible:outline-2 focus-visible:outline-offset-2"
+                  aria-label={language === 'ja' ? `${project.title}のGitHubを開く` : `Open ${project.title} on GitHub`}
+                >
+                  {project.title}
+                  <span aria-hidden="true" className="font-mono text-xs opacity-60">↗</span>
+                </a>
+              </h3>
+              <div className="flex max-w-full flex-wrap justify-start gap-1.5">
+                {project.tags.map((tag) => {
+                  const isActive = activeTag === tag;
+                  return (
+                    <button
+                      key={tag}
+                      type="button"
+                      onClick={() => onTagClick(tag)}
+                      className={[
+                        'rounded border px-2 py-0.5 font-mono text-xs transition-all duration-150',
+                        isActive ? 'font-bold' : 'opacity-60 hover:opacity-100',
+                      ].join(' ')}
+                      style={
+                        isActive
+                          ? {
+                              background: 'var(--color-cli-text)',
+                              color: 'var(--color-cli-bg)',
+                              borderColor: 'var(--color-cli-text)',
+                            }
+                          : {
+                              background: 'transparent',
+                              color: 'var(--color-text)',
+                              borderColor: 'var(--color-splitter)',
+                            }
+                      }
+                      aria-pressed={isActive}
+                      aria-label={language === 'ja' ? `${tag}でプロジェクトを絞り込む` : `Filter projects by ${tag}`}
+                    >
+                      {tag}
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
             {project.projectType && (
               <p className="mt-2 font-mono text-xs uppercase tracking-wider opacity-60">
                 {project.projectType[language]}
               </p>
             )}
-          </div>
-
-          <div className="flex max-w-full flex-wrap justify-start gap-1.5 sm:justify-end">
-            {project.tags.map((tag) => {
-              const isActive = activeTag === tag;
-              return (
-                <button
-                  key={tag}
-                  type="button"
-                  onClick={() => onTagClick(tag)}
-                  className={[
-                    'rounded border px-2 py-0.5 font-mono text-xs transition-all duration-150',
-                    isActive ? 'font-bold' : 'opacity-60 hover:opacity-100',
-                  ].join(' ')}
-                  style={
-                    isActive
-                      ? {
-                          background: 'var(--color-cli-text)',
-                          color: 'var(--color-cli-bg)',
-                          borderColor: 'var(--color-cli-text)',
-                        }
-                      : {
-                          background: 'transparent',
-                          color: 'var(--color-text)',
-                          borderColor: 'var(--color-splitter)',
-                        }
-                  }
-                  aria-pressed={isActive}
-                  aria-label={language === 'ja' ? `${tag}でプロジェクトを絞り込む` : `Filter projects by ${tag}`}
-                >
-                  {tag}
-                </button>
-              );
-            })}
           </div>
         </div>
         <p className="mt-3 max-w-3xl text-sm leading-6 opacity-75">
