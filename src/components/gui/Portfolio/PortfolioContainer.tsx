@@ -206,8 +206,9 @@ const PROJECTS: PortfolioProject[] = [
           },
           {
             "title": "完了とタイムアウトを監視スレッドで判定",
-            "challenge": "各Coderは自身の処理を実行しているため、全員が目標回数へ到達したか、一定時間コンパイルできていないCoderがいるかを、シミュレーション全体で判定する必要がある。",
-            "solution": "Coderとは別に監視スレッドを用意し、全員の完了と各Coderの最終コンパイル時刻を定期的に確認。終了条件を満たした場合はmutexで保護された停止フラグを更新し、各Coderの待機処理も停止状態を確認して終了する構成。"
+            "challenge": "各Coderは個別に処理を進めるため、全員が目標回数を完了したか、一定時間コンパイルできずタイムアウトしたCoderがいないかを、シミュレーション全体で継続的に判定する必要がある。タイムアウト後のログ出力には時間制限があるため、検知の遅れも抑える必要がある。",
+            "solution": "Coderとは別に監視専用スレッドを実装。全員の完了数と、各Coderの最終コンパイル開始時刻を約1ms間隔で繰り返し確認する。タイムアウトを検知すると、停止フラグを更新してburned outをログへ出力。監視中の状態参照と停止処理も、それぞれのmutexで保護。",
+            "solutionDiagram": "codexion-monitor-loop"
           }
         ],
         "verification": [],
@@ -244,8 +245,9 @@ const PROJECTS: PortfolioProject[] = [
           },
           {
             "title": "Detect completion and timeout in a monitor thread",
-            "challenge": "Individual coder threads cannot alone determine whether everyone has finished or whether another coder has exceeded its allowed time without compiling.",
-            "solution": "A dedicated monitor thread checks the total completion count and each coder's last compile time. When a stopping condition is met, it updates a mutex-protected stop flag that coder loops and waits also observe."
+            "challenge": "Coder threads run independently, so the simulation must continuously determine whether every coder has reached its target or whether any coder has gone too long without compiling. Timeout detection must also avoid unnecessary delay before logging the event.",
+            "solution": "A dedicated monitor thread checks the completion count and every coder's last compile start time at roughly 1 ms intervals. On timeout it updates the stop flag and emits the burned out log. Mutexes protect the state reads and stop transition.",
+            "solutionDiagram": "codexion-monitor-loop"
           }
         ],
         "verification": [],
@@ -1032,33 +1034,33 @@ function CodexionPriorityHeapDiagram({ language }: { language: 'ja' | 'en' }) {
         <h5 className="border-b border-[var(--color-splitter)] px-3 py-2 text-center text-[11px] font-bold">
           {mode.toUpperCase()}：{isFifo ? (language === 'ja' ? '到着順で比較' : 'compare arrival') : (language === 'ja' ? '期限で比較' : 'compare deadline')}
         </h5>
-        <svg viewBox="0 0 360 190" className="h-auto w-full" aria-hidden="true">
+        <svg viewBox="0 0 420 142" className="h-auto w-full" aria-hidden="true">
           <defs>
             <marker id={`arrow-priority-${mode}`} markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto">
               <path d="M0,0 L5,2.5 L0,5 Z" fill="var(--color-cli-text)" />
             </marker>
           </defs>
-          <circle cx="34" cy="54" r="20" fill="#1f2937" stroke="var(--color-cli-text)" strokeWidth="2" />
-          <text x="34" y="58" textAnchor="middle" fill="#fff" fontSize="11" fontWeight="800" fontFamily="ui-monospace, monospace">C1</text>
-          <text x="67" y="49" fill="var(--color-text)" fontSize="10" fontWeight={isFifo ? '800' : '600'}>{language === 'ja' ? '到着：1' : 'Arrival: 1'}</text>
-          <text x="67" y="65" fill="var(--color-text-muted)" fontSize="10" fontWeight={!isFifo ? '800' : '600'}>{language === 'ja' ? '期限：800 ms' : 'Deadline: 800 ms'}</text>
+          <circle cx="32" cy="38" r="19" fill="#1f2937" stroke="var(--color-cli-text)" strokeWidth="2" />
+          <text x="32" y="42" textAnchor="middle" fill="#fff" fontSize="11" fontWeight="800" fontFamily="ui-monospace, monospace">C1</text>
+          <text x="62" y="33" fill="var(--color-text)" fontSize="10" fontWeight={isFifo ? '800' : '600'}>{language === 'ja' ? '到着：1' : 'Arrival: 1'}</text>
+          <text x="62" y="49" fill="var(--color-text-muted)" fontSize="10" fontWeight={!isFifo ? '800' : '600'}>{language === 'ja' ? '期限：800 ms' : 'Deadline: 800 ms'}</text>
 
-          <circle cx="34" cy="124" r="20" fill="#1f2937" stroke="var(--color-cli-text)" strokeWidth="2" />
-          <text x="34" y="128" textAnchor="middle" fill="#fff" fontSize="11" fontWeight="800" fontFamily="ui-monospace, monospace">C2</text>
-          <text x="67" y="119" fill="var(--color-text)" fontSize="10" fontWeight={isFifo ? '800' : '600'}>{language === 'ja' ? '到着：2' : 'Arrival: 2'}</text>
-          <text x="67" y="135" fill="var(--color-text-muted)" fontSize="10" fontWeight={!isFifo ? '800' : '600'}>{language === 'ja' ? '期限：500 ms' : 'Deadline: 500 ms'}</text>
+          <circle cx="32" cy="103" r="19" fill="#1f2937" stroke="var(--color-cli-text)" strokeWidth="2" />
+          <text x="32" y="107" textAnchor="middle" fill="#fff" fontSize="11" fontWeight="800" fontFamily="ui-monospace, monospace">C2</text>
+          <text x="62" y="98" fill="var(--color-text)" fontSize="10" fontWeight={isFifo ? '800' : '600'}>{language === 'ja' ? '到着：2' : 'Arrival: 2'}</text>
+          <text x="62" y="114" fill="var(--color-text-muted)" fontSize="10" fontWeight={!isFifo ? '800' : '600'}>{language === 'ja' ? '期限：500 ms' : 'Deadline: 500 ms'}</text>
 
-          <line x1="135" y1="54" x2="166" y2="81" stroke="var(--color-splitter)" strokeWidth="2" />
-          <line x1="135" y1="124" x2="166" y2="97" stroke="var(--color-splitter)" strokeWidth="2" />
-          <rect x="166" y="67" width="92" height="44" rx="9" fill="var(--color-accent-soft)" stroke="var(--color-accent-border)" strokeWidth="2" />
-          <text x="212" y="84" textAnchor="middle" fill="var(--color-cli-text)" fontSize="11" fontWeight="800">min-heap</text>
-          <text x="212" y="100" textAnchor="middle" fill="var(--color-text-muted)" fontSize="9.5" fontWeight="700">
+          <line x1="151" y1="38" x2="188" y2="61" stroke="var(--color-splitter)" strokeWidth="2" />
+          <line x1="151" y1="103" x2="188" y2="80" stroke="var(--color-splitter)" strokeWidth="2" />
+          <rect x="188" y="49" width="104" height="44" rx="9" fill="var(--color-accent-soft)" stroke="var(--color-accent-border)" strokeWidth="2" />
+          <text x="240" y="66" textAnchor="middle" fill="var(--color-cli-text)" fontSize="11" fontWeight="800">min-heap</text>
+          <text x="240" y="82" textAnchor="middle" fill="var(--color-text-muted)" fontSize="9.5" fontWeight="700">
             {isFifo ? (language === 'ja' ? '到着順に並べ替え' : 'order by arrival') : (language === 'ja' ? '期限順に並べ替え' : 'order by deadline')}
           </text>
-          <line x1="258" y1="89" x2="298" y2="89" stroke="var(--color-cli-text)" strokeWidth="2.5" markerEnd={`url(#arrow-priority-${mode})`} />
-          <circle cx="326" cy="89" r="22" fill="var(--color-accent-soft)" stroke="var(--color-cli-text)" strokeWidth="2.5" />
-          <text x="326" y="93" textAnchor="middle" fill="var(--color-cli-text)" fontSize="12" fontWeight="800" fontFamily="ui-monospace, monospace">{selectedCoder}</text>
-          <text x="326" y="128" textAnchor="middle" fill="var(--color-cli-text)" fontSize="9.5" fontWeight="800">
+          <line x1="292" y1="71" x2="346" y2="71" stroke="var(--color-cli-text)" strokeWidth="2.5" markerEnd={`url(#arrow-priority-${mode})`} />
+          <circle cx="377" cy="71" r="21" fill="var(--color-accent-soft)" stroke="var(--color-cli-text)" strokeWidth="2.5" />
+          <text x="377" y="75" textAnchor="middle" fill="var(--color-cli-text)" fontSize="12" fontWeight="800" fontFamily="ui-monospace, monospace">{selectedCoder}</text>
+          <text x="377" y="106" textAnchor="middle" fill="var(--color-cli-text)" fontSize="9.5" fontWeight="800">
             {language === 'ja' ? '先に選択' : 'selected first'}
           </text>
         </svg>
@@ -1118,19 +1120,81 @@ function CodexionLogDiagram({ mode, language }: { mode: 'interleaving' | 'mutex'
           </>
         ) : (
           <>
-            <line x1="62" y1="58" x2="176" y2="93" stroke="#ef6b73" strokeWidth="2.5" markerEnd="url(#arrow-log-interleaving)" />
-            <line x1="62" y1="144" x2="176" y2="109" stroke="#ef6b73" strokeWidth="2.5" markerEnd="url(#arrow-log-interleaving)" />
-            <rect x="184" y="52" width="162" height="100" rx="7" fill="var(--color-bg)" stroke="#ef6b73" strokeWidth="2" />
-            <text x="265" y="75" textAnchor="middle" fill="var(--color-text-muted)" fontSize="9" fontWeight="700">LOG</text>
-            <text x="196" y="101" fill="#ef6b73" fontSize="8.5" fontFamily="ui-monospace, monospace">13 2 debugging</text>
-            <text x="196" y="121" fill="#ef6b73" fontSize="8.5" fontFamily="ui-monospace, monospace">12 1 compiling</text>
-            <text x="265" y="141" textAnchor="middle" fill="#ef6b73" fontSize="9" fontWeight="800">{language === 'ja' ? '行の順序が前後' : 'lines out of order'}</text>
+            <line x1="62" y1="58" x2="143" y2="92" stroke="#ef6b73" strokeWidth="2.5" markerEnd="url(#arrow-log-interleaving)" />
+            <line x1="62" y1="144" x2="143" y2="110" stroke="#ef6b73" strokeWidth="2.5" markerEnd="url(#arrow-log-interleaving)" />
+            <rect x="151" y="64" width="195" height="76" rx="7" fill="var(--color-bg)" stroke="#ef6b73" strokeWidth="2" />
+            <text x="248" y="84" textAnchor="middle" fill="#ef6b73" fontSize="9" fontWeight="800">{language === 'ja' ? '同時に出力を要求' : 'concurrent output requests'}</text>
+            <text x="248" y="108" textAnchor="middle" fill="#ef6b73" fontSize="8.5" fontFamily="ui-monospace, monospace">13 2 debugging　|　12 1 compiling</text>
+            <text x="248" y="128" textAnchor="middle" fill="var(--color-text-muted)" fontSize="9" fontWeight="700">{language === 'ja' ? 'どちらを先に出すか未確定' : 'output order is not controlled'}</text>
           </>
         )}
         <text x="180" y="187" textAnchor="middle" fill={protectedOutput ? '#4f8f67' : '#ef6b73'} fontSize="10" fontWeight="800">
           {protectedOutput
             ? (language === 'ja' ? '1行の出力完了後に、次のスレッドへ' : 'The next thread prints after the current line finishes')
             : (language === 'ja' ? '同時出力では実行順序を追えない' : 'Concurrent output obscures execution order')}
+        </text>
+      </svg>
+    </div>
+  );
+}
+
+function CodexionMonitorDiagram({ language }: { language: 'ja' | 'en' }) {
+  return (
+    <div className="mt-4 overflow-hidden rounded-md border border-[var(--color-splitter)] bg-[var(--color-cli-bg)]">
+      <svg
+        role="img"
+        aria-label={language === 'ja' ? '監視専用スレッドが完了とタイムアウトを約1ms間隔で繰り返し判定する図' : 'A monitor thread repeatedly checks completion and timeout at roughly 1 ms intervals'}
+        viewBox="0 0 360 255"
+        className="h-auto w-full"
+      >
+        <defs>
+          <marker id="arrow-monitor" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto">
+            <path d="M0,0 L5,2.5 L0,5 Z" fill="var(--color-cli-text)" />
+          </marker>
+          <marker id="arrow-monitor-stop" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto">
+            <path d="M0,0 L5,2.5 L0,5 Z" fill="#ef6b73" />
+          </marker>
+        </defs>
+
+        <rect x="111" y="15" width="138" height="34" rx="17" fill="var(--color-accent-soft)" stroke="var(--color-cli-text)" strokeWidth="2" />
+        <text x="180" y="36" textAnchor="middle" fill="var(--color-cli-text)" fontSize="10.5" fontWeight="800">
+          {language === 'ja' ? '監視専用スレッド' : 'Monitor thread'}
+        </text>
+        <line x1="180" y1="49" x2="180" y2="69" stroke="var(--color-cli-text)" strokeWidth="2" markerEnd="url(#arrow-monitor)" />
+
+        <rect x="35" y="75" width="132" height="42" rx="8" fill="var(--color-bg)" stroke="var(--color-splitter)" strokeWidth="2" />
+        <text x="101" y="93" textAnchor="middle" fill="var(--color-text)" fontSize="10" fontWeight="800">
+          {language === 'ja' ? '全員が目標を完了？' : 'Everyone complete?'}
+        </text>
+        <text x="101" y="108" textAnchor="middle" fill="var(--color-text-muted)" fontSize="8.5">finish_mutex</text>
+
+        <line x1="167" y1="96" x2="194" y2="96" stroke="var(--color-cli-text)" strokeWidth="2" markerEnd="url(#arrow-monitor)" />
+        <text x="180" y="89" textAnchor="middle" fill="var(--color-text-muted)" fontSize="8">NO</text>
+        <rect x="199" y="75" width="126" height="42" rx="8" fill="var(--color-bg)" stroke="var(--color-splitter)" strokeWidth="2" />
+        <text x="262" y="93" textAnchor="middle" fill="var(--color-text)" fontSize="10" fontWeight="800">
+          {language === 'ja' ? '期限を超過？' : 'Deadline exceeded?'}
+        </text>
+        <text x="262" y="108" textAnchor="middle" fill="var(--color-text-muted)" fontSize="8.5">state_mutex</text>
+
+        <line x1="101" y1="117" x2="101" y2="151" stroke="#4f8f67" strokeWidth="2.5" markerEnd="url(#arrow-monitor)" />
+        <text x="109" y="139" fill="#4f8f67" fontSize="8" fontWeight="800">YES</text>
+        <rect x="38" y="157" width="126" height="36" rx="8" fill="var(--color-accent-soft)" stroke="#4f8f67" strokeWidth="2" />
+        <text x="101" y="179" textAnchor="middle" fill="#4f8f67" fontSize="10" fontWeight="800">
+          {language === 'ja' ? '正常終了' : 'Complete'}
+        </text>
+
+        <line x1="262" y1="117" x2="262" y2="151" stroke="#ef6b73" strokeWidth="2.5" markerEnd="url(#arrow-monitor-stop)" />
+        <text x="270" y="139" fill="#ef6b73" fontSize="8" fontWeight="800">YES</text>
+        <rect x="199" y="157" width="126" height="49" rx="8" fill="var(--color-bg)" stroke="#ef6b73" strokeWidth="2" />
+        <text x="262" y="176" textAnchor="middle" fill="#ef6b73" fontSize="9.5" fontWeight="800">
+          {language === 'ja' ? '停止フラグを更新' : 'Set stop flag'}
+        </text>
+        <text x="262" y="193" textAnchor="middle" fill="#ef6b73" fontSize="9" fontWeight="800">burned out</text>
+
+        <path d="M325 96 H342 V226 H180 V55" fill="none" stroke="var(--color-cli-text)" strokeWidth="2" markerEnd="url(#arrow-monitor)" />
+        <rect x="220" y="216" width="84" height="22" rx="11" fill="var(--color-bg)" stroke="var(--color-splitter)" />
+        <text x="262" y="231" textAnchor="middle" fill="var(--color-text-muted)" fontSize="8.5" fontWeight="700">
+          {language === 'ja' ? 'NO：約1ms待機' : 'NO: wait ~1 ms'}
         </text>
       </svg>
     </div>
@@ -1399,6 +1463,9 @@ function ProjectTechnicalDetailsPanel({ project, language }: {
                     )}
                     {item.solutionDiagram === 'codexion-log-mutex' && (
                       <CodexionLogDiagram mode="mutex" language={language} />
+                    )}
+                    {item.solutionDiagram === 'codexion-monitor-loop' && (
+                      <CodexionMonitorDiagram language={language} />
                     )}
                   </div>
                 </div>
