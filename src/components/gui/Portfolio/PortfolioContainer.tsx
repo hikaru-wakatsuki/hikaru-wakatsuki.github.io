@@ -25,24 +25,10 @@ const PROJECTS: PortfolioProject[] = [
     },
     "demoGuide": {
       "ja": {
-        "cues": [
-          "Available functions：この実行でLLMが選択できる登録済み関数。関数定義を追加することで候補を拡張可能",
-          "Current request：現在処理しているユーザーの自然言語による依頼と、全4件中の処理位置",
-          "INPUT → FUNCTION → ARGUMENTS → VALIDATION：入力受付、関数選択、引数生成、検証のうち、現在進んでいる処理段階",
-          "Function selected：依頼内容からLLMが選択した関数",
-          "Generated arguments：選択した関数の定義に従って生成されるJSON引数",
-          "Schema validation：生成したJSONの形式と、引数名・引数型の検証結果"
-        ]
+        "cues": []
       },
       "en": {
-        "cues": [
-          "Available functions: registered functions the LLM can select; adding definitions extends the candidates",
-          "Current request: the user's natural-language request being processed and its position among four requests",
-          "INPUT → FUNCTION → ARGUMENTS → VALIDATION: the active input, selection, generation, or validation stage",
-          "Function selected: the function the LLM chose from the request",
-          "Generated arguments: JSON arguments generated from the selected function definition",
-          "Schema validation: JSON syntax, argument-name, and argument-type checks"
-        ]
+        "cues": []
       }
     },
     "technicalDetails": {
@@ -651,7 +637,54 @@ function ProjectVideoGuide({ project, language }: {
       </button>
       {isOpen && (
         <div id={contentId} className="border-t border-[var(--color-splitter)] px-5 py-4 sm:px-6">
-          {project.id === 'souaoao/A-Maze-ing' ? (
+          {project.id === 'Call_Me_Maybe' ? (
+            <div className="grid gap-3 text-xs leading-5">
+              <section className="overflow-hidden rounded-md border border-[var(--color-splitter)] bg-[var(--color-cli-bg)]">
+                <h4 className="border-b border-[var(--color-splitter)] px-3 py-2 font-mono text-[11px] font-bold text-[var(--color-cli-text)]">
+                  Available functions｜{language === 'ja' ? '登録済みの関数' : 'Registered functions'}
+                </h4>
+                <div className="grid gap-2 p-3 sm:grid-cols-2">
+                  {[
+                    ['fn_add_numbers', 'a, b'],
+                    ['fn_greet', 'name'],
+                    ['fn_reverse_string', 's'],
+                    ['fn_create_user', 'name, age'],
+                  ].map(([name, parameters]) => (
+                    <div key={name} className="flex min-w-0 items-center gap-1.5 rounded border border-[var(--color-splitter)] px-3 py-2 font-mono">
+                      <strong className="break-all text-[var(--color-cli-text)]">{name}</strong>
+                      <span className="shrink-0 opacity-55">({parameters})</span>
+                    </div>
+                  ))}
+                </div>
+              </section>
+
+              <section className="rounded-md border border-[var(--color-splitter)] bg-[var(--color-cli-bg)] p-3">
+                <p className="mb-1 font-mono text-[10px] font-bold uppercase tracking-wide opacity-55">Current request｜{language === 'ja' ? 'ユーザーの依頼' : 'User request'}</p>
+                <p className="font-mono text-[var(--color-text)]">What is the sum of 2 and 3?</p>
+                {language === 'ja' && <p className="mt-1 text-[var(--color-text-muted)]">「2と3を足して」という自然言語の依頼</p>}
+              </section>
+
+              <div className="grid items-stretch gap-2 md:grid-cols-[1fr_auto_1fr_auto_1fr]">
+                <section className="rounded-md border border-[var(--color-splitter)] bg-[var(--color-cli-bg)] p-3">
+                  <p className="font-mono text-[10px] font-bold uppercase tracking-wide opacity-55">Function selected</p>
+                  <p className="mt-2 font-mono font-bold text-[#4f8f67]">✓ fn_add_numbers</p>
+                  <p className="mt-1 text-[var(--color-text-muted)]">{language === 'ja' ? '依頼に合う登録済み関数を選択' : 'Select the registered function that matches the request'}</p>
+                </section>
+                <span aria-hidden="true" className="hidden self-center text-base font-bold text-[var(--color-accent-secondary)] md:block">→</span>
+                <section className="rounded-md border border-[var(--color-splitter)] bg-[var(--color-cli-bg)] p-3">
+                  <p className="font-mono text-[10px] font-bold uppercase tracking-wide opacity-55">Generated arguments</p>
+                  <code className="mt-2 block font-mono font-bold text-[#d5a94e]">{`{"a": 2, "b": 3}`}</code>
+                  <p className="mt-1 text-[var(--color-text-muted)]">{language === 'ja' ? '関数に渡す値をJSON形式で生成' : 'Generate the values passed to the function as JSON'}</p>
+                </section>
+                <span aria-hidden="true" className="hidden self-center text-base font-bold text-[var(--color-accent-secondary)] md:block">→</span>
+                <section className="rounded-md border border-[var(--color-splitter)] bg-[var(--color-cli-bg)] p-3">
+                  <p className="font-mono text-[10px] font-bold uppercase tracking-wide opacity-55">Schema validation</p>
+                  <p className="mt-2 font-mono font-bold text-[#4f8f67]">✓ PASSED</p>
+                  <p className="mt-1 text-[var(--color-text-muted)]">{language === 'ja' ? 'JSON形式・引数名・値の型を関数定義と照合' : 'Check JSON syntax, argument names, and value types against the function definition'}</p>
+                </section>
+              </div>
+            </div>
+          ) : project.id === 'souaoao/A-Maze-ing' ? (
             <div className="grid gap-3 text-xs leading-5">
               <div className="grid gap-2 rounded-md border border-[var(--color-splitter)] bg-[var(--color-cli-bg)] p-3 sm:grid-cols-2 lg:grid-cols-3">
                 <div className="flex items-center gap-2.5">
