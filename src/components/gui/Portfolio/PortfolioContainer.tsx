@@ -412,8 +412,8 @@ const PROJECTS: PortfolioProject[] = [
     "id": "souaoao/A-Maze-ing",
     "title": "A-Maze-ing",
     "description": {
-      "ja": "設定からDFS/BFSで迷路を生成し、壁の整合性や保護領域などの制約を守りながら最短経路まで求めるPython共同開発。各セルの壁を4ビットで管理し、再現可能な生成、16進形式の出力、再利用可能なパッケージ化を実装。",
-      "en": "A two-person Python project that generates reproducible DFS/BFS mazes, enforces wall and protected-region constraints, and solves the shortest route. Walls are encoded in four bits, written as hexadecimal data, and exposed through a reusable package."
+      "ja": "設定ファイルを検証し、DFSまたはBFSで迷路を生成・可視化するPythonアプリケーション。外周や保護領域などの制約を守りながら通路を作り、生成後にStartからGoalまでの最短経路を探索する。",
+      "en": "A Python application that validates a configuration file, generates and visualizes a maze with DFS or BFS, preserves constraints such as outer walls and protected regions, and finds a shortest route from Start to Goal."
     },
     "tags": [
       "Python",
@@ -431,16 +431,16 @@ const PROJECTS: PortfolioProject[] = [
     "demoGuide": {
       "ja": {
         "cues": [
-          "Algorithm / Size / Seed / Perfect Maze：生成方式、迷路サイズ、再現用のSeed、Perfect Mazeの設定",
-          "Shortest path / Visited cells / Generation time：最短経路の長さ、探索したセル数、生成時間",
-          "1: Regenerate / 2: Show shortest path / 3: Change wall color / 4: Animate generation / ESC: Close：操作キー"
+          "Shortest path：StartからGoalまでの最短経路の移動回数",
+          "Visited cells：最短経路を求めるBFSが確認したセル数",
+          "Generation time：迷路生成、最短経路計算、ファイル出力までの処理時間"
         ]
       },
       "en": {
         "cues": [
-          "Algorithm / Size / Seed / Perfect Maze: generation method, maze size, reproducibility seed and perfect-maze setting",
-          "Shortest path / Visited cells / Generation time: route length, explored cells and generation time",
-          "1: Regenerate / 2: Show shortest path / 3: Change wall color / 4: Animate generation / ESC: Close: keyboard controls"
+          "Shortest path: number of moves in the shortest route from Start to Goal",
+          "Visited cells: number of cells examined by the BFS shortest-path search",
+          "Generation time: time spent generating the maze, finding the shortest route and writing the output"
         ]
       }
     },
@@ -617,16 +617,21 @@ function ProjectVideoGuide({ project, language }: {
           {project.id === 'souaoao/A-Maze-ing' ? (
             <div className="grid gap-3 text-xs leading-5">
               <div className="grid gap-3 rounded-md border border-[var(--color-splitter)] bg-[var(--color-cli-bg)] p-3">
-                {guide.cues.map((cue) => {
+                {guide.cues.map((cue, cueIndex) => {
                   const japaneseSeparator = cue.indexOf('：');
                   const englishSeparator = cue.lastIndexOf(': ');
                   const separatorIndex = japaneseSeparator >= 0 ? japaneseSeparator : englishSeparator;
                   const separatorLength = japaneseSeparator >= 0 ? 1 : 2;
                   const displayLabel = cue.slice(0, separatorIndex);
                   const displayText = cue.slice(separatorIndex + separatorLength);
+                  const labelColor = cueIndex === 0
+                    ? 'text-[#3b82f6]'
+                    : cueIndex === 1
+                      ? 'text-[#22d3ee]'
+                      : 'text-[var(--color-text)]';
                   return (
                     <div key={cue} className="grid gap-1 border-b border-[var(--color-splitter)] pb-3 last:border-b-0 last:pb-0 sm:grid-cols-[minmax(15rem,auto)_1fr] sm:items-center sm:gap-4">
-                      <span className="font-mono font-bold text-[#22d3ee]">{displayLabel}</span>
+                      <span className={`font-mono font-bold ${labelColor}`}>{displayLabel}</span>
                       <span className="text-[var(--color-text-muted)]">{displayText}</span>
                     </div>
                   );
@@ -654,12 +659,6 @@ function ProjectVideoGuide({ project, language }: {
                   <span className="grid h-6 w-10 shrink-0 place-items-center rounded bg-[#a78bfa] font-mono text-[10px] font-black text-white" aria-hidden="true">42</span>
                   <span><strong className="text-[#a78bfa]">42</strong>：{language === 'ja' ? '全方向の壁を閉じた18セルの保護領域' : '18 protected cells with all four walls closed'}</span>
                 </div>
-              </div>
-
-              <div className="rounded-md border border-[#3b82f6]/40 bg-[var(--color-cli-bg)] px-3 py-2.5 text-[var(--color-text-muted)]">
-                {language === 'ja'
-                  ? '「2」を押すと、シアンの探索済みセルに続いて青い最短経路がStartからGoalまで順に描画されます。「4」では迷路の壁が生成されていく過程を表示します。'
-                  : 'Press 2 to reveal visited cells in cyan and animate the blue shortest route from Start to Goal. Press 4 to watch the maze walls appear during generation.'}
               </div>
             </div>
           ) : project.id === 'Fly-in' ? (
