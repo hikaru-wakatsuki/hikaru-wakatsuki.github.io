@@ -1656,126 +1656,88 @@ function FlyInDecisionDiagram({ kind, language }: { kind: string; language: 'ja'
     );
   }
 
-  if (kind === 'flyin-blocked-route') {
-    const routeBoxClass = 'min-w-0 flex-1 rounded-md border px-2 py-2 text-center';
+  if (kind === 'flyin-blocked-route' || kind === 'flyin-reroute') {
+    const implementation = kind === 'flyin-reroute';
     return (
       <div
         role="img"
         aria-label={ja
-          ? '初期経路のRestricted Zoneは満員だが、Normal Zoneを通る迂回路は利用できる'
-          : 'The Restricted Zone on the initial route is full while a detour through a Normal Zone is available'}
+          ? implementation
+            ? '現在地D1から、満員のRestricted Zoneにペナルティを加えて再探索し、Normal Zoneを通る迂回路へ切り替える'
+            : '現在地D1からGoalへの初期経路は満員のRestricted Zoneで進めないが、Normal Zoneを通る迂回路は空いている'
+          : implementation
+            ? 'From the single current position D1, add a penalty to the full Restricted Zone and switch to the detour through Normal Zones'
+            : 'From the single current position D1, the initial route is blocked by a full Restricted Zone while the detour through Normal Zones is open'}
         className="mt-4 overflow-hidden rounded-md border border-[var(--color-splitter)] bg-[var(--color-cli-bg)] p-3"
       >
         <p className="font-mono text-[10px] font-bold text-[var(--color-text)]">
-          {ja ? '初期経路だけを使う場合' : 'When only the initial route is used'}
+          {ja
+            ? implementation ? '混雑を反映して現在地から再探索' : '初期経路だけを使う場合'
+            : implementation ? 'Search again from the current position with congestion penalties' : 'When only the initial route is used'}
         </p>
-        <div className="mt-2 grid gap-2">
-          <div>
-            <p className="mb-1 font-mono text-[9px] font-bold text-[#ef6b73]">{ja ? '初期経路' : 'Initial route'}</p>
-            <div className="flex items-center gap-1.5">
-              <div className={`${routeBoxClass} border-[var(--color-splitter)] bg-[var(--color-bg)]`}>
-                <p className="font-mono text-[9px] font-bold">{ja ? '現在地' : 'Current'}</p>
-                <p className="mt-1 text-[9px] text-[var(--color-text-muted)]">D1</p>
-              </div>
-              <span aria-hidden="true" className="font-bold text-[#ef6b73]">→</span>
-              <div className={`${routeBoxClass} border-[#ef6b73] bg-[#ef6b73]/10`}>
-                <p className="font-mono text-[9px] font-bold">Restricted</p>
-                <p className="mt-1 text-[9px] font-bold text-[#ef6b73]">1 / 1 · {ja ? '満員' : 'full'}</p>
-              </div>
-              <span aria-hidden="true" className="font-bold text-[var(--color-text-muted)]">→</span>
-              <div className={`${routeBoxClass} border-[var(--color-splitter)] bg-[var(--color-bg)]`}>
-                <p className="font-mono text-[9px] font-bold">Goal</p>
-              </div>
+        <div className="mt-2 grid grid-cols-[3.75rem_1rem_minmax(0,1fr)_1rem_3.75rem] grid-rows-2 items-center gap-x-1.5 gap-y-2">
+          <div className="row-span-2 row-start-1 flex min-h-20 flex-col items-center justify-center rounded-md border border-[var(--color-splitter)] bg-[var(--color-bg)] px-1.5 py-2 text-center">
+            <p className="font-mono text-[9px] font-bold text-[var(--color-text)]">{ja ? '現在地' : 'Current'}</p>
+            <span className="mt-1 flex h-7 w-7 items-center justify-center rounded-full border border-[var(--color-cli-text)] font-mono text-[9px] font-bold text-[var(--color-cli-text)]">D1</span>
+          </div>
+          <span aria-hidden="true" className="col-start-2 row-start-1 text-center font-bold text-[#ef6b73]">↗</span>
+          <div className={[
+            'col-start-3 row-start-1 rounded-md border border-[#ef6b73] bg-[#ef6b73]/10 px-2 py-2 text-center',
+            implementation ? 'opacity-60' : '',
+          ].join(' ')}>
+            <p className="font-mono text-[9px] font-bold text-[var(--color-text)]">Restricted</p>
+            <p className="mt-1 text-[9px] font-bold text-[#ef6b73]">
+              {implementation ? (ja ? '満員 · Penalty +' : 'full · penalty +') : `1 / 1 · ${ja ? '満員' : 'full'}`}
+            </p>
+            <p className="mt-1 text-[8px] text-[#ef6b73]">{ja ? '初期経路' : 'initial route'}</p>
+          </div>
+          <span aria-hidden="true" className="col-start-4 row-start-1 text-center font-bold text-[#ef6b73]">↘</span>
+          <div className="col-start-5 row-span-2 row-start-1 flex min-h-20 items-center justify-center rounded-md border border-[var(--color-splitter)] bg-[var(--color-bg)] px-1.5 py-2 text-center">
+            <p className="font-mono text-[9px] font-bold text-[var(--color-text)]">Goal</p>
+          </div>
+          <span aria-hidden="true" className="col-start-2 row-start-2 text-center font-bold text-[#4f8f67]">↘</span>
+          <div className={[
+            'col-start-3 row-start-2 flex min-w-0 items-center gap-1 rounded-md border border-[#4f8f67] bg-[#4f8f67]/10 px-1.5 py-2',
+            implementation ? '' : 'opacity-65',
+          ].join(' ')}>
+            <div className="min-w-0 flex-1 text-center">
+              <p className="truncate font-mono text-[9px] font-bold text-[var(--color-text)]">Normal A</p>
+              <p className="mt-1 text-[8px] text-[var(--color-text-muted)]">0 / 2</p>
+            </div>
+            <span aria-hidden="true" className="shrink-0 font-bold text-[#4f8f67]">→</span>
+            <div className="min-w-0 flex-1 text-center">
+              <p className="truncate font-mono text-[9px] font-bold text-[var(--color-text)]">Normal B</p>
+              <p className="mt-1 text-[8px] font-bold text-[var(--color-cli-text)]">
+                {implementation ? (ja ? '再探索後' : 'new route') : (ja ? '空き' : 'open')}
+              </p>
             </div>
           </div>
-
-          <div>
-            <p className="mb-1 font-mono text-[9px] font-bold text-[#4f8f67]">{ja ? '利用できる迂回路' : 'Available detour'}</p>
-            <div className="flex items-center gap-1.5 opacity-70">
-              <div className={`${routeBoxClass} border-[var(--color-splitter)] bg-[var(--color-bg)]`}>
-                <p className="font-mono text-[9px] font-bold">{ja ? '現在地' : 'Current'}</p>
-                <p className="mt-1 text-[9px] text-[var(--color-text-muted)]">D1</p>
-              </div>
-              <span aria-hidden="true" className="font-bold text-[#4f8f67]">→</span>
-              <div className={`${routeBoxClass} border-[#4f8f67] bg-[#4f8f67]/10`}>
-                <p className="font-mono text-[9px] font-bold">Normal</p>
-                <p className="mt-1 text-[9px] text-[var(--color-text-muted)]">0 / 2 · {ja ? '空き' : 'open'}</p>
-              </div>
-              <span aria-hidden="true" className="font-bold text-[#4f8f67]">→</span>
-              <div className={`${routeBoxClass} border-[#4f8f67] bg-[#4f8f67]/10`}>
-                <p className="font-mono text-[9px] font-bold">Goal</p>
-              </div>
-            </div>
-          </div>
-        </div>
-        <p className="mt-3 rounded-md border border-[#ef6b73] bg-[#ef6b73]/10 px-2.5 py-2 text-center text-[9px] font-bold text-[#ef6b73]">
-          {ja ? '迂回路があっても、進めない初期経路を待ち続ける' : 'The drone keeps waiting on the blocked initial route despite the open detour'}
-        </p>
-      </div>
-    );
-  }
-
-  if (kind === 'flyin-reroute') {
-    const routeBoxClass = 'min-w-0 flex-1 rounded-md border px-2 py-2 text-center';
-    return (
-      <div
-        role="img"
-        aria-label={ja
-          ? '混雑した初期経路にペナルティを加え、現在地から再探索して迂回路へ切り替える'
-          : 'Add a penalty to the congested initial route, search again from the current position and switch to the detour'}
-        className="mt-4 overflow-hidden rounded-md border border-[var(--color-splitter)] bg-[var(--color-cli-bg)] p-3"
-      >
-        <p className="font-mono text-[10px] font-bold text-[var(--color-text)]">
-          {ja ? '混雑を反映して現在地から再探索' : 'Search again from the current position with congestion penalties'}
-        </p>
-        <div className="mt-2 grid gap-2">
-          <div className="flex items-center gap-1.5 opacity-60">
-            <div className={`${routeBoxClass} border-[var(--color-splitter)] bg-[var(--color-bg)]`}>
-              <p className="font-mono text-[9px] font-bold">{ja ? '現在地' : 'Current'}</p>
-            </div>
-            <span aria-hidden="true" className="font-bold text-[var(--color-text-muted)]">→</span>
-            <div className={`${routeBoxClass} border-[#ef6b73] bg-[#ef6b73]/10`}>
-              <p className="font-mono text-[9px] font-bold">Restricted</p>
-              <p className="mt-1 text-[9px] text-[#ef6b73]">{ja ? '満員 · ペナルティ追加' : 'full · penalty added'}</p>
-            </div>
-            <span aria-hidden="true" className="font-bold text-[var(--color-text-muted)]">→</span>
-            <div className={`${routeBoxClass} border-[var(--color-splitter)] bg-[var(--color-bg)]`}>
-              <p className="font-mono text-[9px] font-bold">Goal</p>
-            </div>
-          </div>
-
-          <div className="flex items-center gap-1.5">
-            <div className={`${routeBoxClass} border-[#4f8f67] bg-[#4f8f67]/10`}>
-              <p className="font-mono text-[9px] font-bold">{ja ? '現在地' : 'Current'}</p>
-            </div>
-            <span aria-hidden="true" className="font-bold text-[#4f8f67]">→</span>
-            <div className={`${routeBoxClass} border-[#4f8f67] bg-[#4f8f67]/10`}>
-              <p className="font-mono text-[9px] font-bold">Normal</p>
-              <p className="mt-1 text-[9px] text-[var(--color-text-muted)]">{ja ? '空きあり' : 'open'}</p>
-            </div>
-            <span aria-hidden="true" className="font-bold text-[#4f8f67]">→</span>
-            <div className={`${routeBoxClass} border-[#4f8f67] bg-[#4f8f67]/10`}>
-              <p className="font-mono text-[9px] font-bold">Goal</p>
-              <p className="mt-1 text-[9px] font-bold text-[var(--color-cli-text)]">{ja ? '再探索後の経路' : 'new route'}</p>
-            </div>
-          </div>
+          <span aria-hidden="true" className="col-start-4 row-start-2 text-center font-bold text-[#4f8f67]">↗</span>
         </div>
 
-        <div className="mt-3 grid grid-cols-[1fr_auto_1fr_auto_1fr] items-center gap-1.5 border-t border-[var(--color-splitter)] pt-2.5 text-center text-[9px] text-[var(--color-text-muted)]">
-          <span className="rounded border border-[var(--color-splitter)] px-1.5 py-1.5">{ja ? 'Dijkstra法で再探索' : 'rerun Dijkstra'}</span>
-          <span aria-hidden="true">→</span>
-          <span className="rounded border border-[var(--color-splitter)] px-1.5 py-1.5">{ja ? '経路を置き換え' : 'replace route'}</span>
-          <span aria-hidden="true">→</span>
-          <span className="rounded border border-[#4f8f67] bg-[#4f8f67]/10 px-1.5 py-1.5">{ja ? '最初の移動先を再確認' : 'recheck first move'}</span>
-        </div>
-        <div className="mt-2 flex justify-center gap-2 text-[9px] font-bold">
-          <span className="rounded-full border border-[#4f8f67] bg-[#4f8f67]/10 px-2.5 py-1 text-[var(--color-cli-text)]">
-            {ja ? '移動可能 → 迂回路を進む' : 'available → follow detour'}
-          </span>
-          <span className="rounded-full border border-[var(--color-splitter)] px-2.5 py-1 text-[var(--color-text-muted)]">
-            {ja ? '移動不可 → そのターンは待機' : 'blocked → wait this turn'}
-          </span>
-        </div>
+        {implementation ? (
+          <>
+            <div className="mt-3 grid grid-cols-[1fr_auto_1fr_auto_1fr] items-center gap-1.5 border-t border-[var(--color-splitter)] pt-2.5 text-center text-[9px] text-[var(--color-text-muted)]">
+              <span className="rounded border border-[var(--color-splitter)] px-1.5 py-1.5">{ja ? 'Dijkstra法で再探索' : 'rerun Dijkstra'}</span>
+              <span aria-hidden="true">→</span>
+              <span className="rounded border border-[var(--color-splitter)] px-1.5 py-1.5">{ja ? '経路を置き換え' : 'replace route'}</span>
+              <span aria-hidden="true">→</span>
+              <span className="rounded border border-[#4f8f67] bg-[#4f8f67]/10 px-1.5 py-1.5">{ja ? '最初の移動先を再確認' : 'recheck first move'}</span>
+            </div>
+            <div className="mt-2 flex justify-center gap-2 text-[9px] font-bold">
+              <span className="rounded-full border border-[#4f8f67] bg-[#4f8f67]/10 px-2.5 py-1 text-[var(--color-cli-text)]">
+                {ja ? '移動可能 → 迂回路を進む' : 'available → follow detour'}
+              </span>
+              <span className="rounded-full border border-[var(--color-splitter)] px-2.5 py-1 text-[var(--color-text-muted)]">
+                {ja ? '移動不可 → そのターンは待機' : 'blocked → wait this turn'}
+              </span>
+            </div>
+          </>
+        ) : (
+          <p className="mt-3 rounded-md border border-[#ef6b73] bg-[#ef6b73]/10 px-2.5 py-2 text-center text-[9px] font-bold text-[#ef6b73]">
+            {ja ? '迂回路があっても、進めない初期経路を待ち続ける' : 'The drone keeps waiting on the blocked initial route despite the open detour'}
+          </p>
+        )}
       </div>
     );
   }
