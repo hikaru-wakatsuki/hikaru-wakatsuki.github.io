@@ -645,10 +645,10 @@ function ProjectVideoGuide({ project, language }: {
                 </h4>
                 <div className="grid gap-2 p-3 sm:grid-cols-2">
                   {[
-                    ['fn_add_numbers', 'a, b'],
-                    ['fn_greet', 'name'],
-                    ['fn_reverse_string', 's'],
-                    ['fn_create_user', 'name, age'],
+                    ['fn_add_numbers', 'a: number, b: number'],
+                    ['fn_greet', 'name: string'],
+                    ['fn_reverse_string', 's: string'],
+                    ['fn_create_user', 'name: string, age: integer'],
                   ].map(([name, parameters]) => (
                     <div key={name} className="flex min-w-0 items-center gap-1.5 rounded border border-[var(--color-splitter)] px-3 py-2 font-mono">
                       <strong className="break-all text-[var(--color-cli-text)]">{name}</strong>
