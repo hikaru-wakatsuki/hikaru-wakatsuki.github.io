@@ -463,15 +463,15 @@ const PROJECTS: PortfolioProject[] = [
             ]
           },
           {
-            "title": "循環のないPerfect Mazeを生成",
-            "challenge": "Perfect Mazeでは、通行可能なすべてのセルをつなぎながら、任意の2セル間の経路を一つだけにする必要があった。外周や中央の「42」保護領域を維持し、途中で経路の循環を作らない生成方法が必要だった。",
+            "title": "循環のない完全迷路を生成",
+            "challenge": "完全迷路では、通行可能なすべてのセルをつなぎながら、任意の2セル間の経路を一つだけにする必要があった。外周や中央の「42」保護領域を維持し、途中で経路の循環を作らない生成方法が必要だった。",
             "solution": "すべての壁を閉じた状態から生成を開始し、未訪問の隣接セルにだけ通路を接続。接続したセルを訪問済みにすることで、すでにつながっているセル間には新しい通路を作らず、循環を防止した。外壁、「42」保護領域、すでに開いている壁、3×3領域を完全開放する壁は、通路を作る前の判定で除外した。",
             "solutionDiagram": "a-maze-perfect-tree"
           },
           {
-            "title": "制約を守りながらImperfect Mazeへ通路を追加",
-            "challenge": "Imperfect Mazeでは、完成したPerfect Mazeへ追加の通路を作り、複数の経路を持たせる必要があった。ただし、外壁や「42」保護領域を壊したり、3×3領域を完全に開放したりする通路は追加できない。確率判定だけでは、通路が一つも追加されずPerfect Mazeのまま残る可能性もあった。",
-            "solution": "Perfect Mazeの生成後、東向きと南向きの壁を候補として走査。外壁、「42」保護領域、既存の通路、3×3完全開放の条件を確認し、通行可能な候補だけを5%の確率で開いた。確率判定で一つも開かなかった場合は候補を再走査し、条件を満たす最初の壁を開くことで、候補が存在する場合は最低一つの追加通路を確保した。",
+            "title": "制約を守りながら不完全迷路へ通路を追加",
+            "challenge": "不完全迷路では、完成した完全迷路へ追加の通路を作り、複数の経路を持たせる必要があった。ただし、外壁や「42」保護領域を壊したり、3×3領域を完全に開放したりする通路は追加できない。確率判定だけでは、通路が一つも追加されず完全迷路のまま残る可能性もあった。",
+            "solution": "完全迷路の生成後、閉じている壁を候補として走査。外壁、「42」保護領域、既存の通路、3×3完全開放の条件を確認し、通行可能な候補だけを5%の確率で開いた。確率判定で一つも開かなかった場合は候補を再走査し、条件を満たす最初の壁を開くことで、候補が存在する場合は最低一つの追加通路を確保した。",
             "solutionDiagram": "a-maze-imperfect-extra"
           },
           {
@@ -2089,7 +2089,7 @@ function AMazeGenerationStepDiagram({ mode, language }: { mode: 'dfs' | 'bfs'; l
 
 function AMazePerfectMazeDiagram({ language }: { language: 'ja' | 'en' }) {
   const ja = language === 'ja';
-  const cellClass = 'grid h-11 w-11 shrink-0 place-items-center rounded border bg-[var(--color-bg)] px-1 text-center font-mono text-[8px] font-bold leading-3';
+  const cellClass = 'grid h-12 w-14 shrink-0 place-items-center rounded border bg-[var(--color-bg)] px-1 text-center font-mono text-[8px] font-bold leading-3';
 
   return (
     <div
@@ -2097,35 +2097,27 @@ function AMazePerfectMazeDiagram({ language }: { language: 'ja' | 'en' }) {
       aria-label={ja ? '未訪問セルにだけ通路を掘り、訪問済みセルには掘らないことで循環を防ぐ' : 'Open passages only to unvisited cells and reject visited cells to prevent cycles'}
       className="mt-4 rounded-md border border-[var(--color-splitter)] bg-[var(--color-cli-bg)] p-3"
     >
-      <div className="grid gap-3">
-        <section className="grid grid-cols-[2.5rem_1fr_auto] items-center gap-2">
-          <span className="font-mono text-[9px] font-bold text-[var(--color-text-muted)]">N</span>
-          <div className="flex items-center justify-center gap-1.5">
-            <span className={`${cellClass} border-[#4f8f67] text-[var(--color-cli-text)]`}>{ja ? '現在' : 'current'}</span>
-            <span aria-hidden="true" className="h-10 border-l-4 border-[#d6a84f]" />
-            <span className={`${cellClass} border-[var(--color-splitter)] text-[var(--color-text-muted)]`}>{ja ? '未訪問' : 'unvisited'}</span>
-          </div>
-          <span className="rounded-full border border-[#4f8f67] bg-[#4f8f67]/10 px-2 py-1 text-[9px] font-bold text-[var(--color-cli-text)]">{ja ? '掘る' : 'open'}</span>
-        </section>
+      <div className="mx-auto grid max-w-md grid-cols-[3.5rem_minmax(0,1fr)] gap-x-3 text-[9px]">
+        <span className={`${cellClass} row-start-1 border-[#4f8f67] text-[var(--color-cli-text)]`}>{ja ? '現在のセル' : 'current'}</span>
 
-        <span aria-hidden="true" className="ml-[calc(2.5rem+50%)] font-bold text-[var(--color-cli-text)]">↓</span>
+        <div className="col-start-2 row-start-1 flex min-w-0 items-center gap-1.5">
+          <span aria-hidden="true" className="h-10 shrink-0 border-l-4 border-[#d6a84f]" />
+          <span aria-hidden="true" className="font-bold text-[#4f8f67]">→</span>
+          <span className="shrink-0 font-bold text-[#4f8f67]">{ja ? '壁を開く' : 'open wall'}</span>
+          <span aria-hidden="true" className="font-bold text-[#4f8f67]">→</span>
+          <span className={`${cellClass} border-[#4f8f67] bg-[#4f8f67]/10 text-[var(--color-cli-text)]`}>{ja ? '未訪問セル' : 'unvisited'}</span>
+        </div>
 
-        <section className="grid grid-cols-[2.5rem_1fr_auto] items-center gap-2">
-          <span className="font-mono text-[9px] font-bold text-[var(--color-text-muted)]">N + 1</span>
-          <div className="flex items-center justify-center gap-0">
-            <span className={`${cellClass} border-[#4f8f67] text-[var(--color-cli-text)]`}>{ja ? '訪問済み' : 'visited'}</span>
-            <span aria-hidden="true" className="w-7 border-t-4 border-[#4f8f67]" />
-            <span className={`${cellClass} border-[#4f8f67] bg-[#4f8f67]/10 text-[var(--color-cli-text)]`}>{ja ? '訪問済み' : 'visited'}</span>
-          </div>
-          <span className="text-[9px] text-[var(--color-text-muted)]">{ja ? '通路を接続' : 'connected'}</span>
-        </section>
-      </div>
+        <div className="col-start-1 row-start-2 flex flex-col items-center">
+          <span aria-hidden="true" className="h-5 border-l-2 border-dashed border-[#ef6b73]" />
+          <span aria-hidden="true" className="-my-1 text-base font-bold text-[#ef6b73]">×</span>
+          <span className={`${cellClass} border-[#3b82f6] bg-[#3b82f6]/10 text-[#3b82f6]`}>{ja ? '訪問済みセル' : 'visited'}</span>
+        </div>
 
-      <div className="mt-3 flex flex-wrap items-center justify-center gap-2 border-t border-[var(--color-splitter)] pt-3 text-[9px]">
-        <span className={`${cellClass} border-[#3b82f6] bg-[#3b82f6]/10 text-[#3b82f6]`}>{ja ? '訪問済み' : 'visited'}</span>
-        <span aria-hidden="true" className="text-base font-bold text-[#ef6b73]">×</span>
-        <span className="font-bold text-[#ef6b73]">{ja ? '壁を掘らない' : 'do not open'}</span>
-        <span className="text-[var(--color-text-muted)]">{ja ? '→ 循環を防止' : '→ prevent a cycle'}</span>
+        <div className="col-start-2 row-start-2 self-center leading-4">
+          <p className="font-bold text-[#ef6b73]">{ja ? '壁を開かない' : 'keep wall closed'}</p>
+          <p className="text-[var(--color-text-muted)]">{ja ? 'すでにつながっているため循環を防止' : 'already connected; prevent a cycle'}</p>
+        </div>
       </div>
     </div>
   );
@@ -2136,23 +2128,23 @@ function AMazeImperfectMazeDiagram({ language }: { language: 'ja' | 'en' }) {
   return (
     <div
       role="img"
-      aria-label={ja ? 'Perfect Mazeの候補壁を制約確認後に確率で開き、0本なら再走査して有効な壁を一つ開く' : 'Open eligible walls probabilistically after validation, and rescan to open one valid wall when none was added'}
+      aria-label={ja ? '完全迷路の候補壁を制約確認後に確率で開き、0本なら再走査して有効な壁を一つ開く' : 'Open eligible walls probabilistically after validation, and rescan to open one valid wall when none was added'}
       className="mt-4 rounded-md border border-[var(--color-splitter)] bg-[var(--color-cli-bg)] p-3"
     >
       <div className="flex flex-col items-stretch gap-2 text-center text-[9px] sm:flex-row sm:items-center">
         <div className="min-w-0 flex-1 rounded border border-[var(--color-splitter)] bg-[var(--color-bg)] px-2 py-2">
-          <p className="font-bold text-[var(--color-text)]">Perfect Maze</p>
+          <p className="font-bold text-[var(--color-text)]">{ja ? '完全迷路' : 'Perfect Maze'}</p>
           <pre className="mt-1 font-mono text-[11px] leading-4 text-[var(--color-text-muted)]">A─B─C{`\n`}  └─D</pre>
           <p className="mt-1 text-[var(--color-text-muted)]">{ja ? '循環なし' : 'no cycle'}</p>
         </div>
         <span aria-hidden="true" className="self-center font-bold text-[var(--color-cli-text)] sm:rotate-0 rotate-90">→</span>
         <div className="min-w-0 flex-[1.25] rounded border border-[#d6a84f] bg-[#d6a84f]/5 px-2 py-2">
           <p className="font-bold text-[var(--color-text)]">{ja ? '追加できる壁だけを抽出' : 'eligible walls only'}</p>
-          <p className="mt-1 leading-4 text-[var(--color-text-muted)]">{ja ? '東・南を走査し、外壁・42・3×3を確認' : 'scan east/south; check boundary, 42 and 3x3'}</p>
+          <p className="mt-1 leading-4 text-[var(--color-text-muted)]">{ja ? '外壁・42・3×3の制約を確認' : 'scan east/south; check boundary, 42 and 3x3'}</p>
         </div>
         <span aria-hidden="true" className="self-center font-bold text-[var(--color-cli-text)] sm:rotate-0 rotate-90">→</span>
         <div className="min-w-0 flex-1 rounded border border-[#4f8f67] bg-[#4f8f67]/10 px-2 py-2">
-          <p className="font-bold text-[var(--color-text)]">Imperfect Maze</p>
+          <p className="font-bold text-[var(--color-text)]">{ja ? '不完全迷路' : 'Imperfect Maze'}</p>
           <pre className="mt-1 font-mono text-[11px] leading-4 text-[var(--color-cli-text)]">A─B{`\n`}│ │{`\n`}D─C</pre>
           <p className="mt-1 text-[var(--color-text-muted)]">{ja ? '追加通路・循環あり' : 'extra passage and cycle'}</p>
         </div>
