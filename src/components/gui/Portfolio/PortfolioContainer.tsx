@@ -1670,19 +1670,15 @@ function FlyInDecisionDiagram({ kind, language }: { kind: string; language: 'ja'
             : 'From the single current position D1, the initial route is blocked by a full Restricted Zone while the detour through Normal Zones is open'}
         className="mt-4 overflow-hidden rounded-md border border-[var(--color-splitter)] bg-[var(--color-cli-bg)] p-3"
       >
-        <p className="font-mono text-[10px] font-bold text-[var(--color-text)]">
-          {ja
-            ? implementation ? '混雑を反映して現在地から再探索' : '初期経路だけを使う場合'
-            : implementation ? 'Search again from the current position with congestion penalties' : 'When only the initial route is used'}
-        </p>
-        <div className="mt-2 grid grid-cols-[3.75rem_2rem_minmax(0,1fr)_2rem_minmax(0,1fr)_2rem_3.75rem] grid-rows-2 items-center gap-x-1 gap-y-2">
+        <div className="grid grid-cols-[3.75rem_2rem_minmax(0,1fr)_2rem_minmax(0,1fr)_2rem_3.75rem] grid-rows-2 items-center gap-x-1 gap-y-2">
           <div className="row-span-2 row-start-1 flex min-h-20 flex-col items-center justify-center rounded-md border border-[var(--color-splitter)] bg-[var(--color-bg)] px-1.5 py-2 text-center">
             <p className="font-mono text-[9px] font-bold text-[var(--color-text)]">{ja ? '現在地' : 'Current'}</p>
             <span className="mt-1 flex h-7 w-7 items-center justify-center rounded-full border border-[var(--color-cli-text)] font-mono text-[9px] font-bold text-[var(--color-cli-text)]">D1</span>
           </div>
-          <span aria-hidden="true" className="col-start-2 row-start-1 whitespace-nowrap text-center font-mono text-[11px] font-bold text-[#ef6b73]">
-            {implementation ? '···↗' : '──↗'}
-          </span>
+          <span aria-hidden="true" className={[
+            'col-start-2 row-start-1 text-center font-bold text-[#ef6b73]',
+            implementation ? 'opacity-45' : '',
+          ].join(' ')}>↗</span>
           <div className={[
             'col-span-3 col-start-3 row-start-1 rounded-md border border-[#ef6b73] bg-[#ef6b73]/10 px-2 py-2 text-center',
             implementation ? 'opacity-60' : '',
@@ -1695,38 +1691,49 @@ function FlyInDecisionDiagram({ kind, language }: { kind: string; language: 'ja'
               {implementation ? (ja ? '旧経路' : 'previous route') : (ja ? '現在の経路' : 'current route')}
             </p>
           </div>
-          <span aria-hidden="true" className="col-start-6 row-start-1 whitespace-nowrap text-center font-mono text-[11px] font-bold text-[#ef6b73]">
-            {implementation ? '···↘' : '──↘'}
-          </span>
+          <span aria-hidden="true" className={[
+            'col-start-6 row-start-1 text-center font-bold text-[#ef6b73]',
+            implementation ? 'opacity-45' : '',
+          ].join(' ')}>↘</span>
           <div className="col-start-7 row-span-2 row-start-1 flex min-h-20 items-center justify-center rounded-md border border-[var(--color-splitter)] bg-[var(--color-bg)] px-1.5 py-2 text-center">
             <p className="font-mono text-[9px] font-bold text-[var(--color-text)]">Goal</p>
           </div>
-          <span aria-hidden="true" className="col-start-2 row-start-2 whitespace-nowrap text-center font-mono text-[11px] font-bold text-[#4f8f67]">
-            {implementation ? '──↘' : '···↘'}
-          </span>
+          <span aria-hidden="true" className={[
+            'col-start-2 row-start-2 text-center font-bold',
+            implementation ? 'text-[#4f8f67]' : 'text-[var(--color-text-muted)]',
+          ].join(' ')}>↘</span>
           <div className={[
-            'col-start-3 row-start-2 min-w-0 rounded-md border border-[#4f8f67] bg-[#4f8f67]/10 px-1.5 py-2 text-center',
-            implementation ? '' : 'opacity-65',
+            'col-start-3 row-start-2 min-w-0 rounded-md border px-1.5 py-2 text-center',
+            implementation
+              ? 'border-[#4f8f67] bg-[#4f8f67]/10'
+              : 'border-dashed border-[var(--color-text-muted)] bg-[var(--color-bg)]',
           ].join(' ')}>
             <p className="truncate font-mono text-[9px] font-bold text-[var(--color-text)]">Normal A</p>
             <p className="mt-1 text-[8px] text-[var(--color-text-muted)]">0 / 2</p>
-            <p className="mt-1 text-[8px] font-bold text-[var(--color-cli-text)]">
-              {implementation ? (ja ? '再探索で選択' : 'selected by rerouting') : (ja ? '迂回路' : 'detour')}
+            <p className={[
+              'mt-1 text-[8px] font-bold',
+              implementation ? 'text-[var(--color-cli-text)]' : 'text-[var(--color-text-muted)]',
+            ].join(' ')}>
+              {implementation ? (ja ? '再探索で選択' : 'selected by rerouting') : (ja ? '未選択の迂回路' : 'unselected detour')}
             </p>
           </div>
-          <span aria-hidden="true" className="col-start-4 row-start-2 whitespace-nowrap text-center font-mono text-[11px] font-bold text-[#4f8f67]">
-            {implementation ? '──→' : '···→'}
-          </span>
+          <span aria-hidden="true" className={[
+            'col-start-4 row-start-2 text-center font-bold',
+            implementation ? 'text-[#4f8f67]' : 'text-[var(--color-text-muted)]',
+          ].join(' ')}>→</span>
           <div className={[
-            'col-start-5 row-start-2 min-w-0 rounded-md border border-[#4f8f67] bg-[#4f8f67]/10 px-1.5 py-2 text-center',
-            implementation ? '' : 'opacity-65',
+            'col-start-5 row-start-2 min-w-0 rounded-md border px-1.5 py-2 text-center',
+            implementation
+              ? 'border-[#4f8f67] bg-[#4f8f67]/10'
+              : 'border-dashed border-[var(--color-text-muted)] bg-[var(--color-bg)]',
           ].join(' ')}>
             <p className="truncate font-mono text-[9px] font-bold text-[var(--color-text)]">Normal B</p>
             <p className="mt-1 text-[8px] text-[var(--color-text-muted)]">0 / 2</p>
           </div>
-          <span aria-hidden="true" className="col-start-6 row-start-2 whitespace-nowrap text-center font-mono text-[11px] font-bold text-[#4f8f67]">
-            {implementation ? '──↗' : '···↗'}
-          </span>
+          <span aria-hidden="true" className={[
+            'col-start-6 row-start-2 text-center font-bold',
+            implementation ? 'text-[#4f8f67]' : 'text-[var(--color-text-muted)]',
+          ].join(' ')}>↗</span>
         </div>
 
         {!implementation && (
