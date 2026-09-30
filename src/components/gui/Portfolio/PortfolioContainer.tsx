@@ -451,12 +451,12 @@ const PROJECTS: PortfolioProject[] = [
             "solution": "壁を開けられる条件と隣接する2セルの壁を同時に更新する処理は共通化。どちらの方式でもSeedを使って方向の選択順を並べ替え、同じSeedから同じ迷路を生成できる構成とした。",
             "solutionSteps": [
               {
-                "title": "DFS：一つの経路を深く掘る",
+                "title": "DFS（深さ優先探索）：一つの経路を深く掘る",
                 "text": "未訪問の隣接セルを一つ選んで壁を開き、再帰的に次のセルへ移動。進めるセルがなくなった場合は一つ前のセルへ戻り、別の方向から生成を再開するバックトラック方式で実装。",
                 "diagram": "a-maze-dfs"
               },
               {
-                "title": "BFS：開始地点の周囲から広げる",
+                "title": "BFS（幅優先探索）：開始地点の周囲から広げる",
                 "text": "開始セルをキューへ追加し、先頭から取り出したセルの未訪問の隣接セルへ通路を作成。新しく接続したセルをキューの末尾へ追加し、開始地点から近いセルの順に生成範囲を広げる方式で実装。",
                 "diagram": "a-maze-bfs"
               }
@@ -1985,7 +1985,7 @@ function AMazeWallBitsDiagram({ language }: { language: 'ja' | 'en' }) {
             <span className="rounded-full border border-[var(--color-splitter)] px-2 py-1 text-[var(--color-text-muted)]">
               0 = {ja ? '通路あり' : 'passage open'}
             </span>
-            <code className="font-mono font-bold text-[var(--color-text)]">0b1010 = 8 + 2 = 0xA</code>
+            <code className="font-mono font-bold text-[var(--color-text)]">0b1010 = 8 + 2</code>
           </div>
           <p className="mt-2 text-[9px] leading-4 text-[var(--color-text-muted)]">
             {ja ? '西・東の壁が閉じ、北・南は通路として開いている状態' : 'West and east are closed; north and south are open passages.'}
@@ -2013,27 +2013,24 @@ function AMazeGenerationStepDiagram({ mode, language }: { mode: 'dfs' | 'bfs'; l
       aria-label={ja ? 'DFSでStartから深く進み、4の行き止まりから3へ戻って5の方向へ生成を再開する' : 'DFS advances deeply from Start, backtracks from dead end 4 to 3, then continues toward 5'}
       className="mt-3 rounded-md border border-[var(--color-splitter)] bg-[var(--color-cli-bg)] p-3"
     >
-      <div className="flex min-w-0 items-center justify-center gap-1 text-[var(--color-text-muted)]">
-          <span className={`${nodeClass} border-[#4f8f67] bg-[#4f8f67]/10 text-[var(--color-cli-text)]`}>Start</span>
-          <span aria-hidden="true" className="font-bold">→</span>
-          <span className={nodeClass}>1</span>
-          <span aria-hidden="true" className="font-bold">→</span>
-          <span className={nodeClass}>2</span>
-          <span aria-hidden="true" className="font-bold">→</span>
-          <span className={nodeClass}>3</span>
-          <span aria-hidden="true" className="font-bold">→</span>
-          <span className={`${nodeClass} border-[#d6a84f] bg-[#d6a84f]/10`}>4</span>
-      </div>
-      <div className="mt-2 grid grid-cols-[1fr_auto_1fr] items-center gap-2 text-[9px]">
-        <span className="text-right text-[#d6a84f]">4 · {ja ? '行き止まり' : 'dead end'}</span>
-        <span aria-hidden="true" className="font-mono text-base font-bold text-[#d6a84f]">···→</span>
-        <span className="text-[var(--color-text-muted)]">3 · {ja ? '一つ前へ戻る' : 'backtrack'}</span>
-      </div>
-      <div className="mt-2 flex items-center justify-center gap-2 text-[9px] text-[var(--color-text-muted)]">
-        <span>3</span>
-        <span aria-hidden="true" className="font-bold text-[var(--color-cli-text)]">→</span>
-        <span className={`${nodeClass} border-[#4f8f67] bg-[#4f8f67]/10 text-[var(--color-cli-text)]`}>5</span>
-        <span>{ja ? '別の方向から生成を再開' : 'continue in another direction'}</span>
+      <div className="mx-auto grid w-fit grid-cols-[auto_1rem_auto_1rem_auto_1rem_auto_1rem_auto_1rem] grid-rows-[2rem_1.25rem_2rem_auto] items-center justify-items-center text-[9px] text-[var(--color-text-muted)]">
+        <span className={`${nodeClass} col-start-1 row-start-1 border-[#4f8f67] bg-[#4f8f67]/10 text-[var(--color-cli-text)]`}>Start</span>
+        <span aria-hidden="true" className="col-start-2 row-start-1 font-bold">→</span>
+        <span className={`${nodeClass} col-start-3 row-start-1`}>1</span>
+        <span aria-hidden="true" className="col-start-4 row-start-1 font-bold">→</span>
+        <span className={`${nodeClass} col-start-5 row-start-1`}>2</span>
+        <span aria-hidden="true" className="col-start-6 row-start-1 font-bold">→</span>
+        <span className={`${nodeClass} col-start-7 row-start-1`}>3</span>
+        <span aria-hidden="true" className="col-start-8 row-start-1 font-bold">→</span>
+        <span className={`${nodeClass} col-start-9 row-start-1 border-[#d6a84f] bg-[#d6a84f]/10`}>4</span>
+        <span aria-hidden="true" className="col-start-10 row-start-1 h-9 border-l-4 border-[#d6a84f]" />
+
+        <span aria-hidden="true" className="col-start-7 row-start-2 font-bold text-[var(--color-cli-text)]">↓</span>
+        <span aria-hidden="true" className="col-start-8 row-start-2 font-mono text-sm font-bold text-[#d6a84f]">←···</span>
+        <span className="col-span-2 col-start-9 row-start-2 whitespace-nowrap text-left text-[#d6a84f]">{ja ? '行き止まり' : 'dead end'}</span>
+
+        <span className={`${nodeClass} col-start-7 row-start-3 border-[#4f8f67] bg-[#4f8f67]/10 text-[var(--color-cli-text)]`}>5</span>
+        <span className="col-span-4 col-start-7 row-start-4 mt-1 whitespace-nowrap text-center">{ja ? '3へ戻り、別の方向から生成を再開' : 'return to 3 and continue in another direction'}</span>
       </div>
     </div>
   );
