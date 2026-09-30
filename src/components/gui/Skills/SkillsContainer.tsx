@@ -3,101 +3,137 @@ import { useAppState } from '../../../context/AppStateContext';
 interface SkillArea {
   id: string;
   title: { ja: string; en: string };
-  experience: { ja: string[]; en: string[] };
-  evidence: { ja: string[]; en: string[] };
+  summary: { ja: string; en: string };
+  highlights: { ja: string[]; en: string[] };
+  evidence: { ja: string; en: string };
   tags: string[];
+}
+
+interface SupportingSkill {
+  title: { ja: string; en: string };
+  description: { ja: string; en: string };
+  evidence: string;
 }
 
 const SKILL_AREAS: SkillArea[] = [
   {
-    id: 'backend',
-    title: { ja: 'Pythonバックエンド・業務アプリ', en: 'Python backend & business applications' },
-    experience: {
+    id: 'python-applications',
+    title: { ja: 'Python業務アプリケーション開発', en: 'Python business application development' },
+    summary: {
+      ja: '大枠の要件を処理フローと入出力へ落とし込み、実装・評価・リリースまで進められます。',
+      en: 'Turn high-level requirements into processing flows and I/O contracts, then carry them through implementation, evaluation and release.',
+    },
+    highlights: {
       ja: [
-        '要件を処理フローと入出力仕様に分解し、Pythonで実装・評価・リリースまで担当',
-        'JSONベースの構造化データ、Pydanticによる入力検証、異常系とフォールバックを含む処理を設計',
-        'LLM処理を関数選択・引数生成・スキーマ検証に分離し、機械可読な出力を生成',
+        'JSONを用いたデータ連携、例外処理、画面表示までを一連の処理として実装',
+        '登録、検索・推薦、ログ、外部通信などを責務ごとに分けて構成',
       ],
       en: [
-        'Translate requirements into processing flows and I/O contracts, then implement, evaluate and release Python applications',
-        'Design JSON data flows with Pydantic validation, explicit error handling and fallback behavior',
-        'Separate LLM function selection, argument generation and schema validation to produce machine-readable output',
+        'Implement end-to-end flows covering JSON data exchange, exception handling and UI output',
+        'Separate registration, search and recommendation, logging, and external communication by responsibility',
       ],
     },
-    evidence: { ja: ['NECでのPython業務アプリ開発', 'Call Me Maybe：制約付きFunction Calling'], en: ['Python business-application development at NEC', 'Call Me Maybe: constrained function calling'] },
-    tags: ['Python', 'JSON', 'Pydantic', 'LLM'],
+    evidence: {
+      ja: 'NEC｜RPA・自動化ツール登録／検索／推薦アプリ、Action List抽出ツール',
+      en: 'NEC | RPA and automation-tool registration, search and recommendation app; Action List extraction tool',
+    },
+    tags: ['Python', 'JSON', 'Docker'],
   },
   {
-    id: 'infrastructure-data',
-    title: { ja: 'データベース・インフラ', en: 'Database & infrastructure' },
-    experience: {
+    id: 'llm-applications',
+    title: { ja: '生成AIを用いた処理設計', en: 'LLM application design' },
+    summary: {
+      ja: '業務上の依頼を複数段階のLLM処理へ分解し、構造化した結果を後続処理へつなげられます。',
+      en: 'Break business requests into multi-stage LLM processing and connect structured results safely to downstream logic.',
+    },
+    highlights: {
       ja: [
-        '通信事業者向け基幹システムで、Linux・Azure・データベースの設計、構築、移行を経験',
-        'ログ・構成・リソース使用状況から障害と性能劣化を切り分け、影響と対応方針を整理',
-        'DockerとBashを使って、実行条件を再現できる開発・検証環境を整備',
+        '要求の構造化、候補抽出、ランキングに分けた検索・推薦処理を設計・実装',
+        'JSON形式の出力、利用前の人による確認、障害時の代替処理まで設計・実装',
       ],
       en: [
-        'Design, build and migrate Linux, Azure and database environments for telecom mission-critical systems',
-        'Investigate incidents and performance degradation from logs, configuration and resource usage',
-        'Prepare reproducible development and verification environments with Docker and Bash',
+        'Design and implement search and recommendation as request structuring, candidate extraction and ranking',
+        'Handle JSON output, human review before use and fallback behavior during service failure',
       ],
     },
-    evidence: { ja: ['NEC：約4年間の通信基盤業務'], en: ['NEC: around four years in telecom infrastructure'] },
-    tags: ['PostgreSQL', 'MySQL', 'Linux', 'Azure', 'Docker', 'Bash'],
+    evidence: {
+      ja: 'NEC｜生成AI業務アプリ　／　Call Me Maybe｜制約付きFunction Calling',
+      en: 'NEC | Generative-AI business applications / Call Me Maybe | Constrained function calling',
+    },
+    tags: ['Python', 'LLM', 'JSON', 'Pydantic'],
   },
   {
-    id: 'engineering-cs',
-    title: { ja: '並行処理・信頼性', en: 'Concurrency & reliability' },
-    experience: {
+    id: 'reliability-maintainability',
+    title: { ja: '保守性・障害対応を考慮した実装', en: 'Maintainability and failure handling' },
+    summary: {
+      ja: '変更箇所と障害原因を追いやすくし、外部サービス障害時の代替経路まで実装できます。',
+      en: 'Organize code so changes and failures are easier to trace, while accounting for continued operation during errors.',
+    },
+    highlights: {
       ja: [
-        'POSIX threadsで共有状態の保護範囲を分け、グローバルなmutex取得順序で循環待ちを防止',
-        'バイナリmin-heapを用いたFIFO/EDF優先度制御と、完了・タイムアウトを判定する監視スレッドを実装',
-        'ブラックボックステストで状態遷移、資源取得回数、ログの単調性を検証',
+        'LLM通信の共通化、責務単位のコード再構成、例外処理とログ整備を実施',
+        '外部APIを利用できない状態を試験し、ルールベース検索への自動切替を実装',
       ],
       en: [
-        'Partition shared state across mutexes and prevent circular wait through global lock ordering in POSIX threads',
-        'Implement FIFO/EDF priority control with a binary min-heap plus monitoring for completion and timeout',
-        'Validate state transitions, acquisition counts and monotonic logs through black-box tests',
+        'Centralize LLM communication and improve responsibility boundaries, exception handling and logging',
+        'Test unavailable external APIs and implement automatic fallback to rule-based search',
       ],
     },
-    evidence: { ja: ['Codexion：共有資源とスケジューリング'], en: ['Codexion: shared resources and scheduling'] },
-    tags: ['C', 'POSIX', 'Algorithms'],
+    evidence: {
+      ja: 'NEC｜RPA・自動化ツール登録／検索／推薦アプリ',
+      en: 'NEC | RPA and automation-tool registration, search and recommendation app',
+    },
+    tags: ['Python', 'LLM', 'Testing'],
   },
   {
-    id: 'algorithms-modelling',
-    title: { ja: 'アルゴリズム・データモデル', en: 'Algorithms & data modelling' },
-    experience: {
+    id: 'system-infrastructure',
+    title: { ja: 'インフラを含むシステム全体の理解', en: 'System-wide infrastructure experience' },
+    summary: {
+      ja: 'Linux・Azure・DB・Middlewareをまたいで、設計、構築、移行、試験、障害調査を進められます。',
+      en: 'Work across Linux, Azure, databases and middleware through design, build, migration, testing and troubleshooting.',
+    },
+    highlights: {
       ja: [
-        'ドメインデータをグラフにモデル化し、Dijkstra型重み付き探索、混雑時の再探索、容量予約を実装',
-        'DFS/BFSによる迷路生成と最短経路復元、シードによる決定的な再現を実装',
-        '壁を4ビットで表現し、隣接関係、外周、木構造などの不変条件をテスト',
+        '複数方式の比較、PoC、チームへの提案を経て、本番環境への導入まで担当',
+        'ログ、設定、ネットワーク、リソース状況から問題箇所を切り分け',
       ],
       en: [
-        'Model domain data as graphs and implement weighted Dijkstra-style routing, congestion rerouting and capacity reservation',
-        'Implement DFS/BFS maze generation, shortest-path reconstruction and seeded reproducibility',
-        'Encode walls in four bits and test adjacency, boundary and tree invariants',
+        'Compare approaches, run proofs of concept, propose a direction and deliver it to production',
+        'Isolate problems using logs, configuration, networking and resource usage',
       ],
     },
-    evidence: { ja: ['Fly-in：容量制約付きルーティング', 'A-Maze-ing：生成・探索・ビット表現'], en: ['Fly-in: capacity-aware routing', 'A-Maze-ing: generation, search and bit encoding'] },
-    tags: ['Python', 'Pydantic', 'Algorithms'],
+    evidence: {
+      ja: 'NEC｜Azure NAT Gateway導入、RHEL更改、PostgreSQL移行、Middleware障害調査',
+      en: 'NEC | Azure NAT Gateway rollout, RHEL upgrade, PostgreSQL migration and middleware troubleshooting',
+    },
+    tags: ['Linux', 'Azure', 'PostgreSQL', 'Bash', 'Docker'],
+  },
+];
+
+const SUPPORTING_SKILLS: SupportingSkill[] = [
+  {
+    title: { ja: '並行処理・スケジューリング', en: 'Concurrency and scheduling' },
+    description: {
+      ja: 'POSIX Threads、mutex、Lock ordering、FIFO／EDF、完了・期限超過の監視を実装',
+      en: 'POSIX threads, mutexes, lock ordering, FIFO/EDF and completion or timeout monitoring',
+    },
+    evidence: 'Codexion',
   },
   {
-    id: 'collaboration-delivery',
-    title: { ja: '共同開発・品質確保・公開', en: 'Collaboration, quality & delivery' },
-    experience: {
-      ja: [
-        '入出力契約を先に合意し、生成エンジンと可視化を分担。Gitの小さなブランチを継続的に統合',
-        '外部から観測できる挙動、異常系、構造的な不変条件をUnit/Integration Testで検証',
-        'コアロジックのPythonパッケージ化、静的ビルド、GitHub ActionsからGitHub Pagesへの自動デプロイを経験',
-      ],
-      en: [
-        'Agree on I/O contracts, split generator and visualizer ownership, and integrate small Git branches frequently',
-        'Test observable behavior, error cases and structural invariants with unit and integration tests',
-        'Package reusable Python logic and automate static deployment from GitHub Actions to GitHub Pages',
-      ],
+    title: { ja: 'アルゴリズム・データモデル', en: 'Algorithms and data modelling' },
+    description: {
+      ja: 'グラフ探索、容量予約、混雑時の再探索、DFS／BFS、最短経路、4ビット壁表現を実装',
+      en: 'Graph search, capacity reservation, congestion rerouting, DFS/BFS, shortest paths and four-bit wall encoding',
     },
-    evidence: { ja: ['A-Maze-ing：2名の共同開発', '42 Tokyoの各リポジトリ / このサイト'], en: ['A-Maze-ing: two-person collaboration', '42 Tokyo repositories / this site'] },
-    tags: ['Git', 'TypeScript', 'React', 'Astro'],
+    evidence: 'Fly-in / A-Maze-ing',
+  },
+  {
+    title: { ja: '品質確保・共同開発', en: 'Quality and collaboration' },
+    description: {
+      ja: 'Pythonロジックのパッケージ化、単体・結合テスト、Gitでの共同開発、TypeScript／React／Astroによる本サイトの自動公開を経験',
+      en: 'Package Python logic, run unit and integration tests, collaborate with Git, and automatically deploy this TypeScript, React and Astro site',
+    },
+    evidence: 'A-Maze-ing / Portfolio',
   },
 ];
 
@@ -113,69 +149,88 @@ interface SkillsContainerProps {
 export default function SkillsContainer({ activeTag, projectTagCounts, onSelectProjectTag, onClearProjectTag }: SkillsContainerProps) {
   const { language } = useAppState();
 
+  const renderTag = (tag: string) => {
+    const projectCount = projectTagCounts[tag] ?? 0;
+    const isActive = activeTag === tag;
+
+    if (projectCount === 0) {
+      return <span key={tag} className="rounded border border-[var(--color-splitter)] px-2.5 py-1 font-mono text-xs opacity-65">{tag}</span>;
+    }
+
+    return (
+      <button
+        key={tag}
+        type="button"
+        onClick={() => onSelectProjectTag(tag)}
+        aria-pressed={isActive}
+        aria-label={language === 'ja' ? `${tag}を使用した${projectCount}件のプロジェクトを表示` : `Show ${projectCount} ${projectCount === 1 ? 'project' : 'projects'} using ${tag}`}
+        className="rounded border px-2.5 py-1 font-mono text-xs transition-opacity hover:opacity-100 focus-visible:outline-2 focus-visible:outline-offset-2"
+        style={isActive
+          ? { background: 'var(--color-cli-text)', color: 'var(--color-cli-bg)', borderColor: 'var(--color-cli-text)' }
+          : { color: 'var(--color-text)', borderColor: 'var(--color-splitter)', opacity: 0.72 }}
+      >
+        {tag} · {projectCount}
+      </button>
+    );
+  };
+
   return (
     <section className="w-full px-5 py-8 sm:px-8" style={{ color: 'var(--color-text)' }}>
-      <p className="mb-6 max-w-4xl text-sm leading-7 opacity-65">
+      <p className="mb-6 max-w-3xl text-sm leading-7 opacity-65">
         {language === 'ja'
-          ? '業務と公開コードで扱った技術を、設計・実装・検証の経験と、その根拠となる仕事・プロジェクトに分けて記載しています。件数付きの技術を選ぶと、対応するプロジェクトを表示します。'
-          : 'Technologies used in professional work and public code are grouped by engineering experience and supporting projects. Select a technology with a project count to display the matching projects.'}
+          ? '業務で担える領域を4つに整理しています。各項目の実績と技術から、関連する経験・プロジェクトを確認できます。'
+          : 'Four areas summarize the work I can take ownership of. Each area connects the capability to evidence and relevant technologies.'}
       </p>
 
-      <div className="overflow-hidden rounded border border-[var(--color-splitter)]">
-        <div className="hidden grid-cols-[minmax(0,1.6fr)_minmax(12rem,0.9fr)_minmax(14rem,1fr)] gap-6 border-b border-[var(--color-splitter)] bg-[var(--color-cli-bg)] px-5 py-3 text-xs font-bold uppercase tracking-wider opacity-65 xl:grid">
-          <span>{language === 'ja' ? '設計・実装・検証の経験' : 'Engineering experience'}</span>
-          <span>{language === 'ja' ? '実績・根拠' : 'Evidence'}</span>
-          <span>{language === 'ja' ? '技術' : 'Technologies'}</span>
-        </div>
-
-        {SKILL_AREAS.map((area) => (
-          <article key={area.id} className="grid gap-5 border-b border-[var(--color-splitter)] px-5 py-5 last:border-b-0 xl:grid-cols-[minmax(0,1.6fr)_minmax(12rem,0.9fr)_minmax(14rem,1fr)] xl:gap-6">
-            <div>
-              <h3 className="font-bold">{area.title[language]}</h3>
-              <ul className="mt-2 list-disc space-y-1.5 pl-5 text-sm leading-6 opacity-75">
-                {area.experience[language].map((item) => <li key={item}>{item}</li>)}
-              </ul>
-            </div>
-
-            <div>
-              <p className="mb-1 text-[0.65rem] font-bold uppercase tracking-wider opacity-50 xl:hidden">{language === 'ja' ? '実績・根拠' : 'Evidence'}</p>
-              <ul className="space-y-2 text-sm leading-6 opacity-75">
-                {area.evidence[language].map((item) => <li key={item}>{item}</li>)}
-              </ul>
-            </div>
-
-            <div>
-              <p className="mb-2 text-[0.65rem] font-bold uppercase tracking-wider opacity-50 xl:hidden">{language === 'ja' ? '技術' : 'Technologies'}</p>
-              <div className="flex flex-wrap gap-2">
-                {area.tags.map((tag) => {
-                  const projectCount = projectTagCounts[tag] ?? 0;
-                  const isActive = activeTag === tag;
-
-                  if (projectCount === 0) {
-                    return <span key={tag} className="rounded border border-[var(--color-splitter)] px-2.5 py-1 font-mono text-xs opacity-65">{tag}</span>;
-                  }
-
-                  return (
-                    <button
-                      key={tag}
-                      type="button"
-                      onClick={() => onSelectProjectTag(tag)}
-                      aria-pressed={isActive}
-                      aria-label={language === 'ja' ? `${tag}を使用した${projectCount}件のプロジェクトを表示` : `Show ${projectCount} ${projectCount === 1 ? 'project' : 'projects'} using ${tag}`}
-                      className="rounded border px-2.5 py-1 font-mono text-xs transition-opacity hover:opacity-100 focus-visible:outline-2 focus-visible:outline-offset-2"
-                      style={isActive
-                        ? { background: 'var(--color-cli-text)', color: 'var(--color-cli-bg)', borderColor: 'var(--color-cli-text)' }
-                        : { color: 'var(--color-text)', borderColor: 'var(--color-splitter)', opacity: 0.72 }}
-                    >
-                      {tag} · {projectCount}
-                    </button>
-                  );
-                })}
+      <div className="grid gap-4 lg:grid-cols-2">
+        {SKILL_AREAS.map((area, index) => (
+          <article key={area.id} className="flex flex-col rounded-lg border border-[var(--color-splitter)] bg-[var(--color-bg)] p-5 sm:p-6">
+            <div className="flex items-start gap-3">
+              <span className="mt-0.5 font-mono text-xs font-bold text-[var(--color-cli-text)] opacity-60">0{index + 1}</span>
+              <div>
+                <h3 className="font-bold leading-6">{area.title[language]}</h3>
+                <p className="mt-2 text-sm font-medium leading-6">{area.summary[language]}</p>
               </div>
+            </div>
+
+            <ul className="mt-4 space-y-2 border-t border-[var(--color-splitter)] pt-4 text-sm leading-6 opacity-75">
+              {area.highlights[language].map((item) => (
+                <li key={item} className="flex gap-2.5">
+                  <span aria-hidden="true" className="shrink-0 text-[var(--color-cli-text)]">—</span>
+                  <span>{item}</span>
+                </li>
+              ))}
+            </ul>
+
+            <div className="mt-auto pt-5">
+              <p className="text-xs leading-5 opacity-55">
+                <span className="mr-2 font-bold">{language === 'ja' ? '実績' : 'Evidence'}</span>
+                {area.evidence[language]}
+              </p>
+              <div className="mt-3 flex flex-wrap gap-2">{area.tags.map(renderTag)}</div>
             </div>
           </article>
         ))}
       </div>
+
+      <details className="group mt-5 overflow-hidden rounded-lg border border-[var(--color-splitter)]">
+        <summary className="flex cursor-pointer list-none items-center justify-between gap-4 bg-[var(--color-cli-bg)] px-5 py-3">
+          <span className="text-xs font-bold tracking-wide opacity-70">
+            {language === 'ja' ? '公開コードで確認できる実装経験' : 'Implementation experience demonstrated in public code'}
+          </span>
+          <span className="shrink-0 font-mono text-xs opacity-60 group-open:hidden">{language === 'ja' ? '表示 ＋' : 'Show +'}</span>
+          <span className="hidden shrink-0 font-mono text-xs opacity-60 group-open:inline">{language === 'ja' ? '非表示 −' : 'Hide −'}</span>
+        </summary>
+        <div className="grid divide-y divide-[var(--color-splitter)] border-t border-[var(--color-splitter)] lg:grid-cols-3 lg:divide-x lg:divide-y-0">
+          {SUPPORTING_SKILLS.map((skill) => (
+            <article key={skill.evidence} className="p-5">
+              <h4 className="text-sm font-bold">{skill.title[language]}</h4>
+              <p className="mt-2 text-sm leading-6 opacity-70">{skill.description[language]}</p>
+              <p className="mt-3 font-mono text-xs text-[var(--color-cli-text)] opacity-70">{skill.evidence}</p>
+            </article>
+          ))}
+        </div>
+      </details>
 
       {activeTag && (
         <button type="button" onClick={onClearProjectTag} className="mt-5 text-xs underline underline-offset-4 opacity-65 hover:opacity-100">
