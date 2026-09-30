@@ -447,19 +447,20 @@ const PROJECTS: PortfolioProject[] = [
           },
           {
             "title": "深さ優先と幅優先、2種類の迷路生成を実装",
-            "challenge": "設定によってDFSまたはBFSを選び、異なる生成過程を持つ迷路を作れるようにする必要があった。DFSは一つの経路を深く掘り進み、行き止まりで手前のセルへ戻る。BFSは開始セルから近いセルをキューへ追加し、周囲へ広がる順番で通路を作る。",
+            "challenge": "一つの生成方法だけでなく、探索する順序が異なる2種類の迷路生成アルゴリズムを実装する必要があった。深く進んでから戻る方法と、開始地点の周囲から段階的に広げる方法を、それぞれ独立した生成処理として構成した。",
             "solution": "壁を開けられる条件と隣接する2セルの壁を同時に更新する処理は共通化。どちらの方式でもSeedを使って方向の選択順を並べ替え、同じSeedから同じ迷路を生成できる構成とした。",
             "solutionSteps": [
               {
                 "title": "DFS：一つの経路を深く掘る",
-                "text": "未訪問の隣接セルを一つ選んで壁を開き、再帰的に次のセルへ移動。進めるセルがなくなった場合は一つ前のセルへ戻り、別の方向から生成を再開するバックトラック方式で実装。"
+                "text": "未訪問の隣接セルを一つ選んで壁を開き、再帰的に次のセルへ移動。進めるセルがなくなった場合は一つ前のセルへ戻り、別の方向から生成を再開するバックトラック方式で実装。",
+                "diagram": "a-maze-dfs"
               },
               {
                 "title": "BFS：開始地点の周囲から広げる",
-                "text": "開始セルをキューへ追加し、先頭から取り出したセルの未訪問の隣接セルへ通路を作成。新しく接続したセルをキューの末尾へ追加し、開始地点から近いセルの順に生成範囲を広げる方式で実装。"
+                "text": "開始セルをキューへ追加し、先頭から取り出したセルの未訪問の隣接セルへ通路を作成。新しく接続したセルをキューの末尾へ追加し、開始地点から近いセルの順に生成範囲を広げる方式で実装。",
+                "diagram": "a-maze-bfs"
               }
-            ],
-            "solutionDiagram": "a-maze-dfs-bfs"
+            ]
           },
           {
             "title": "構造制約を守ってPerfect / Imperfectを切り替える",
@@ -497,19 +498,20 @@ const PROJECTS: PortfolioProject[] = [
           },
           {
             "title": "Implement two maze generators: depth-first and breadth-first",
-            "challenge": "The configuration must select either DFS or BFS and produce mazes through two different generation processes. DFS digs deeply along one branch and backtracks at a dead end. BFS queues nearby cells and opens passages outward from the start.",
+            "challenge": "The project required two maze-generation algorithms with different traversal orders: one that digs deeply and backtracks, and another that expands outward from the start in stages. Each was implemented as an independent generation process.",
             "solution": "Both algorithms share passage checks and the operation that updates both sides of a wall. A seed-scoped Random instance shuffles direction order so the same seed reproduces the same maze.",
             "solutionSteps": [
               {
                 "title": "DFS: dig one branch deeply",
-                "text": "Choose an unvisited neighbor, open the wall and recurse into that cell. When no unvisited neighbor remains, return to the previous cell and continue from another direction."
+                "text": "Choose an unvisited neighbor, open the wall and recurse into that cell. When no unvisited neighbor remains, return to the previous cell and continue from another direction.",
+                "diagram": "a-maze-dfs"
               },
               {
                 "title": "BFS: expand outward from the start",
-                "text": "Queue the start cell, remove cells from the front and open passages to unvisited neighbors. Append each connected cell to the back so generation expands in distance order."
+                "text": "Queue the start cell, remove cells from the front and open passages to unvisited neighbors. Append each connected cell to the back so generation expands in distance order.",
+                "diagram": "a-maze-bfs"
               }
-            ],
-            "solutionDiagram": "a-maze-dfs-bfs"
+            ]
           },
           {
             "title": "Switch Perfect and Imperfect modes without breaking constraints",
@@ -2001,25 +2003,18 @@ function AMazeWallBitsDiagram({ language }: { language: 'ja' | 'en' }) {
   );
 }
 
-function AMazeGenerationAlgorithmsDiagram({ language }: { language: 'ja' | 'en' }) {
+function AMazeGenerationStepDiagram({ mode, language }: { mode: 'dfs' | 'bfs'; language: 'ja' | 'en' }) {
   const ja = language === 'ja';
-  const nodeClass = 'grid h-8 w-8 shrink-0 place-items-center rounded border border-[var(--color-splitter)] bg-[var(--color-bg)] font-mono text-[9px] font-bold';
+  const nodeClass = 'grid h-8 min-w-8 place-items-center rounded border border-[var(--color-splitter)] bg-[var(--color-bg)] px-1 font-mono text-[9px] font-bold';
 
-  return (
+  if (mode === 'dfs') return (
     <div
       role="img"
-      aria-label={ja
-        ? 'DFSは一つの経路を深く進んで行き止まりで戻り、BFSは開始セルに近い層からキューで広げる'
-        : 'DFS follows one branch deeply and backtracks at a dead end, while BFS expands by queued distance layers'}
-      className="mt-4 grid gap-3"
+      aria-label={ja ? 'DFSでStartから深く進み、4の行き止まりから3へ戻って5の方向へ生成を再開する' : 'DFS advances deeply from Start, backtracks from dead end 4 to 3, then continues toward 5'}
+      className="mt-3 rounded-md border border-[var(--color-splitter)] bg-[var(--color-cli-bg)] p-3"
     >
-      <section className="rounded-md border border-[var(--color-splitter)] bg-[var(--color-cli-bg)] p-3">
-        <div className="flex items-center justify-between gap-2">
-          <p className="font-mono text-[10px] font-bold text-[var(--color-text)]">1 · DFS</p>
-          <p className="text-[9px] text-[var(--color-text-muted)]">{ja ? '再帰 + バックトラック' : 'recursion + backtracking'}</p>
-        </div>
-        <div className="mt-3 flex min-w-0 items-center justify-center gap-1 text-[var(--color-text-muted)]">
-          <span className={`${nodeClass} border-[#4f8f67] bg-[#4f8f67]/10 text-[var(--color-cli-text)]`}>S</span>
+      <div className="flex min-w-0 items-center justify-center gap-1 text-[var(--color-text-muted)]">
+          <span className={`${nodeClass} border-[#4f8f67] bg-[#4f8f67]/10 text-[var(--color-cli-text)]`}>Start</span>
           <span aria-hidden="true" className="font-bold">→</span>
           <span className={nodeClass}>1</span>
           <span aria-hidden="true" className="font-bold">→</span>
@@ -2028,48 +2023,62 @@ function AMazeGenerationAlgorithmsDiagram({ language }: { language: 'ja' | 'en' 
           <span className={nodeClass}>3</span>
           <span aria-hidden="true" className="font-bold">→</span>
           <span className={`${nodeClass} border-[#d6a84f] bg-[#d6a84f]/10`}>4</span>
-        </div>
-        <div className="mt-2 flex items-center justify-end gap-2 text-[9px] text-[#d6a84f]">
-          <span>{ja ? '行き止まり' : 'dead end'}</span>
-          <span aria-hidden="true" className="font-mono text-base font-bold">↩</span>
-          <span>{ja ? '手前へ戻り、別の方向へ' : 'return and try another direction'}</span>
-        </div>
-        <p className="mt-2 border-t border-[var(--color-splitter)] pt-2 text-center text-[9px] text-[var(--color-text-muted)]">
-          {ja ? '一つの経路を深く進み、進めなくなった地点で戻る' : 'Follow one branch deeply, then return when it cannot continue'}
-        </p>
-      </section>
+      </div>
+      <div className="mt-2 grid grid-cols-[1fr_auto_1fr] items-center gap-2 text-[9px]">
+        <span className="text-right text-[#d6a84f]">4 · {ja ? '行き止まり' : 'dead end'}</span>
+        <span aria-hidden="true" className="font-mono text-base font-bold text-[#d6a84f]">···→</span>
+        <span className="text-[var(--color-text-muted)]">3 · {ja ? '一つ前へ戻る' : 'backtrack'}</span>
+      </div>
+      <div className="mt-2 flex items-center justify-center gap-2 text-[9px] text-[var(--color-text-muted)]">
+        <span>3</span>
+        <span aria-hidden="true" className="font-bold text-[var(--color-cli-text)]">→</span>
+        <span className={`${nodeClass} border-[#4f8f67] bg-[#4f8f67]/10 text-[var(--color-cli-text)]`}>5</span>
+        <span>{ja ? '別の方向から生成を再開' : 'continue in another direction'}</span>
+      </div>
+    </div>
+  );
 
-      <section className="rounded-md border border-[var(--color-splitter)] bg-[var(--color-cli-bg)] p-3">
-        <div className="flex items-center justify-between gap-2">
-          <p className="font-mono text-[10px] font-bold text-[var(--color-text)]">2 · BFS</p>
-          <p className="text-[9px] text-[var(--color-text-muted)]">{ja ? 'キューで距離順に展開' : 'queue-based layer expansion'}</p>
-        </div>
-        <div className="mt-3 grid justify-items-center gap-1.5 text-[var(--color-text-muted)]">
-          <span className={`${nodeClass} border-[#4f8f67] bg-[#4f8f67]/10 text-[var(--color-cli-text)]`}>S</span>
-          <span aria-hidden="true" className="font-bold">↓</span>
-          <div className="flex items-center justify-center gap-2">
-            {[1, 1, 1].map((depth, index) => (
-              <span key={`depth-one-${index}`} className={`${nodeClass} border-[#3b82f6] bg-[#3b82f6]/10 text-[#3b82f6]`}>{depth}</span>
-            ))}
-          </div>
-          <span aria-hidden="true" className="font-bold">↓</span>
-          <div className="flex items-center justify-center gap-1.5">
-            {[2, 2, 2, 2, 2].map((depth, index) => (
-              <span key={`depth-two-${index}`} className={`${nodeClass} h-7 w-7 text-[var(--color-text-muted)]`}>{depth}</span>
-            ))}
-          </div>
-        </div>
-        <p className="mt-2 border-t border-[var(--color-splitter)] pt-2 text-center text-[9px] text-[var(--color-text-muted)]">
-          {ja ? '開始セルに近いセルから、キューの順番で周囲へ広げる' : 'Expand outward in queue order, starting with cells nearest the start'}
-        </p>
-      </section>
+  const placement: Array<{ value: string; row: number; col: number; tone: 'start' | 'one' | 'two' }> = [
+    { value: '2', row: 1, col: 5, tone: 'two' },
+    { value: '1', row: 3, col: 5, tone: 'one' },
+    { value: '2', row: 5, col: 1, tone: 'two' },
+    { value: '1', row: 5, col: 3, tone: 'one' },
+    { value: 'Start', row: 5, col: 5, tone: 'start' },
+    { value: '1', row: 5, col: 7, tone: 'one' },
+    { value: '2', row: 5, col: 9, tone: 'two' },
+    { value: '1', row: 7, col: 5, tone: 'one' },
+    { value: '2', row: 9, col: 5, tone: 'two' },
+  ];
+  const arrows = [
+    { value: '↑', row: 2, col: 5 }, { value: '↑', row: 4, col: 5 },
+    { value: '←', row: 5, col: 2 }, { value: '←', row: 5, col: 4 },
+    { value: '→', row: 5, col: 6 }, { value: '→', row: 5, col: 8 },
+    { value: '↓', row: 6, col: 5 }, { value: '↓', row: 8, col: 5 },
+  ];
 
-      <p className="rounded-md border border-[#4f8f67]/50 bg-[#4f8f67]/5 px-3 py-2 text-[9px] leading-4 text-[var(--color-text-muted)]">
-        <strong className="text-[var(--color-cli-text)]">{ja ? '共通処理' : 'Shared logic'}：</strong>
-        {ja
-          ? '壁を開けられる条件と両側の壁更新を共通化。Seedで方向の選択順を並べ替え、同じ迷路を再現。'
-          : 'Share passage checks and two-sided wall updates. Shuffle direction order with a seed to reproduce the same maze.'}
-      </p>
+  return (
+    <div
+      role="img"
+      aria-label={ja ? 'BFSでStartの上下左右へ距離1、その外側へ距離2の順に迷路を広げる' : 'BFS expands from Start to distance-one cells in four directions, then to distance-two cells'}
+      className="mt-3 rounded-md border border-[var(--color-splitter)] bg-[var(--color-cli-bg)] p-3"
+    >
+      <div className="mx-auto grid aspect-square max-w-56 grid-cols-[repeat(9,minmax(0,1fr))] grid-rows-[repeat(9,minmax(0,1fr))] items-center justify-items-center">
+        {placement.map((node) => (
+          <span
+            key={`${node.row}-${node.col}`}
+            style={{ gridRow: node.row, gridColumn: node.col }}
+            className={[
+              nodeClass,
+              node.tone === 'start' ? 'border-[#4f8f67] bg-[#4f8f67]/10 text-[var(--color-cli-text)]' : '',
+              node.tone === 'one' ? 'border-[#3b82f6] bg-[#3b82f6]/10 text-[#3b82f6]' : '',
+              node.tone === 'two' ? 'text-[var(--color-text-muted)]' : '',
+            ].join(' ')}
+          >{node.value}</span>
+        ))}
+        {arrows.map((arrow) => (
+          <span key={`${arrow.row}-${arrow.col}`} style={{ gridRow: arrow.row, gridColumn: arrow.col }} aria-hidden="true" className="font-bold text-[var(--color-text-muted)]">{arrow.value}</span>
+        ))}
+      </div>
     </div>
   );
 }
@@ -2146,6 +2155,12 @@ function ProjectTechnicalDetailsPanel({ project, language }: {
                               <div>
                                 <p className="font-bold text-[var(--color-text)]">{step.title}</p>
                                 <p className="mt-1 leading-7 text-[var(--color-text-muted)]">{step.text}</p>
+                                {step.diagram === 'a-maze-dfs' && (
+                                  <AMazeGenerationStepDiagram mode="dfs" language={language} />
+                                )}
+                                {step.diagram === 'a-maze-bfs' && (
+                                  <AMazeGenerationStepDiagram mode="bfs" language={language} />
+                                )}
                               </div>
                             </li>
                             {project.id === 'Fly-in' && index === 0 && stepIndex < steps.length - 1 && (
@@ -2179,9 +2194,6 @@ function ProjectTechnicalDetailsPanel({ project, language }: {
                     )}
                     {item.solutionDiagram === 'a-maze-wall-bits' && (
                       <AMazeWallBitsDiagram language={language} />
-                    )}
-                    {item.solutionDiagram === 'a-maze-dfs-bfs' && (
-                      <AMazeGenerationAlgorithmsDiagram language={language} />
                     )}
                   </div>
                 </div>

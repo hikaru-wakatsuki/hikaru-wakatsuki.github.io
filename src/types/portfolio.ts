@@ -23,12 +23,13 @@ export interface ProjectTechnicalCaseStudy {
   solutionSteps?: Array<{
     title: string;
     text: string;
+    diagram?: 'a-maze-dfs' | 'a-maze-bfs';
   }>;
   diagram?: 'function-selection' | 'json-generation' | 'recursive-schema' | 'precomputation';
   challengeDiagram?: 'codexion-circular-wait' | 'codexion-partial-ownership' | 'codexion-log-interleaving'
     | 'flyin-unreserved-arrivals' | 'flyin-blocked-route';
   solutionDiagram?: 'codexion-lock-order' | 'codexion-atomic-pair' | 'codexion-priority-heap' | 'codexion-log-mutex' | 'codexion-monitor-loop'
-    | 'flyin-weighted-route' | 'flyin-capacity-state' | 'flyin-reroute' | 'a-maze-wall-bits' | 'a-maze-dfs-bfs';
+    | 'flyin-weighted-route' | 'flyin-capacity-state' | 'flyin-reroute' | 'a-maze-wall-bits';
 }
 
 export interface ProjectDemoGuide {
