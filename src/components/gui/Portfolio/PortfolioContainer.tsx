@@ -487,7 +487,7 @@ const PROJECTS: PortfolioProject[] = [
           {
             "title": "生成方式から独立して最短経路を求める",
             "challenge": "DFSやBFSによる迷路の生成順序は、完成した迷路上の最短経路とは一致しない。生成アルゴリズムを切り替えても同じ方法で解ける仕組みが必要になる。",
-            "solution": "生成処理とは別に、完成した迷路を対象とするBFSを実装。Startから通行可能なセルを探索し、各セルへ到達した直前のセルを記録。Goalから逆にたどって経路を復元し、N・E・S・Wの列として出力した。",
+            "solution": "生成処理とは別に、完成した迷路を対象とするBFSを実装。Startから通行可能なセルを順に探索し、各セルに「どのセルから到達したか」を記録した。Goalに到達した後、その記録をGoalから一つずつStartまで逆にたどり、順序を反転して最短経路を復元。N・E・S・Wの列として出力した。",
             "solutionDiagram": "a-maze-shortest-path"
           },
           {
@@ -539,7 +539,7 @@ const PROJECTS: PortfolioProject[] = [
           {
             "title": "Solve the shortest route independently of generation",
             "challenge": "The order used to generate a maze is not necessarily its shortest solution and must not tie solving to DFS or BFS generation.",
-            "solution": "A separate BFS records each predecessor in the completed maze. It reconstructs from Goal to Start and writes the route as N, E, S and W directions.",
+            "solution": "A separate BFS explores traversable cells from Start and records which previous cell led to each one. After reaching Goal, it follows those records backward one cell at a time to Start, reverses the sequence and outputs the shortest route as N, E, S and W directions.",
             "solutionDiagram": "a-maze-shortest-path"
           },
           {
@@ -2560,6 +2560,18 @@ function PortfolioCard({
         <p className="mt-3 max-w-3xl text-sm leading-6 opacity-75">
           {project.description[language]}
         </p>
+        {project.responsibilities && (
+          <section className="mt-4 max-w-3xl">
+            <h4 className="text-sm font-bold text-[var(--color-text)]">
+              {language === 'ja' ? '担当範囲' : 'My responsibilities'}
+            </h4>
+            <ul className="mt-1.5 list-disc space-y-1 pl-5 text-sm leading-6 opacity-75 marker:text-[var(--color-cli-text)]">
+              {project.responsibilities[language].map((item) => (
+                <li key={item}>{item}</li>
+              ))}
+            </ul>
+          </section>
+        )}
       </div>
 
       {project.demoGuide && (
@@ -2661,15 +2673,13 @@ function ProjectDetailModal({ project, language, onClose }: {
           </p>
 
           {project.responsibilities && (
-            <section className="max-w-5xl rounded-lg border border-[var(--color-splitter)] bg-[var(--color-bg)] px-4 py-3 sm:px-5">
-              <h3 className="font-mono text-[11px] font-bold uppercase tracking-[0.14em] text-[var(--color-cli-text)]">
+            <section className="max-w-5xl">
+              <h3 className="text-sm font-bold text-[var(--color-text)]">
                 {language === 'ja' ? '担当範囲' : 'My responsibilities'}
               </h3>
-              <ul className="mt-2 grid gap-2 text-sm leading-6 text-[var(--color-text-muted)] sm:grid-cols-2">
+              <ul className="mt-1.5 list-disc space-y-1 pl-5 text-sm leading-6 text-[var(--color-text-muted)] marker:text-[var(--color-cli-text)]">
                 {project.responsibilities[language].map((item) => (
-                  <li key={item} className="border-l-2 border-[var(--color-accent-secondary)] pl-3">
-                    {item}
-                  </li>
+                  <li key={item}>{item}</li>
                 ))}
               </ul>
             </section>
