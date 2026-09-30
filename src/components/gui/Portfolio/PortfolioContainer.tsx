@@ -478,6 +478,11 @@ const PROJECTS: PortfolioProject[] = [
             "title": "生成方式から独立して最短経路を求める",
             "challenge": "DFSやBFSによる迷路の生成順序は、完成した迷路上の最短経路とは一致しない。生成アルゴリズムを切り替えても同じ方法で解ける仕組みが必要になる。",
             "solution": "生成処理とは別に、完成した迷路を対象とするBFSを実装。Startから通行可能なセルを探索し、各セルへ到達した直前のセルを記録。Goalから逆にたどって経路を復元し、N・E・S・Wの列として出力した。"
+          },
+          {
+            "title": "GitとPull Requestを使った2名での共同開発",
+            "challenge": "2人が同じコードベースを並行して変更するため、作業内容が重なると変更の衝突や意図しない上書きが起こる可能性があった。統合前に、互いの実装内容と変更意図を確認できる進め方も必要だった。",
+            "solution": "作業単位でGitブランチを分け、変更内容をPull Requestとして提出。互いにコードと変更意図を確認し、必要な修正やコンフリクトの解消を行ってからメインブランチへ統合した。"
           }
         ],
         "verification": [],
@@ -524,6 +529,11 @@ const PROJECTS: PortfolioProject[] = [
             "title": "Solve the shortest route independently of generation",
             "challenge": "The order used to generate a maze is not necessarily its shortest solution and must not tie solving to DFS or BFS generation.",
             "solution": "A separate BFS records each predecessor in the completed maze. It reconstructs from Goal to Start and writes the route as N, E, S and W directions."
+          },
+          {
+            "title": "Collaborate as a two-person team with Git and pull requests",
+            "challenge": "Two contributors worked on the same codebase in parallel, so overlapping changes could conflict or overwrite one another. The team also needed a way to review each implementation and its intent before integration.",
+            "solution": "Work was separated into Git branches and submitted through pull requests. Both contributors reviewed the code and intent, made required revisions, resolved conflicts and then merged the changes into the main branch."
           }
         ],
         "verification": [],
