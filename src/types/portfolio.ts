@@ -43,6 +43,7 @@ export interface PortfolioProject {
   id: string;
   title: string;
   description: { ja: string; en: string };
+  responsibilities?: { ja: string[]; en: string[] };
   technicalDetails?: { ja: ProjectTechnicalDetails; en: ProjectTechnicalDetails };
   projectType?: { ja: string; en: string };
   demoGuide?: { ja: ProjectDemoGuide; en: ProjectDemoGuide };

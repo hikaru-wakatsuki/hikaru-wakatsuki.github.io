@@ -428,6 +428,16 @@ const PROJECTS: PortfolioProject[] = [
       "ja": "共同開発 · 2名",
       "en": "Team project · 2 developers"
     },
+    "responsibilities": {
+      "ja": [
+        "迷路を自動生成する中核ロジックの設計・実装",
+        "完全迷路・不完全迷路の切り替えと、指定された制約を守る判定処理の実装"
+      ],
+      "en": [
+        "Designed and implemented the core maze-generation logic",
+        "Implemented perfect/imperfect maze modes and checks that enforce the specified constraints"
+      ]
+    },
     "demoGuide": {
       "ja": {
         "cues": []
@@ -2593,6 +2603,21 @@ function ProjectDetailModal({ project, language, onClose }: {
           <p className="max-w-5xl text-sm leading-7 text-[var(--color-text-muted)] sm:text-base">
             {project.description[language]}
           </p>
+
+          {project.responsibilities && (
+            <section className="max-w-5xl rounded-lg border border-[var(--color-splitter)] bg-[var(--color-bg)] px-4 py-3 sm:px-5">
+              <h3 className="font-mono text-[11px] font-bold uppercase tracking-[0.14em] text-[var(--color-cli-text)]">
+                {language === 'ja' ? '担当範囲' : 'My responsibilities'}
+              </h3>
+              <ul className="mt-2 grid gap-2 text-sm leading-6 text-[var(--color-text-muted)] sm:grid-cols-2">
+                {project.responsibilities[language].map((item) => (
+                  <li key={item} className="border-l-2 border-[var(--color-accent-secondary)] pl-3">
+                    {item}
+                  </li>
+                ))}
+              </ul>
+            </section>
+          )}
 
           <ProjectVideoGuide project={project} language={language} />
 
