@@ -2,6 +2,14 @@ import { useAppState } from '../../../context/AppStateContext';
 
 const PAPER_URL = 'https://www.jstage.jst.go.jp/article/electrochemistry/90/4/90_22-00006/_article/-char/ja';
 const AWARD_URL = 'https://www.electrochem.jp/post_news/5137/';
+const CHIBA_UNIVERSITY_URL = 'https://www.chiba-u.ac.jp/';
+const CHIBA_GRADUATE_SCHOOL_URL = 'https://www.f-eng.chiba-u.jp/';
+const KOBAYASHI_LAB_URL = 'https://www.chibauniv-kobalab.com/';
+const NEC_URL = {
+  ja: 'https://group.nec/global/ja/',
+  en: 'https://group.nec/global/en/',
+};
+const TOKYO_42_URL = 'https://42tokyo.jp/';
 
 const COPY = {
   ja: {
@@ -17,7 +25,11 @@ const COPY = {
           label: '千葉大学 工学部 画像科学科',
           period: '2016年4月〜2020年3月（卒業）',
         },
-        links: [{ label: '共著論文（J-STAGE）', url: PAPER_URL }, { label: '表彰・受賞者一覧（電気化学会）', url: AWARD_URL }],
+        links: [
+          { label: '所属研究室（小林研究室）', url: KOBAYASHI_LAB_URL },
+          { label: '共著論文（J-STAGE）', url: PAPER_URL },
+          { label: '表彰・受賞者一覧（電気化学会）', url: AWARD_URL },
+        ],
       },
       {
         institution: '日本電気株式会社', period: '2022年4月〜現在',
@@ -51,7 +63,11 @@ const COPY = {
           'Co-authored a paper in Electrochemistry (2022), which received the 2023 Electrochemical Society of Japan Paper Award.',
         ],
         education: { label: 'Chiba University — B.Eng., Image Science', period: 'Apr 2016 — Mar 2020 · Graduated' },
-        links: [{ label: 'Co-authored paper (J-STAGE)', url: PAPER_URL }, { label: 'Official award announcement', url: AWARD_URL }],
+        links: [
+          { label: 'Kobayashi Laboratory', url: KOBAYASHI_LAB_URL },
+          { label: 'Co-authored paper (J-STAGE)', url: PAPER_URL },
+          { label: 'Official award announcement', url: AWARD_URL },
+        ],
       },
       {
         institution: 'NEC Corporation', period: 'Apr 2022 — Present',
@@ -86,17 +102,19 @@ export default function CareerContainer() {
   const history = [
     {
       institution: ja ? '千葉大学' : 'Chiba University',
+      institutionUrl: CHIBA_UNIVERSITY_URL,
       period: bachelor.period,
       title: ja ? '工学部 画像科学科 · 学士' : 'B.Eng., Image Science',
       points: [], links: [], badge: undefined, badgeTone: undefined,
     },
     {
-      institution: graduate.institution, period: graduate.period,
+      institution: graduate.institution, institutionUrl: CHIBA_GRADUATE_SCHOOL_URL, period: graduate.period,
       title: ja ? '融合理工学府 先進理化学専攻 物質科学コース · 修士' : 'Graduate School of Science and Engineering · Master’s',
       points: graduate.points, links: graduate.links, badge: undefined, badgeTone: undefined,
     },
     {
       institution: nec.institution,
+      institutionUrl: NEC_URL[language],
       period: ja ? '2022年4月〜2026年3月' : 'Apr 2022 — Mar 2026',
       title: ja ? 'インフラエンジニア' : 'Infrastructure Engineer',
       points: ja ? [
@@ -112,6 +130,7 @@ export default function CareerContainer() {
     },
     {
       institution: nec.institution,
+      institutionUrl: NEC_URL[language],
       period: ja ? '2026年4月〜現在' : 'Apr 2026 — Present',
       title: ja ? 'Python・生成AIを用いた業務アプリケーション開発' : 'Business application development with Python and generative AI',
       points: nec.points, links: [],
@@ -119,7 +138,7 @@ export default function CareerContainer() {
       badgeTone: 'current',
     },
     {
-      institution: tokyo.institution, period: tokyo.period,
+      institution: tokyo.institution, institutionUrl: TOKYO_42_URL, period: tokyo.period,
       title: ja ? 'C・Python・チーム開発（NEC在籍中に受講）' : 'C, Python & team development alongside NEC',
       points: tokyo.points, links: [],
       badge: ja ? 'NEC在籍中の並行学習' : 'Alongside full-time role at NEC',
@@ -144,7 +163,17 @@ export default function CareerContainer() {
                   {entry.badge}
                 </span>
               )}
-              <h4 className="text-base sm:text-lg font-bold leading-7">{entry.institution}</h4>
+              <h4 className="text-base sm:text-lg font-bold leading-7">
+                <a
+                  href={entry.institutionUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-baseline gap-1 underline decoration-[var(--color-splitter)] underline-offset-4 transition-opacity hover:opacity-70"
+                >
+                  <span>{entry.institution}</span>
+                  <span aria-hidden="true" className="font-mono text-xs font-normal opacity-55">↗</span>
+                </a>
+              </h4>
               <p className="text-sm leading-6 opacity-75 mt-1">{entry.title}</p>
               {entry.points.length > 0 && (
                 <ul className="list-disc pl-4 mt-3 space-y-2 text-sm leading-7 opacity-80">
