@@ -487,7 +487,8 @@ const PROJECTS: PortfolioProject[] = [
           {
             "title": "生成方式から独立して最短経路を求める",
             "challenge": "DFSやBFSによる迷路の生成順序は、完成した迷路上の最短経路とは一致しない。生成アルゴリズムを切り替えても同じ方法で解ける仕組みが必要になる。",
-            "solution": "生成処理とは別に、完成した迷路を対象とするBFSを実装。Startから通行可能なセルを探索し、各セルへ到達した直前のセルを記録。Goalから逆にたどって経路を復元し、N・E・S・Wの列として出力した。"
+            "solution": "生成処理とは別に、完成した迷路を対象とするBFSを実装。Startから通行可能なセルを探索し、各セルへ到達した直前のセルを記録。Goalから逆にたどって経路を復元し、N・E・S・Wの列として出力した。",
+            "solutionDiagram": "a-maze-shortest-path"
           },
           {
             "title": "GitとPull Requestを使った2名での共同開発",
@@ -538,7 +539,8 @@ const PROJECTS: PortfolioProject[] = [
           {
             "title": "Solve the shortest route independently of generation",
             "challenge": "The order used to generate a maze is not necessarily its shortest solution and must not tie solving to DFS or BFS generation.",
-            "solution": "A separate BFS records each predecessor in the completed maze. It reconstructs from Goal to Start and writes the route as N, E, S and W directions."
+            "solution": "A separate BFS records each predecessor in the completed maze. It reconstructs from Goal to Start and writes the route as N, E, S and W directions.",
+            "solutionDiagram": "a-maze-shortest-path"
           },
           {
             "title": "Collaborate as a two-person team with Git and pull requests",
@@ -2118,7 +2120,7 @@ function AMazePerfectMazeDiagram({ language }: { language: 'ja' | 'en' }) {
           <span className={`${cellClass} border-[#3b82f6] bg-[#3b82f6]/10 text-[#3b82f6]`}>{ja ? '訪問済みセル' : 'visited'}</span>
         </div>
 
-        <div className="col-start-2 row-start-1 flex min-w-0 items-center gap-1.5">
+        <div className="col-start-2 row-start-1 flex h-12 min-w-0 self-start items-center gap-1.5">
           <span aria-hidden="true" className="h-10 shrink-0 border-l-4 border-[#d6a84f]" />
           <span aria-hidden="true" className="font-bold text-[#4f8f67]">→</span>
           <span className="shrink-0 font-bold text-[#4f8f67]">{ja ? '壁を開く' : 'open wall'}</span>
@@ -2137,40 +2139,91 @@ function AMazePerfectMazeDiagram({ language }: { language: 'ja' | 'en' }) {
 
 function AMazeImperfectMazeDiagram({ language }: { language: 'ja' | 'en' }) {
   const ja = language === 'ja';
+  const nodeClass = 'rounded border bg-[var(--color-bg)] px-2 py-2 text-center leading-4';
   return (
     <div
       role="img"
       aria-label={ja ? '完全迷路の候補壁を制約確認後に確率で開き、0本なら再走査して有効な壁を一つ開く' : 'Open eligible walls probabilistically after validation, and rescan to open one valid wall when none was added'}
       className="mt-4 rounded-md border border-[var(--color-splitter)] bg-[var(--color-cli-bg)] p-3"
     >
-      <div className="mx-auto flex max-w-md flex-col items-stretch gap-2 text-center text-[9px] sm:flex-row sm:items-center sm:justify-center">
-        <div className="shrink-0 rounded border border-[var(--color-splitter)] bg-[var(--color-bg)] px-3 py-2">
-          <p className="font-bold text-[var(--color-text)]">{ja ? '完全迷路' : 'Perfect Maze'}</p>
-          <p className="mt-1 text-[var(--color-text-muted)]">{ja ? '循環なし' : 'no cycle'}</p>
-        </div>
-        <span aria-hidden="true" className="self-center font-bold text-[var(--color-cli-text)] sm:rotate-0 rotate-90">→</span>
-        <div className="min-w-0 rounded border border-[#d6a84f] bg-[#d6a84f]/5 px-3 py-2">
-          <p className="font-bold text-[var(--color-text)]">{ja ? '追加できる壁だけを抽出' : 'eligible walls only'}</p>
-          <p className="mt-1 leading-4 text-[var(--color-text-muted)]">{ja ? '外壁・42・3×3の制約を確認' : 'scan east/south; check boundary, 42 and 3x3'}</p>
-        </div>
-        <span aria-hidden="true" className="self-center font-bold text-[var(--color-cli-text)] sm:rotate-0 rotate-90">→</span>
-        <div className="shrink-0 rounded border border-[var(--color-splitter)] bg-[var(--color-bg)] px-3 py-2 font-bold text-[var(--color-text)]">{ja ? '有効な壁を5%で開く' : 'open valid walls at 5%'}</div>
-      </div>
+      <div className="overflow-x-auto pb-1">
+        <div className="mx-auto grid min-w-[28rem] max-w-2xl grid-cols-[4rem_auto_6.25rem_auto_4.5rem_auto_6.5rem_auto_4rem] grid-rows-[auto_auto] items-center gap-x-1 gap-y-2 text-[8px]">
+          <div className={`${nodeClass} row-span-2 border-[var(--color-splitter)]`}>
+            <p className="font-bold text-[var(--color-text)]">{ja ? '完全迷路' : 'Perfect Maze'}</p>
+            <pre className="mt-1 font-mono text-[10px] leading-3 text-[var(--color-text-muted)]">A─B─C{`\n`}  └─D</pre>
+          </div>
+          <span aria-hidden="true" className="row-span-2 font-bold text-[var(--color-cli-text)]">→</span>
+          <div className={`${nodeClass} row-span-2 border-[#d6a84f] bg-[#d6a84f]/5`}>
+            <p className="font-bold text-[var(--color-text)]">{ja ? '追加できる壁を抽出' : 'eligible walls'}</p>
+            <p className="mt-1 text-[var(--color-text-muted)]">{ja ? '外壁・42・3×3を確認' : 'check constraints'}</p>
+          </div>
+          <span aria-hidden="true" className="row-span-2 font-bold text-[var(--color-cli-text)]">→</span>
+          <div className={`${nodeClass} row-span-2 border-[var(--color-splitter)] font-bold text-[var(--color-text)]`}>
+            {ja ? '有効な壁を5%で開く' : 'open at 5%'}
+          </div>
 
-      <div className="mt-3 grid gap-2 border-t border-[var(--color-splitter)] pt-3 text-[9px]">
-        <div className="flex flex-wrap items-center justify-center gap-2">
-          <span className="rounded border border-[#4f8f67] bg-[#4f8f67]/10 px-2 py-1.5 font-bold text-[var(--color-cli-text)]">{ja ? '1本以上開いた' : 'one or more opened'}</span>
-          <span aria-hidden="true" className="font-bold text-[var(--color-text-muted)]">→</span>
-          <span className="rounded border border-[#4f8f67] bg-[#4f8f67]/10 px-3 py-1.5 font-bold text-[var(--color-cli-text)]">{ja ? '不完全迷路' : 'Imperfect Maze'}</span>
-        </div>
-        <div className="flex flex-wrap items-center justify-center gap-2">
-          <span className="rounded border border-[#ef6b73] bg-[#ef6b73]/10 px-2 py-1.5 text-[#ef6b73]">{ja ? '追加0本' : 'zero added'}</span>
-          <span aria-hidden="true" className="font-bold text-[var(--color-text-muted)]">→</span>
-          <span className="rounded border border-[#d6a84f] bg-[#d6a84f]/5 px-2 py-1.5 font-bold text-[var(--color-text)]">{ja ? '再走査して最初の有効壁を開く' : 'rescan and open first eligible wall'}</span>
-          <span aria-hidden="true" className="font-bold text-[var(--color-text-muted)]">→</span>
-          <span className="rounded border border-[#4f8f67] bg-[#4f8f67]/10 px-3 py-1.5 font-bold text-[var(--color-cli-text)]">{ja ? '不完全迷路' : 'Imperfect Maze'}</span>
+          <span aria-hidden="true" className="col-start-6 row-start-1 font-bold text-[var(--color-cli-text)]">→</span>
+          <div className={`${nodeClass} col-start-7 row-start-1 border-[#4f8f67] bg-[#4f8f67]/10 font-bold text-[var(--color-cli-text)]`}>
+            {ja ? '1本以上開いた' : 'one or more opened'}
+          </div>
+          <span aria-hidden="true" className="col-start-8 row-start-1 font-bold text-[var(--color-cli-text)]">→</span>
+
+          <span aria-hidden="true" className="col-start-6 row-start-2 font-bold text-[#ef6b73]">↘</span>
+          <div className={`${nodeClass} col-start-7 row-start-2 border-[#d6a84f] bg-[#d6a84f]/5`}>
+            <p className="text-[#ef6b73]">{ja ? '追加0本' : 'zero added'}</p>
+            <p className="mt-0.5 font-bold text-[var(--color-text)]">{ja ? '再走査して有効壁を開く' : 'rescan and open one'}</p>
+          </div>
+          <span aria-hidden="true" className="col-start-8 row-start-2 font-bold text-[var(--color-cli-text)]">→</span>
+
+          <div className={`${nodeClass} col-start-9 row-span-2 row-start-1 border-[#4f8f67] bg-[#4f8f67]/10`}>
+            <p className="font-bold text-[var(--color-text)]">{ja ? '不完全迷路' : 'Imperfect Maze'}</p>
+            <pre className="mt-1 font-mono text-[10px] leading-3 text-[var(--color-cli-text)]">A─B{`\n`}│ │{`\n`}D─C</pre>
+          </div>
         </div>
       </div>
+    </div>
+  );
+}
+
+function AMazeShortestPathDiagram({ language }: { language: 'ja' | 'en' }) {
+  const ja = language === 'ja';
+  const cellClass = 'grid h-9 w-9 place-items-center rounded border bg-[var(--color-bg)] font-mono text-[8px] font-bold';
+
+  return (
+    <div
+      role="img"
+      aria-label={ja ? 'StartからBFSで範囲を広げ、Goal到達後に直前のセルを逆にたどって最短経路を復元する' : 'Expand from Start with BFS, then reconstruct the shortest path by following predecessors backward from Goal'}
+      className="mt-4 grid gap-3 rounded-md border border-[var(--color-splitter)] bg-[var(--color-cli-bg)] p-3 text-[9px] sm:grid-cols-2"
+    >
+      <section className="rounded border border-[var(--color-splitter)] bg-[var(--color-bg)] p-3">
+        <p className="font-bold text-[var(--color-text)]">{ja ? '1. StartからBFSで探索' : '1. Explore from Start with BFS'}</p>
+        <div className="mt-3 grid grid-cols-[auto_auto_auto_auto_auto] items-center justify-center gap-1">
+          <span className={`${cellClass} border-[#4f8f67] bg-[#4f8f67]/10 text-[var(--color-cli-text)]`}>Start</span>
+          <span aria-hidden="true" className="text-[#3b82f6]">→</span>
+          <span className={`${cellClass} border-[#3b82f6] text-[#3b82f6]`}>{ja ? '距離1' : 'd1'}</span>
+          <span aria-hidden="true" className="text-[#3b82f6]">→</span>
+          <span className={`${cellClass} border-[#3b82f6] text-[#3b82f6]`}>{ja ? '距離2' : 'd2'}</span>
+          <span aria-hidden="true" className="col-start-3 text-center text-[#3b82f6]">↓</span>
+          <span className={`${cellClass} col-start-3 border-[#3b82f6] text-[#3b82f6]`}>{ja ? '距離2' : 'd2'}</span>
+          <span aria-hidden="true" className="text-[#3b82f6]">→</span>
+          <span className={`${cellClass} border-[#ef6b73] bg-[#ef6b73]/10 text-[#ef6b73]`}>Goal</span>
+        </div>
+        <p className="mt-3 text-center text-[var(--color-text-muted)]">{ja ? '到達した各セルに直前のセルを記録' : 'record each cell’s predecessor'}</p>
+      </section>
+
+      <section className="rounded border border-[var(--color-splitter)] bg-[var(--color-bg)] p-3">
+        <p className="font-bold text-[var(--color-text)]">{ja ? '2. Goalから経路を復元' : '2. Reconstruct from Goal'}</p>
+        <div className="mt-5 flex items-center justify-center gap-1">
+          <span className={`${cellClass} border-[#4f8f67] bg-[#4f8f67]/10 text-[var(--color-cli-text)]`}>Start</span>
+          <span aria-hidden="true" className="font-bold text-[#3b82f6]">←</span>
+          <span className={`${cellClass} border-[#3b82f6] text-[#3b82f6]`}>A</span>
+          <span aria-hidden="true" className="font-bold text-[#3b82f6]">←</span>
+          <span className={`${cellClass} border-[#3b82f6] text-[#3b82f6]`}>B</span>
+          <span aria-hidden="true" className="font-bold text-[#3b82f6]">←</span>
+          <span className={`${cellClass} border-[#ef6b73] bg-[#ef6b73]/10 text-[#ef6b73]`}>Goal</span>
+        </div>
+        <p className="mt-5 text-center text-[var(--color-text-muted)]">{ja ? '逆向きにたどった列を反転し、Startからの経路として出力' : 'reverse the chain and output the route from Start'}</p>
+      </section>
     </div>
   );
 }
@@ -2292,6 +2345,9 @@ function ProjectTechnicalDetailsPanel({ project, language }: {
                     )}
                     {item.solutionDiagram === 'a-maze-imperfect-extra' && (
                       <AMazeImperfectMazeDiagram language={language} />
+                    )}
+                    {item.solutionDiagram === 'a-maze-shortest-path' && (
+                      <AMazeShortestPathDiagram language={language} />
                     )}
                   </div>
                 </div>
