@@ -430,18 +430,10 @@ const PROJECTS: PortfolioProject[] = [
     },
     "demoGuide": {
       "ja": {
-        "cues": [
-          "Shortest path：StartからGoalまでの最短経路の移動回数",
-          "Visited cells：最短経路を求めるBFSが確認したセル数",
-          "Generation time：迷路生成、最短経路計算、ファイル出力までの処理時間"
-        ]
+        "cues": []
       },
       "en": {
-        "cues": [
-          "Shortest path: number of moves in the shortest route from Start to Goal",
-          "Visited cells: number of cells examined by the BFS shortest-path search",
-          "Generation time: time spent generating the maze, finding the shortest route and writing the output"
-        ]
+        "cues": []
       }
     },
     "technicalDetails": {
@@ -450,7 +442,8 @@ const PROJECTS: PortfolioProject[] = [
           {
             "title": "隣接セルの壁を常に一致させる",
             "challenge": "通路を一つ開く操作は、現在のセルと隣のセルの両方に影響する。片側だけを更新すると、同じ境界に壁があるセルとないセルが生まれ、迷路データが壊れる。",
-            "solution": "北・東・南・西の壁を1・2・4・8の4ビットで保持。通路を開く処理を一か所にまとめ、現在のセルの壁と隣接セルの反対側の壁を同時に解除することで、すべての境界を一致させた。"
+            "solution": "北・東・南・西の壁を1・2・4・8の4ビットで保持。通路を開く処理を一か所にまとめ、現在のセルの壁と隣接セルの反対側の壁を同時に解除することで、すべての境界を一致させた。",
+            "solutionDiagram": "a-maze-wall-bits"
           },
           {
             "title": "DFSとBFSを同じ制約で生成する",
@@ -488,7 +481,8 @@ const PROJECTS: PortfolioProject[] = [
           {
             "title": "Keep both sides of every wall consistent",
             "challenge": "Opening one passage changes two adjacent cells. Updating only one side would produce contradictory maze data.",
-            "solution": "North, east, south and west use the 1, 2, 4 and 8 bits. A single wall-opening operation clears both the current wall and the opposite wall of its neighbor."
+            "solution": "North, east, south and west use the 1, 2, 4 and 8 bits. A single wall-opening operation clears both the current wall and the opposite wall of its neighbor.",
+            "solutionDiagram": "a-maze-wall-bits"
           },
           {
             "title": "Generate DFS and BFS mazes under the same rules",
@@ -616,28 +610,6 @@ function ProjectVideoGuide({ project, language }: {
         <div id={contentId} className="border-t border-[var(--color-splitter)] px-5 py-4 sm:px-6">
           {project.id === 'souaoao/A-Maze-ing' ? (
             <div className="grid gap-3 text-xs leading-5">
-              <div className="grid gap-3 rounded-md border border-[var(--color-splitter)] bg-[var(--color-cli-bg)] p-3">
-                {guide.cues.map((cue, cueIndex) => {
-                  const japaneseSeparator = cue.indexOf('：');
-                  const englishSeparator = cue.lastIndexOf(': ');
-                  const separatorIndex = japaneseSeparator >= 0 ? japaneseSeparator : englishSeparator;
-                  const separatorLength = japaneseSeparator >= 0 ? 1 : 2;
-                  const displayLabel = cue.slice(0, separatorIndex);
-                  const displayText = cue.slice(separatorIndex + separatorLength);
-                  const labelColor = cueIndex === 0
-                    ? 'text-[#3b82f6]'
-                    : cueIndex === 1
-                      ? 'text-[#22d3ee]'
-                      : 'text-[var(--color-text)]';
-                  return (
-                    <div key={cue} className="grid gap-1 border-b border-[var(--color-splitter)] pb-3 last:border-b-0 last:pb-0 sm:grid-cols-[minmax(15rem,auto)_1fr] sm:items-center sm:gap-4">
-                      <span className={`font-mono font-bold ${labelColor}`}>{displayLabel}</span>
-                      <span className="text-[var(--color-text-muted)]">{displayText}</span>
-                    </div>
-                  );
-                })}
-              </div>
-
               <div className="grid gap-2 rounded-md border border-[var(--color-splitter)] bg-[var(--color-cli-bg)] p-3 sm:grid-cols-2 lg:grid-cols-3">
                 <div className="flex items-center gap-2.5">
                   <span className="h-4 w-4 shrink-0 rounded-full border-2 border-[#0b1118] bg-[#34d399]" aria-hidden="true" />
@@ -1933,6 +1905,80 @@ function FlyInDecisionDiagram({ kind, language }: { kind: string; language: 'ja'
   );
 }
 
+function AMazeWallBitsDiagram({ language }: { language: 'ja' | 'en' }) {
+  const ja = language === 'ja';
+
+  return (
+    <div
+      role="img"
+      aria-label={ja
+        ? '北・東・南・西の壁を1・2・4・8の4ビットで管理し、1010では西と東の壁が閉じる例'
+        : 'Four-bit wall model where north, east, south and west use values 1, 2, 4 and 8; 1010 closes west and east'}
+      className="mt-4 overflow-hidden rounded-md border border-[var(--color-splitter)] bg-[var(--color-cli-bg)] p-3"
+    >
+      <div className="grid items-center gap-4 sm:grid-cols-[12rem_minmax(0,1fr)]">
+        <div className="relative mx-auto h-40 w-40 font-mono text-[9px] font-bold text-[var(--color-text)]">
+          <span className="absolute left-1/2 top-0 -translate-x-1/2">N · 1</span>
+          <span className="absolute right-0 top-1/2 -translate-y-1/2">E · 2</span>
+          <span className="absolute bottom-0 left-1/2 -translate-x-1/2">S · 4</span>
+          <span className="absolute left-0 top-1/2 -translate-y-1/2">W · 8</span>
+
+          <div className="absolute inset-7 grid place-items-center bg-[var(--color-bg)] text-center">
+            <span className="absolute inset-x-0 top-0 border-t-2 border-dashed border-[var(--color-text-muted)] opacity-45" />
+            <span className="absolute inset-y-0 right-0 border-r-4 border-[#4f8f67]" />
+            <span className="absolute inset-x-0 bottom-0 border-b-2 border-dashed border-[var(--color-text-muted)] opacity-45" />
+            <span className="absolute inset-y-0 left-0 border-l-4 border-[#4f8f67]" />
+            <div>
+              <p className="text-[var(--color-text-muted)]">Cell</p>
+              <p className="mt-1 text-xs text-[var(--color-cli-text)]">0b1010</p>
+            </div>
+          </div>
+        </div>
+
+        <div className="min-w-0">
+          <div className="grid grid-cols-[4.5rem_repeat(4,minmax(0,1fr))] overflow-hidden rounded-md border border-[var(--color-splitter)] text-center font-mono text-[9px]">
+            <span className="border-b border-r border-[var(--color-splitter)] bg-[var(--color-bg)] px-1 py-2 text-left text-[var(--color-text-muted)]">{ja ? '方向' : 'Direction'}</span>
+            {['W', 'S', 'E', 'N'].map((direction) => (
+              <span key={direction} className="border-b border-r border-[var(--color-splitter)] bg-[var(--color-bg)] px-1 py-2 font-bold last:border-r-0">{direction}</span>
+            ))}
+            <span className="border-b border-r border-[var(--color-splitter)] px-1 py-2 text-left text-[var(--color-text-muted)]">{ja ? '値' : 'Value'}</span>
+            {[8, 4, 2, 1].map((value) => (
+              <span key={value} className="border-b border-r border-[var(--color-splitter)] px-1 py-2 last:border-r-0">{value}</span>
+            ))}
+            <span className="border-r border-[var(--color-splitter)] bg-[#4f8f67]/5 px-1 py-2 text-left text-[var(--color-text-muted)]">0b1010</span>
+            {[1, 0, 1, 0].map((bit, index) => (
+              <span key={`${bit}-${index}`} className={[
+                'border-r border-[var(--color-splitter)] px-1 py-2 font-bold last:border-r-0',
+                bit === 1 ? 'bg-[#4f8f67]/10 text-[var(--color-cli-text)]' : 'text-[var(--color-text-muted)]',
+              ].join(' ')}>{bit}</span>
+            ))}
+          </div>
+
+          <div className="mt-2 flex flex-wrap items-center gap-2 text-[9px]">
+            <span className="rounded-full border border-[#4f8f67] bg-[#4f8f67]/10 px-2 py-1 font-bold text-[var(--color-cli-text)]">
+              1 = {ja ? '壁あり' : 'wall closed'}
+            </span>
+            <span className="rounded-full border border-[var(--color-splitter)] px-2 py-1 text-[var(--color-text-muted)]">
+              0 = {ja ? '通路あり' : 'passage open'}
+            </span>
+            <code className="font-mono font-bold text-[var(--color-text)]">0b1010 = 8 + 2 = 0xA</code>
+          </div>
+          <p className="mt-2 text-[9px] leading-4 text-[var(--color-text-muted)]">
+            {ja ? '西・東の壁が閉じ、北・南は通路として開いている状態' : 'West and east are closed; north and south are open passages.'}
+          </p>
+        </div>
+      </div>
+
+      <div className="mt-3 flex flex-wrap items-center justify-center gap-2 border-t border-[var(--color-splitter)] pt-3 text-center text-[9px]">
+        <span className="rounded border border-[var(--color-splitter)] bg-[var(--color-bg)] px-2 py-1.5">Cell A · E (2) = 0</span>
+        <span aria-hidden="true" className="font-bold text-[var(--color-cli-text)]">↔</span>
+        <span className="rounded border border-[var(--color-splitter)] bg-[var(--color-bg)] px-2 py-1.5">Cell B · W (8) = 0</span>
+        <span className="text-[var(--color-text-muted)]">{ja ? '通路を開くと両方を同時に更新' : 'opening a passage updates both cells'}</span>
+      </div>
+    </div>
+  );
+}
+
 function ProjectTechnicalDetailsPanel({ project, language }: {
   project: PortfolioProject;
   language: 'ja' | 'en';
@@ -2035,6 +2081,9 @@ function ProjectTechnicalDetailsPanel({ project, language }: {
                     )}
                     {item.solutionDiagram?.startsWith('flyin-') && (
                       <FlyInDecisionDiagram kind={item.solutionDiagram} language={language} />
+                    )}
+                    {item.solutionDiagram === 'a-maze-wall-bits' && (
+                      <AMazeWallBitsDiagram language={language} />
                     )}
                   </div>
                 </div>
