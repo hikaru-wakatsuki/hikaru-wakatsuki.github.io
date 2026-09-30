@@ -1675,65 +1675,61 @@ function FlyInDecisionDiagram({ kind, language }: { kind: string; language: 'ja'
             ? implementation ? '混雑を反映して現在地から再探索' : '初期経路だけを使う場合'
             : implementation ? 'Search again from the current position with congestion penalties' : 'When only the initial route is used'}
         </p>
-        <div className="mt-2 grid grid-cols-[3.75rem_1rem_minmax(0,1fr)_1rem_3.75rem] grid-rows-2 items-center gap-x-1.5 gap-y-2">
+        <div className="mt-2 grid grid-cols-[3.75rem_2rem_minmax(0,1fr)_2rem_minmax(0,1fr)_2rem_3.75rem] grid-rows-2 items-center gap-x-1 gap-y-2">
           <div className="row-span-2 row-start-1 flex min-h-20 flex-col items-center justify-center rounded-md border border-[var(--color-splitter)] bg-[var(--color-bg)] px-1.5 py-2 text-center">
             <p className="font-mono text-[9px] font-bold text-[var(--color-text)]">{ja ? '現在地' : 'Current'}</p>
             <span className="mt-1 flex h-7 w-7 items-center justify-center rounded-full border border-[var(--color-cli-text)] font-mono text-[9px] font-bold text-[var(--color-cli-text)]">D1</span>
           </div>
-          <span aria-hidden="true" className="col-start-2 row-start-1 text-center font-bold text-[#ef6b73]">↗</span>
+          <span aria-hidden="true" className="col-start-2 row-start-1 whitespace-nowrap text-center font-mono text-[11px] font-bold text-[#ef6b73]">
+            {implementation ? '···↗' : '──↗'}
+          </span>
           <div className={[
-            'col-start-3 row-start-1 rounded-md border border-[#ef6b73] bg-[#ef6b73]/10 px-2 py-2 text-center',
+            'col-span-3 col-start-3 row-start-1 rounded-md border border-[#ef6b73] bg-[#ef6b73]/10 px-2 py-2 text-center',
             implementation ? 'opacity-60' : '',
           ].join(' ')}>
             <p className="font-mono text-[9px] font-bold text-[var(--color-text)]">Restricted</p>
             <p className="mt-1 text-[9px] font-bold text-[#ef6b73]">
               {implementation ? (ja ? '満員 · Penalty +' : 'full · penalty +') : `1 / 1 · ${ja ? '満員' : 'full'}`}
             </p>
-            <p className="mt-1 text-[8px] text-[#ef6b73]">{ja ? '初期経路' : 'initial route'}</p>
+            <p className="mt-1 text-[8px] text-[#ef6b73]">
+              {implementation ? (ja ? '旧経路' : 'previous route') : (ja ? '現在の経路' : 'current route')}
+            </p>
           </div>
-          <span aria-hidden="true" className="col-start-4 row-start-1 text-center font-bold text-[#ef6b73]">↘</span>
-          <div className="col-start-5 row-span-2 row-start-1 flex min-h-20 items-center justify-center rounded-md border border-[var(--color-splitter)] bg-[var(--color-bg)] px-1.5 py-2 text-center">
+          <span aria-hidden="true" className="col-start-6 row-start-1 whitespace-nowrap text-center font-mono text-[11px] font-bold text-[#ef6b73]">
+            {implementation ? '···↘' : '──↘'}
+          </span>
+          <div className="col-start-7 row-span-2 row-start-1 flex min-h-20 items-center justify-center rounded-md border border-[var(--color-splitter)] bg-[var(--color-bg)] px-1.5 py-2 text-center">
             <p className="font-mono text-[9px] font-bold text-[var(--color-text)]">Goal</p>
           </div>
-          <span aria-hidden="true" className="col-start-2 row-start-2 text-center font-bold text-[#4f8f67]">↘</span>
+          <span aria-hidden="true" className="col-start-2 row-start-2 whitespace-nowrap text-center font-mono text-[11px] font-bold text-[#4f8f67]">
+            {implementation ? '──↘' : '···↘'}
+          </span>
           <div className={[
-            'col-start-3 row-start-2 flex min-w-0 items-center gap-1 rounded-md border border-[#4f8f67] bg-[#4f8f67]/10 px-1.5 py-2',
+            'col-start-3 row-start-2 min-w-0 rounded-md border border-[#4f8f67] bg-[#4f8f67]/10 px-1.5 py-2 text-center',
             implementation ? '' : 'opacity-65',
           ].join(' ')}>
-            <div className="min-w-0 flex-1 text-center">
-              <p className="truncate font-mono text-[9px] font-bold text-[var(--color-text)]">Normal A</p>
-              <p className="mt-1 text-[8px] text-[var(--color-text-muted)]">0 / 2</p>
-            </div>
-            <span aria-hidden="true" className="shrink-0 font-bold text-[#4f8f67]">→</span>
-            <div className="min-w-0 flex-1 text-center">
-              <p className="truncate font-mono text-[9px] font-bold text-[var(--color-text)]">Normal B</p>
-              <p className="mt-1 text-[8px] font-bold text-[var(--color-cli-text)]">
-                {implementation ? (ja ? '再探索後' : 'new route') : (ja ? '空き' : 'open')}
-              </p>
-            </div>
+            <p className="truncate font-mono text-[9px] font-bold text-[var(--color-text)]">Normal A</p>
+            <p className="mt-1 text-[8px] text-[var(--color-text-muted)]">0 / 2</p>
+            <p className="mt-1 text-[8px] font-bold text-[var(--color-cli-text)]">
+              {implementation ? (ja ? '再探索で選択' : 'selected by rerouting') : (ja ? '迂回路' : 'detour')}
+            </p>
           </div>
-          <span aria-hidden="true" className="col-start-4 row-start-2 text-center font-bold text-[#4f8f67]">↗</span>
+          <span aria-hidden="true" className="col-start-4 row-start-2 whitespace-nowrap text-center font-mono text-[11px] font-bold text-[#4f8f67]">
+            {implementation ? '──→' : '···→'}
+          </span>
+          <div className={[
+            'col-start-5 row-start-2 min-w-0 rounded-md border border-[#4f8f67] bg-[#4f8f67]/10 px-1.5 py-2 text-center',
+            implementation ? '' : 'opacity-65',
+          ].join(' ')}>
+            <p className="truncate font-mono text-[9px] font-bold text-[var(--color-text)]">Normal B</p>
+            <p className="mt-1 text-[8px] text-[var(--color-text-muted)]">0 / 2</p>
+          </div>
+          <span aria-hidden="true" className="col-start-6 row-start-2 whitespace-nowrap text-center font-mono text-[11px] font-bold text-[#4f8f67]">
+            {implementation ? '──↗' : '···↗'}
+          </span>
         </div>
 
-        {implementation ? (
-          <>
-            <div className="mt-3 grid grid-cols-[1fr_auto_1fr_auto_1fr] items-center gap-1.5 border-t border-[var(--color-splitter)] pt-2.5 text-center text-[9px] text-[var(--color-text-muted)]">
-              <span className="rounded border border-[var(--color-splitter)] px-1.5 py-1.5">{ja ? 'Dijkstra法で再探索' : 'rerun Dijkstra'}</span>
-              <span aria-hidden="true">→</span>
-              <span className="rounded border border-[var(--color-splitter)] px-1.5 py-1.5">{ja ? '経路を置き換え' : 'replace route'}</span>
-              <span aria-hidden="true">→</span>
-              <span className="rounded border border-[#4f8f67] bg-[#4f8f67]/10 px-1.5 py-1.5">{ja ? '最初の移動先を再確認' : 'recheck first move'}</span>
-            </div>
-            <div className="mt-2 flex justify-center gap-2 text-[9px] font-bold">
-              <span className="rounded-full border border-[#4f8f67] bg-[#4f8f67]/10 px-2.5 py-1 text-[var(--color-cli-text)]">
-                {ja ? '移動可能 → 迂回路を進む' : 'available → follow detour'}
-              </span>
-              <span className="rounded-full border border-[var(--color-splitter)] px-2.5 py-1 text-[var(--color-text-muted)]">
-                {ja ? '移動不可 → そのターンは待機' : 'blocked → wait this turn'}
-              </span>
-            </div>
-          </>
-        ) : (
+        {!implementation && (
           <p className="mt-3 rounded-md border border-[#ef6b73] bg-[#ef6b73]/10 px-2.5 py-2 text-center text-[9px] font-bold text-[#ef6b73]">
             {ja ? '迂回路があっても、進めない初期経路を待ち続ける' : 'The drone keeps waiting on the blocked initial route despite the open detour'}
           </p>
