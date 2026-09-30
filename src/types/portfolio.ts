@@ -29,7 +29,8 @@ export interface ProjectTechnicalCaseStudy {
   challengeDiagram?: 'codexion-circular-wait' | 'codexion-partial-ownership' | 'codexion-log-interleaving'
     | 'flyin-unreserved-arrivals' | 'flyin-blocked-route';
   solutionDiagram?: 'codexion-lock-order' | 'codexion-atomic-pair' | 'codexion-priority-heap' | 'codexion-log-mutex' | 'codexion-monitor-loop'
-    | 'flyin-weighted-route' | 'flyin-capacity-state' | 'flyin-reroute' | 'a-maze-wall-bits';
+    | 'flyin-weighted-route' | 'flyin-capacity-state' | 'flyin-reroute' | 'a-maze-wall-bits'
+    | 'a-maze-perfect-tree' | 'a-maze-imperfect-extra';
 }
 
 export interface ProjectDemoGuide {
