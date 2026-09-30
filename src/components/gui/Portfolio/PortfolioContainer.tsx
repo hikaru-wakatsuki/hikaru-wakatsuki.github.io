@@ -478,22 +478,10 @@ const PROJECTS: PortfolioProject[] = [
             "title": "生成方式から独立して最短経路を求める",
             "challenge": "DFSやBFSによる迷路の生成順序は、完成した迷路上の最短経路とは一致しない。生成アルゴリズムを切り替えても同じ方法で解ける仕組みが必要になる。",
             "solution": "生成処理とは別に、完成した迷路を対象とするBFSを実装。Startから通行可能なセルを探索し、各セルへ到達した直前のセルを記録。Goalから逆にたどって経路を復元し、N・E・S・Wの列として出力した。"
-          },
-          {
-            "title": "生成結果を再利用できる形式へ分離する",
-            "challenge": "迷路生成と画面描画が密結合すると、生成処理だけを別のプログラムから利用しにくい。壁情報、開始・終了座標、経路を一貫した形式で受け渡す必要もある。",
-            "solution": "各セルの4ビット壁情報を1桁の16進数へ変換し、Start、Goal、最短経路とともにファイルへ出力。生成処理をMazeGeneratorとして可視化から分離し、wheelとsource distributionへビルドできるmazegenパッケージにまとめた。"
           }
         ],
-        "verification": [
-          "同一Seedの再現性、DFS/BFSの有効な経路、隣接壁の一致、閉じた外周、Perfect Mazeの木構造をテスト",
-          "Imperfect時の追加辺と3×3完全開放の防止、18セルの「42」保護、16進出力形式、復元経路がExitへ到達することを検証",
-          "設定パース、範囲外座標、重複キー、不正アルゴリズム、読み込み後のグリッド/経路データも検証"
-        ],
-        "limitations": [
-          "DFSは再帰実装のため、非常に大きな迷路ではPythonの再帰上限の影響を受ける",
-          "Imperfect Mazeの追加通路はヒューリスティックで、全迷路からの一様サンプリングではない。MLX可視化は互換環境が必要"
-        ]
+        "verification": [],
+        "limitations": []
       },
       "en": {
         "caseStudies": [
@@ -536,15 +524,10 @@ const PROJECTS: PortfolioProject[] = [
             "title": "Solve the shortest route independently of generation",
             "challenge": "The order used to generate a maze is not necessarily its shortest solution and must not tie solving to DFS or BFS generation.",
             "solution": "A separate BFS records each predecessor in the completed maze. It reconstructs from Goal to Start and writes the route as N, E, S and W directions."
-          },
-          {
-            "title": "Separate reusable maze data from visualization",
-            "challenge": "Generation should remain reusable without MLX while preserving walls, endpoints and route data through one stable contract.",
-            "solution": "Each four-bit cell is written as one hexadecimal digit followed by Start, Goal and the route. MazeGenerator is separated from visualization and packaged as wheel and source distributions."
           }
         ],
-        "verification": ["Tests cover deterministic seeds, DFS/BFS routes, wall symmetry, closed boundaries and the perfect-maze tree invariant.", "They also cover imperfect connections, 3x3 prevention, all 18 protected cells, hexadecimal output and loaded route validation."],
-        "limitations": ["Recursive DFS can reach Python's recursion limit on very large mazes.", "Imperfect-mode passages are heuristic rather than uniformly sampled; MLX visualization requires a compatible environment."]
+        "verification": [],
+        "limitations": []
       }
     }
   },
